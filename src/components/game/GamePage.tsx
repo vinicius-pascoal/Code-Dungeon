@@ -4,6 +4,7 @@ import DungeonGrid from './DungeonGrid'
 import Legend from './Legend'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
+import CodeEditor from './CodeEditor'
 import { getLevelById, levels } from '../../data/levels'
 import { parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
@@ -281,7 +282,7 @@ export default function GamePage() {
   const nextLevel = levels.find((level) => level.id === selectedLevel.id + 1)
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="flex flex-col h-screen bg-bg">
       <VictoryModal
         isOpen={victoryState.open}
         levelName={selectedLevel.name}
@@ -300,7 +301,7 @@ export default function GamePage() {
         onRetry={onRetryFromModal}
       />
 
-      <header className="flex items-center justify-between mb-4">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-border">
         <div>
           <h1 className="text-2xl font-bold">Code Dungeon — Fase {selectedLevel.id}</h1>
           <p className="text-sm text-secondaryText">{selectedLevel.name}</p>
@@ -312,45 +313,56 @@ export default function GamePage() {
       </header>
 
       {!levelIsPlayable ? (
-        <div className="mb-4 rounded-md border border-border bg-black/20 p-4 text-sm text-secondaryText">
+        <div className="px-6 py-3 border border-border bg-black/20 text-sm text-secondaryText">
           Esta fase é um preview do próximo mundo. Ela já aparece na lista para organizar a progressão,
           mas ainda está bloqueada enquanto os recursos de loops, if e funções são ampliados.
         </div>
       ) : null}
 
-      <main className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-4">
-          <div className="panel p-4 rounded-md">
-            <h2 className="font-semibold mb-2">Objetivo</h2>
-            <p className="text-sm text-secondaryText">{selectedLevel.objective}</p>
-            <div className="mt-3 text-sm">
-              <span className="text-secondaryText">Comandos disponíveis: </span>
+      <main className="flex-1 grid grid-cols-2 gap-3 p-3 overflow-hidden">
+        {/* Grid - top left */}
+        <div className="flex flex-col gap-3 overflow-hidden">
+          <div className="panel p-3 rounded-md flex-shrink-0">
+            <h2 className="font-semibold text-sm mb-2">Objetivo</h2>
+            <p className="text-xs text-secondaryText">{selectedLevel.objective}</p>
+            <div className="mt-2 text-xs">
+              <span className="text-secondaryText">Comandos: </span>
               <span>{selectedLevel.availableCommands.join(', ')}</span>
             </div>
           </div>
 
-          <DungeonGrid level={selectedLevel} playerX={player.x} playerY={player.y} enemies={enemies} />
-          <div className="mt-3">
-            <Legend />
+          <div className="flex-1 overflow-hidden">
+            <DungeonGrid level={selectedLevel} playerX={player.x} playerY={player.y} enemies={enemies} />
           </div>
         </div>
 
-        <div className="panel p-4 rounded-md">
-          <h2 className="font-semibold mb-2">Editor</h2>
-          <textarea
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            className="w-full h-56 p-2 bg-panel text-primaryText rounded"
-          />
+        {/* Editor - top right */}
+        <div className="panel p-3 rounded-md flex flex-col overflow-hidden">
+          <h2 className="font-semibold text-sm mb-2">Editor</h2>
+          <div className="flex-1 overflow-hidden">
+            <CodeEditor value={code} onChange={setCode} disabled={running} />
+          </div>
+        </div>
 
-          <h3 className="mt-4 font-semibold">Console</h3>
-          <div className="mt-2 p-2 bg-black/40 rounded h-40 overflow-auto">
+        {/* Bottom row */}
+      </main>
+
+      <div className="grid grid-cols-2 gap-3 p-3 h-40 flex-shrink-0">
+        {/* Legend - bottom left */}
+        <div className="overflow-auto">
+          <Legend />
+        </div>
+
+        {/* Console - bottom right */}
+        <div className="panel p-3 rounded-md overflow-auto">
+          <h3 className="font-semibold text-sm mb-2">Console</h3>
+          <div className="font-mono text-xs space-y-1">
             {logs.map((l, i) => (
-              <div key={i} className="text-sm">{l}</div>
+              <div key={i} className="console-log">{l}</div>
             ))}
           </div>
         </div>
-      </main>
+      </div>
     </div>
   )
 }

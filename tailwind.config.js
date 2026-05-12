@@ -4,6 +4,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        mono: ['Fira Code', 'Monaco', 'Courier New', 'monospace'],
       },
       colors: {
         bg: '#0F172A',

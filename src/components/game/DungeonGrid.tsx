@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Enemy, Level, TileType } from '../../types/game'
 
 type Props = {
@@ -38,42 +38,55 @@ function renderTile(tile: TileType) {
 export default function DungeonGrid({ level, playerX, playerY, enemies }: Props) {
   const cols = level.grid[0]?.length || 0
 
+  const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const onResize = () => setViewportWidth(window.innerWidth)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  const maxWidth = Math.min(viewportWidth, cols * 48)
+
   return (
     <div className="panel p-4 rounded-md">
-      <div className="grid gap-0" style={{ gridTemplateColumns: `repeat(${cols}, 40px)` }}>
-        {level.grid.flatMap((row, y) =>
-          row.map((tile, x) => {
-            const isPlayer = x === playerX && y === playerY
-            const key = `${x}-${y}`
-            const base = 'dungeon-tile flex items-center justify-center border border-border'
-            const enemy = enemyAt(enemies, x, y)
+      <div className="dungeon-grid-wrapper mx-auto" style={{ maxWidth: `${maxWidth}px` }}>
+        <div className="grid gap-0" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          {level.grid.flatMap((row, y) =>
+            row.map((tile, x) => {
+              const isPlayer = x === playerX && y === playerY
+              const key = `${x}-${y}`
+              const base = 'dungeon-tile flex items-center justify-center border border-border'
+              const enemy = enemyAt(enemies, x, y)
 
-            if (isPlayer) {
-              return (
-                <div key={key} className={base + ' bg-magic text-bg font-bold'}>
-                  P
-                </div>
-              )
-            }
-
-            if (enemy) {
-              return (
-                <div key={key} className={base + ' bg-danger text-bg font-bold'}>
-                  M
-                </div>
-              )
-            }
-
-            switch (tile) {
-              default:
+              if (isPlayer) {
                 return (
-                  <div key={key} className={base + ` ${renderTile(tile)}`}>
-                    {tile === 'EXIT' ? 'E' : tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
+                  <div key={key} className={base + ' bg-magic text-bg font-bold'}>
+                    P
                   </div>
                 )
-            }
-          })
-        )}
+              }
+
+              if (enemy) {
+                return (
+                  <div key={key} className={base + ' bg-danger text-bg font-bold'}>
+                    M
+                  </div>
+                )
+              }
+
+              switch (tile) {
+                default:
+                  return (
+                    <div key={key} className={base + ` ${renderTile(tile)}`}>
+                      {tile === 'EXIT' ? 'E' : tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
+                    </div>
+                  )
+              }
+            })
+          )}
+        </div>
       </div>
     </div>
   )
