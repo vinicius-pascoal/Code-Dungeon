@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#__next {
+  height: 100%;
+}
+
+body {
+  @apply bg-bg text-primaryText antialiased;
+}
+
+.panel {
+  background-color: theme('colors.panel');
+}
+
+.dungeon-tile {
+  width: 40px;
+  height: 40px;
+}
