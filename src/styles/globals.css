@@ -9,14 +9,40 @@ body,
 }
 
 body {
-  @apply bg-bg text-primaryText antialiased;
+  @apply bg-bg text-primaryText antialiased font-sans;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .panel {
   background-color: theme('colors.panel');
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .dungeon-tile {
   width: 40px;
   height: 40px;
+}
+
+/* Header */
+.site-header {
+  @apply bg-panel text-primaryText border-b border-border;
+}
+
+.site-container {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.btn {
+  @apply inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-floor text-primaryText border border-border;
+}
+
+.modal-backdrop {
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.9));
 }
