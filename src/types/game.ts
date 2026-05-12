@@ -34,6 +34,7 @@ export type StarRules = {
 
 export type Level = {
   id: number
+  worldId?: number
   name: string
   description: string
   objective: string
@@ -42,6 +43,16 @@ export type Level = {
   grid: TileType[][]
   enemies: Enemy[]
   starRules: StarRules
+  concepts?: string[]
+  isPlayable?: boolean
+}
+
+export type World = {
+  id: number
+  name: string
+  description: string
+  theme: string
+  levelIds: number[]
 }
 
 export type GameState = {

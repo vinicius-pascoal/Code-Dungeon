@@ -164,6 +164,7 @@ export default function GamePage() {
     const parsedLevel = Number(rawLevel ?? 1)
     return getLevelById(Number.isFinite(parsedLevel) ? parsedLevel : 1)
   }, [router.query.level])
+  const levelIsPlayable = selectedLevel.isPlayable !== false
 
   const [code, setCode] = useState(starterCode(selectedLevel.id))
   const [logs, setLogs] = useState<string[]>([])
@@ -206,6 +207,16 @@ export default function GamePage() {
   }
 
   async function onRun() {
+    if (!levelIsPlayable) {
+      setErrorState({
+        open: true,
+        title: 'Fase em desenvolvimento',
+        reason: 'Este nível faz parte de um mundo futuro e ainda não está jogável.',
+        suggestion: 'Escolha uma fase marcada como Jogável na tela de mundos.',
+      })
+      return
+    }
+
     setLogs([])
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
@@ -298,6 +309,13 @@ export default function GamePage() {
           <button onClick={onRun} disabled={running} className="px-3 py-1 bg-magic rounded">Executar</button>
         </div>
       </header>
+
+      {!levelIsPlayable ? (
+        <div className="mb-4 rounded-md border border-border bg-black/20 p-4 text-sm text-secondaryText">
+          Esta fase é um preview do próximo mundo. Ela já aparece na lista para organizar a progressão,
+          mas ainda está bloqueada enquanto os recursos de loops, if e funções são ampliados.
+        </div>
+      ) : null}
 
       <main className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="space-y-4">
