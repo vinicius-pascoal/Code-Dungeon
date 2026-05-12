@@ -1,14 +1,41 @@
 import React from 'react'
-import { Level } from '../../types/game'
+import { Enemy, Level, TileType } from '../../types/game'
 
 type Props = {
   level: Level
   playerX: number
   playerY: number
+  enemies: Enemy[]
 }
 
-export default function DungeonGrid({ level, playerX, playerY }: Props) {
-  const rows = level.grid.length
+function enemyAt(enemies: Enemy[], x: number, y: number) {
+  return enemies.find((enemy) => !enemy.defeated && enemy.x === x && enemy.y === y)
+}
+
+function renderTile(tile: TileType) {
+  switch (tile) {
+    case 'WALL':
+      return 'bg-wall'
+    case 'EXIT':
+      return 'bg-success text-bg font-bold'
+    case 'SPIKE':
+      return 'bg-danger text-bg'
+    case 'KEY':
+      return 'bg-treasure text-bg font-bold'
+    case 'DOOR':
+      return 'bg-wood text-primaryText font-bold'
+    case 'OPEN_DOOR':
+      return 'bg-wood/60 text-primaryText'
+    case 'CHEST':
+      return 'bg-treasure text-bg font-bold'
+    case 'OPEN_CHEST':
+      return 'bg-treasure/60 text-bg'
+    default:
+      return 'bg-floor'
+  }
+}
+
+export default function DungeonGrid({ level, playerX, playerY, enemies }: Props) {
   const cols = level.grid[0]?.length || 0
 
   return (
@@ -19,6 +46,8 @@ export default function DungeonGrid({ level, playerX, playerY }: Props) {
             const isPlayer = x === playerX && y === playerY
             const key = `${x}-${y}`
             const base = 'dungeon-tile flex items-center justify-center border border-border'
+            const enemy = enemyAt(enemies, x, y)
+
             if (isPlayer) {
               return (
                 <div key={key} className={base + ' bg-magic text-bg font-bold'}>
@@ -27,21 +56,21 @@ export default function DungeonGrid({ level, playerX, playerY }: Props) {
               )
             }
 
+            if (enemy) {
+              return (
+                <div key={key} className={base + ' bg-danger text-bg font-bold'}>
+                  M
+                </div>
+              )
+            }
+
             switch (tile) {
-              case 'WALL':
-                return (
-                  <div key={key} className={base + ' bg-wall'} />
-                )
-              case 'EXIT':
-                return (
-                  <div key={key} className={base + ' bg-success text-bg font-bold'}>E</div>
-                )
-              case 'SPIKE':
-                return (
-                  <div key={key} className={base + ' bg-danger text-bg'}>^</div>
-                )
               default:
-                return <div key={key} className={base + ' bg-floor'} />
+                return (
+                  <div key={key} className={base + ` ${renderTile(tile)}`}>
+                    {tile === 'EXIT' ? 'E' : tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
+                  </div>
+                )
             }
           })
         )}

@@ -18,4 +18,6 @@ export const levelOne: Level = {
     ['WALL', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
+  enemies: [],
+  starRules: { threeStars: 2, twoStars: 3 },
 }

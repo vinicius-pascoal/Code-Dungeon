@@ -1,9 +1,7 @@
 import Link from 'next/link'
-import { levelOne } from '../data/levels/level-01'
+import { levels } from '../data/levels'
 
 export default function Levels() {
-  const levels = [levelOne]
-
   return (
     <div className="min-h-screen p-6">
       <header className="flex items-center justify-between mb-6">
@@ -19,9 +17,10 @@ export default function Levels() {
             <div>
               <div className="font-semibold">{l.name}</div>
               <div className="text-sm text-secondaryText">{l.description}</div>
+              <div className="mt-1 text-xs text-secondaryText">Objetivo: {l.objective}</div>
             </div>
             <div className="space-x-2">
-              <Link href="/game" className="px-3 py-1 bg-magic rounded">
+              <Link href={`/game?level=${l.id}`} className="px-3 py-1 bg-magic rounded">
                 Jogar
               </Link>
             </div>

@@ -11,12 +11,25 @@ export type TileType =
 
 export type Direction = 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
 
+export type EntityType = 'PLAYER' | 'ENEMY'
+
 export type PlayerState = {
   x: number
   y: number
   direction: Direction
   keys: number
   openedChests: number
+}
+
+export type Enemy = {
+  x: number
+  y: number
+  defeated: boolean
+}
+
+export type StarRules = {
+  threeStars: number
+  twoStars: number
 }
 
 export type Level = {
@@ -27,4 +40,12 @@ export type Level = {
   availableCommands: string[]
   playerStart: PlayerState
   grid: TileType[][]
+  enemies: Enemy[]
+  starRules: StarRules
+}
+
+export type GameState = {
+  grid: TileType[][]
+  player: PlayerState
+  enemies: Enemy[]
 }
