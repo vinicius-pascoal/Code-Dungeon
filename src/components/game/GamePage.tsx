@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import DungeonGrid from './DungeonGrid'
+import Legend from './Legend'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
 import { getLevelById, levels } from '../../data/levels'
@@ -329,6 +330,9 @@ export default function GamePage() {
           </div>
 
           <DungeonGrid level={selectedLevel} playerX={player.x} playerY={player.y} enemies={enemies} />
+          <div className="mt-3">
+            <Legend />
+          </div>
         </div>
 
         <div className="panel p-4 rounded-md">
