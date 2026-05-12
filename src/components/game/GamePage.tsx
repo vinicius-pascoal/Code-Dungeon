@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import DungeonGrid from './DungeonGrid'
-import { getLevelById } from '../../data/levels'
+import VictoryModal from './VictoryModal'
+import ErrorModal from './ErrorModal'
+import { getLevelById, levels } from '../../data/levels'
 import { parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
 import { Enemy, TileType } from '../../types/game'
@@ -12,6 +14,122 @@ function cloneGrid(grid: TileType[][]) {
 
 function cloneEnemies(enemies: Enemy[]) {
   return enemies.map((enemy) => ({ ...enemy }))
+}
+
+type ExecutionErrorInfo = {
+  title: string
+  reason: string
+  suggestion: string
+  commandLabel?: string
+}
+
+function parseErrorInfo(message: string): ExecutionErrorInfo {
+  const commandMatch = message.match(/comando\s+(\d+):\s*([a-zA-Z0-9_]+\(\))/i)
+  const commandLabel = commandMatch ? `Comando ${commandMatch[1]}: ${commandMatch[2]}` : undefined
+
+  if (message.includes('Nenhum comando detectado')) {
+    return {
+      title: 'Nada para executar',
+      reason: 'O editor não contém comandos válidos para rodar.',
+      suggestion: 'Escreva pelo menos um comando permitido, como moveForward();.',
+    }
+  }
+
+  if (message.includes('Comando inválido')) {
+    return {
+      title: 'Comando inválido',
+      reason: message,
+      suggestion: 'Use apenas os comandos liberados para a fase atual.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('fora do mapa')) {
+    return {
+      title: 'Movimento fora do mapa',
+      reason: message,
+      suggestion: 'Revise a rota e evite caminhar além dos limites da fase.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('Parede à frente')) {
+    return {
+      title: 'Parede bloqueando o caminho',
+      reason: message,
+      suggestion: 'Vire antes de avançar ou repense a sequência de comandos.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('espinhos')) {
+    return {
+      title: 'Você pisou em espinhos',
+      reason: message,
+      suggestion: 'Interrompa o avanço direto e busque uma rota segura.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('inimigo')) {
+    return {
+      title: 'Inimigo bloqueando o caminho',
+      reason: message,
+      suggestion: 'Use attack() antes de tentar avançar.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('chave')) {
+    return {
+      title: 'Chave necessária',
+      reason: message,
+      suggestion: 'Colete a chave primeiro com grabKey().',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('porta')) {
+    return {
+      title: 'Porta bloqueada',
+      reason: message,
+      suggestion: 'Garanta que há uma porta à frente e que você possui chave.',
+      commandLabel,
+    }
+  }
+
+  if (message.includes('baú')) {
+    return {
+      title: 'Baú indisponível',
+      reason: message,
+      suggestion: 'Posicione o personagem em frente ao baú antes de abrir.',
+      commandLabel,
+    }
+  }
+
+  return {
+    title: 'Erro na execução',
+    reason: message,
+    suggestion: 'Revise a sequência de comandos e tente novamente.',
+    commandLabel,
+  }
+}
+
+function calculateStars(commandCount: number, levelId: number) {
+  const level = levels.find((item) => item.id === levelId)
+  if (!level) {
+    return 1
+  }
+
+  if (commandCount <= level.starRules.threeStars) {
+    return 3
+  }
+
+  if (commandCount <= level.starRules.twoStars) {
+    return 2
+  }
+
+  return 1
 }
 
 function starterCode(levelId: number) {
@@ -52,7 +170,24 @@ export default function GamePage() {
   const [player, setPlayer] = useState(selectedLevel.playerStart)
   const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
   const [enemies, setEnemies] = useState(() => cloneEnemies(selectedLevel.enemies))
+  const [commandCount, setCommandCount] = useState(0)
   const [running, setRunning] = useState(false)
+  const [victoryState, setVictoryState] = useState<{ open: boolean; stars: number }>({
+    open: false,
+    stars: 0,
+  })
+  const [errorState, setErrorState] = useState<{
+    open: boolean
+    title: string
+    reason: string
+    suggestion: string
+    commandLabel?: string
+  }>({
+    open: false,
+    title: '',
+    reason: '',
+    suggestion: '',
+  })
 
   useEffect(() => {
     setCode(starterCode(selectedLevel.id))
@@ -60,7 +195,10 @@ export default function GamePage() {
     setPlayer(selectedLevel.playerStart)
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setCommandCount(0)
     setRunning(false)
+    setVictoryState({ open: false, stars: 0 })
+    setErrorState({ open: false, title: '', reason: '', suggestion: '' })
   }, [selectedLevel])
 
   function addLog(line: string) {
@@ -69,9 +207,14 @@ export default function GamePage() {
 
   async function onRun() {
     setLogs([])
+    setVictoryState({ open: false, stars: 0 })
+    setErrorState({ open: false, title: '', reason: '', suggestion: '' })
+    setCommandCount(0)
     const parsed = parseCommands(code)
     if ((parsed as any).error) {
-      addLog((parsed as any).error)
+      const errorInfo = parseErrorInfo((parsed as any).error)
+      setErrorState({ open: true, ...errorInfo })
+      addLog(errorInfo.reason)
       return
     }
     const commands = (parsed as any).commands as string[]
@@ -84,15 +227,25 @@ export default function GamePage() {
         setPlayer({ ...p })
         setGrid(nextGrid)
         setEnemies(nextEnemies)
+        setCommandCount((current) => current + 1)
       },
       (err) => {
-        addLog(`Erro: ${err}`)
+        const errorInfo = parseErrorInfo(err)
+        setErrorState({ open: true, ...errorInfo })
+        addLog(errorInfo.reason)
         setRunning(false)
       },
-      (final) => {
-        addLog('Execução finalizada')
+      ({ player: final, won }) => {
         setPlayer({ ...final })
         setRunning(false)
+        if (won) {
+          const stars = calculateStars(commands.length, selectedLevel.id)
+          setVictoryState({ open: true, stars })
+          addLog('Fase concluída com sucesso')
+          return
+        }
+
+        addLog('Execução finalizada')
       }
     )
   }
@@ -101,13 +254,40 @@ export default function GamePage() {
     setPlayer(selectedLevel.playerStart)
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setCommandCount(0)
     setLogs([])
     setRunning(false)
     setCode(starterCode(selectedLevel.id))
+    setVictoryState({ open: false, stars: 0 })
+    setErrorState({ open: false, title: '', reason: '', suggestion: '' })
   }
+
+  function onRetryFromModal() {
+    onReset()
+  }
+
+  const nextLevel = levels.find((level) => level.id === selectedLevel.id + 1)
 
   return (
     <div className="min-h-screen p-6">
+      <VictoryModal
+        isOpen={victoryState.open}
+        levelName={selectedLevel.name}
+        stars={victoryState.stars}
+        commandCount={commandCount}
+        onRetry={onRetryFromModal}
+        nextLevelHref={nextLevel ? `/game?level=${nextLevel.id}` : undefined}
+      />
+
+      <ErrorModal
+        isOpen={errorState.open}
+        title={errorState.title}
+        commandLabel={errorState.commandLabel}
+        reason={errorState.reason}
+        suggestion={errorState.suggestion}
+        onRetry={onRetryFromModal}
+      />
+
       <header className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold">Code Dungeon — Fase {selectedLevel.id}</h1>

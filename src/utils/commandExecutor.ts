@@ -1,4 +1,4 @@
-import { Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
+import { Direction, Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
 
 type StepCallback = (info: {
   command: string
@@ -30,16 +30,16 @@ function deltaFor(direction: string) {
   }
 }
 
-function turnLeft(dir: string) {
+function turnLeft(dir: Direction): Direction {
   const order = ['UP', 'LEFT', 'DOWN', 'RIGHT']
   const i = order.indexOf(dir)
-  return order[(i + 1) % 4]
+  return order[(i + 1) % 4] as Direction
 }
 
-function turnRight(dir: string) {
+function turnRight(dir: Direction): Direction {
   const order = ['UP', 'RIGHT', 'DOWN', 'LEFT']
   const i = order.indexOf(dir)
-  return order[(i + 1) % 4]
+  return order[(i + 1) % 4] as Direction
 }
 
 export async function executeCommands(
@@ -47,7 +47,7 @@ export async function executeCommands(
   level: Level,
   onStep: StepCallback,
   onError: (msg: string) => void,
-  onComplete: (player: PlayerState) => void
+  onComplete: (result: { player: PlayerState; won: boolean }) => void
 ) {
   const state: GameState = {
     grid: cloneGrid(level.grid),
@@ -163,7 +163,7 @@ export async function executeCommands(
 
     // Vitória?
     if (state.grid[state.player.y] && state.grid[state.player.y][state.player.x] === 'EXIT') {
-      onComplete(state.player)
+      onComplete({ player: state.player, won: true })
       return
     }
 
@@ -171,5 +171,5 @@ export async function executeCommands(
     await new Promise((r) => setTimeout(r, 300))
   }
 
-  onComplete(state.player)
+  onComplete({ player: state.player, won: false })
 }
