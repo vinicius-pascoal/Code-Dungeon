@@ -11,15 +11,15 @@ export default function Home() {
         <p className="text-secondaryText mb-6">Explore dungeons by writing code.</p>
 
         <div className="space-x-3 mb-6">
-          <Link href="/game" className="px-4 py-2 bg-magic text-bg rounded font-medium">
+          <Link href="/game" className="px-4 py-2.5 bg-magic text-bg rounded-md border border-magic hover:bg-blue-600 transition-colors inline-block font-medium">
             Jogar
           </Link>
 
-          <button onClick={() => setShowHow(true)} className="px-4 py-2 bg-border rounded">
+          <button onClick={() => setShowHow(true)} className="px-4 py-2.5 bg-floor text-primaryText rounded-md border border-border hover:bg-wall transition-colors font-medium">
             Como jogar
           </button>
 
-          <Link href="/levels" className="px-4 py-2 bg-border rounded">
+          <Link href="/levels" className="px-4 py-2.5 bg-floor text-primaryText rounded-md border border-border hover:bg-wall transition-colors inline-block font-medium">
             Fases
           </Link>
         </div>
@@ -31,16 +31,16 @@ export default function Home() {
       </div>
 
       {showHow && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50">
-          <div className="w-full max-w-2xl p-6 panel rounded-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
+          <div className="w-full max-w-2xl p-6 panel rounded-md border border-border">
             <h2 className="text-xl font-semibold mb-2">Como jogar</h2>
             <p className="text-sm text-secondaryText mb-3">
-              Escreva comandos como <code>moveForward();</code> e pressione <strong>Executar</strong>.
+              Escreva comandos como <code className="font-mono bg-bg px-1 py-0.5 rounded">moveForward();</code> e pressione <strong>Executar</strong>.
               O personagem seguirá os comandos em sequência. Em caso de erro, a execução será
               interrompida e uma mensagem aparecerá no console.
             </p>
             <div className="flex justify-end">
-              <button onClick={() => setShowHow(false)} className="px-3 py-1 bg-magic rounded">
+              <button onClick={() => setShowHow(false)} className="px-3 py-1.5 bg-magic text-bg rounded-md border border-magic hover:bg-blue-600 transition-colors">
                 Fechar
               </button>
             </div>

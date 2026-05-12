@@ -6,7 +6,7 @@ export default function Levels() {
     <div className="min-h-screen p-6">
       <header className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Fases</h1>
-        <Link href="/" className="px-3 py-1 bg-border rounded">
+        <Link href="/" className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">
           Voltar
         </Link>
       </header>
@@ -51,11 +51,11 @@ export default function Levels() {
                     </div>
                     <div className="space-x-2">
                       {level.isPlayable !== false ? (
-                        <Link href={`/game?level=${level.id}`} className="px-3 py-1 bg-magic rounded">
+                        <Link href={`/game?level=${level.id}`} className="px-3 py-1.5 bg-magic text-bg border border-magic rounded-md hover:bg-blue-600 transition-colors inline-block">
                           Jogar
                         </Link>
                       ) : (
-                        <span className="inline-flex px-3 py-1 rounded bg-border text-secondaryText">
+                        <span className="inline-flex px-3 py-1.5 rounded-md bg-border text-secondaryText">
                           Bloqueado
                         </span>
                       )}

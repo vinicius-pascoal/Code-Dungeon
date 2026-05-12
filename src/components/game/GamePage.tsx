@@ -301,14 +301,14 @@ export default function GamePage() {
         onRetry={onRetryFromModal}
       />
 
-      <header className="flex items-center justify-between px-6 py-4 border-b border-border">
+      <header className="flex items-center justify-between px-6 py-4 bg-panel border-b border-border">
         <div>
           <h1 className="text-2xl font-bold">Code Dungeon — Fase {selectedLevel.id}</h1>
           <p className="text-sm text-secondaryText">{selectedLevel.name}</p>
         </div>
         <div className="space-x-2">
-          <button onClick={onReset} className="px-3 py-1 bg-border rounded">Resetar</button>
-          <button onClick={onRun} disabled={running} className="px-3 py-1 bg-magic rounded">Executar</button>
+          <button onClick={onReset} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Resetar</button>
+          <button onClick={onRun} disabled={running} className="px-3 py-1.5 bg-magic text-bg border border-magic rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50">Executar</button>
         </div>
       </header>
 
@@ -358,7 +358,7 @@ export default function GamePage() {
           <h3 className="font-semibold text-sm mb-2">Console</h3>
           <div className="font-mono text-xs space-y-1">
             {logs.map((l, i) => (
-              <div key={i} className="console-log">{l}</div>
+              <div key={i} className="text-slate-300 leading-relaxed">{l}</div>
             ))}
           </div>
         </div>

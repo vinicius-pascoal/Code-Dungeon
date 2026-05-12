@@ -50,14 +50,14 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
   const maxWidth = Math.min(viewportWidth, cols * 48)
 
   return (
-    <div className="panel p-4 rounded-md">
-      <div className="dungeon-grid-wrapper mx-auto" style={{ maxWidth: `${maxWidth}px` }}>
+    <div className="panel h-full flex flex-col">
+      <div className="flex-1 flex items-center justify-center overflow-auto p-1.5 mx-auto">
         <div className="grid gap-0" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
           {level.grid.flatMap((row, y) =>
             row.map((tile, x) => {
               const isPlayer = x === playerX && y === playerY
               const key = `${x}-${y}`
-              const base = 'dungeon-tile flex items-center justify-center border border-border'
+              const base = 'flex items-center justify-center border border-border aspect-square w-full min-w-[30px] max-w-[80px]'
               const enemy = enemyAt(enemies, x, y)
 
               if (isPlayer) {
