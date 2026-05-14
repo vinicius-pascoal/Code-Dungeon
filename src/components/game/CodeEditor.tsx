@@ -7,6 +7,9 @@ type Props = {
   disabled?: boolean
 }
 
+const KEYWORDS = ['if', 'else', 'while', 'for', 'function', 'var', 'let', 'const', 'return', 'true', 'false']
+const ALL_COMPLETIONS = [...RESERVED_COMMANDS, ...KEYWORDS]
+
 export default function CodeEditor({ value, onChange, disabled }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [lineCount, setLineCount] = useState(1)
@@ -55,11 +58,21 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
       return
     }
 
-    const nextSuggestion = RESERVED_COMMANDS.find((command) => command.startsWith(prefix) && command !== prefix) ?? null
+    const nextSuggestion = ALL_COMPLETIONS.find((cmd) => cmd.startsWith(prefix) && cmd !== prefix) ?? null
     setSuggestion(nextSuggestion)
   }, [value, disabled])
 
-  const normalizeCompletion = (command: string) => `${command}();`
+  const normalizeCompletion = (command: string) => {
+    if (command === 'if') return 'if (condition) {\n  \n}'
+    if (command === 'else') return 'else {\n  \n}'
+    if (command === 'while') return 'while (condition) {\n  \n}'
+    if (command === 'for') return 'for (let i = 0; i < 10; i++) {\n  \n}'
+    if (command === 'function') return 'function name() {\n  \n}'
+    if (command === 'var' || command === 'let' || command === 'const') return `${command} name = 0;`
+    if (command === 'return') return 'return 0;'
+    if (RESERVED_COMMANDS.includes(command)) return `${command}();`
+    return command
+  }
 
   const applySuggestion = (command: string) => {
     const textarea = textareaRef.current

@@ -8,6 +8,8 @@ import CodeEditor from './CodeEditor'
 import { getLevelById, levels } from '../../data/levels'
 import { parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
+import { parseAdvancedCode } from '../../utils/advancedParser'
+import { executeAdvancedCommands } from '../../utils/advancedExecutor'
 import { Enemy, TileType } from '../../types/game'
 
 function cloneGrid(grid: TileType[][]) {
@@ -246,44 +248,95 @@ export default function GamePage() {
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
     setCommandCount(0)
-    const parsed = parseCommands(code)
-    if ((parsed as any).error) {
-      const errorInfo = parseErrorInfo((parsed as any).error)
-      setErrorState({ open: true, ...errorInfo })
-      addLog(errorInfo.reason)
-      return
-    }
-    const commands = (parsed as any).commands as string[]
-    setRunning(true)
-    await executeCommands(
-      commands,
-      selectedLevel,
-      ({ command, player: p, grid: nextGrid, enemies: nextEnemies }) => {
-        addLog(`${command} executado`)
-        setPlayer({ ...p })
-        setGrid(nextGrid)
-        setEnemies(nextEnemies)
-        setCommandCount((current) => current + 1)
-      },
-      (err) => {
-        const errorInfo = parseErrorInfo(err)
-        setErrorState({ open: true, ...errorInfo })
-        addLog(errorInfo.reason)
-        setRunning(false)
-      },
-      ({ player: final, won }) => {
-        setPlayer({ ...final })
-        setRunning(false)
-        if (won) {
-          const stars = calculateStars(commands.length, selectedLevel.id)
-          setVictoryState({ open: true, stars })
-          addLog('Fase concluída com sucesso')
+
+    // Detectar se usa construções avançadas (if, while, for, function)
+    const usesAdvanced = /\b(if|else|while|for|function|var|let|const|return)\b/.test(code)
+
+    try {
+      setRunning(true)
+
+      if (usesAdvanced) {
+        // Usar novo parser e executor
+        const program = parseAdvancedCode(code)
+        let commandsExecuted = 0
+
+        await executeAdvancedCommands(
+          program,
+          selectedLevel,
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies }) => {
+            addLog(`${command} executado`)
+            setPlayer({ ...p })
+            setGrid(nextGrid)
+            setEnemies(nextEnemies)
+            commandsExecuted += 1
+            setCommandCount(commandsExecuted)
+          },
+          (err) => {
+            const errorInfo = parseErrorInfo(err)
+            setErrorState({ open: true, ...errorInfo })
+            addLog(errorInfo.reason)
+            setRunning(false)
+          },
+          ({ player: final, won }) => {
+            setPlayer({ ...final })
+            setRunning(false)
+            if (won) {
+              const stars = calculateStars(commandsExecuted, selectedLevel.id)
+              setVictoryState({ open: true, stars })
+              addLog('Fase concluída com sucesso')
+              return
+            }
+            addLog('Execução finalizada')
+          }
+        )
+      } else {
+        // Usar parser simples original
+        const parsed = parseCommands(code)
+        if ((parsed as any).error) {
+          const errorInfo = parseErrorInfo((parsed as any).error)
+          setErrorState({ open: true, ...errorInfo })
+          addLog(errorInfo.reason)
+          setRunning(false)
           return
         }
+        const commands = (parsed as any).commands as string[]
 
-        addLog('Execução finalizada')
+        await executeCommands(
+          commands,
+          selectedLevel,
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies }) => {
+            addLog(`${command} executado`)
+            setPlayer({ ...p })
+            setGrid(nextGrid)
+            setEnemies(nextEnemies)
+            setCommandCount((current) => current + 1)
+          },
+          (err) => {
+            const errorInfo = parseErrorInfo(err)
+            setErrorState({ open: true, ...errorInfo })
+            addLog(errorInfo.reason)
+            setRunning(false)
+          },
+          ({ player: final, won }) => {
+            setPlayer({ ...final })
+            setRunning(false)
+            if (won) {
+              const stars = calculateStars(commands.length, selectedLevel.id)
+              setVictoryState({ open: true, stars })
+              addLog('Fase concluída com sucesso')
+              return
+            }
+
+            addLog('Execução finalizada')
+          }
+        )
       }
-    )
+    } catch (error) {
+      const errorInfo = parseErrorInfo(error instanceof Error ? error.message : String(error))
+      setErrorState({ open: true, ...errorInfo })
+      addLog(errorInfo.reason)
+      setRunning(false)
+    }
   }
 
   function onReset() {
@@ -380,7 +433,7 @@ export default function GamePage() {
       <div className="grid grid-cols-2 gap-3 p-3 h-40 flex-shrink-0">
         {/* Legend - bottom left */}
         <div className="overflow-auto">
-          <Legend />
+          <Legend concepts={selectedLevel.concepts ?? []} />
         </div>
 
         {/* Console - bottom right */}
