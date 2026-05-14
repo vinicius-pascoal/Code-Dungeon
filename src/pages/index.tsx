@@ -31,11 +31,6 @@ export default function Home() {
           </Link>
           <p className="text-xs text-secondaryText mt-2">Um labirinto gerado proceduralmente com todas as funcionalidades liberadas.</p>
         </div>
-
-        <div className="text-left text-sm p-3 bg-black/20 rounded">
-          <strong>Objetivo do MVP:</strong> escrever comandos simples e executar a sequência para
-          mover o personagem até a saída.
-        </div>
       </div>
 
       {showHow && (
