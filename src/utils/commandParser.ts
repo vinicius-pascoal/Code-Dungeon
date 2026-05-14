@@ -1,6 +1,6 @@
 const COMMAND_RE = /([a-zA-Z0-9_]+)\s*\(\s*\)\s*;?/g
 
-const ALLOWED = new Set([
+export const RESERVED_COMMANDS = [
   'moveForward',
   'turnLeft',
   'turnRight',
@@ -8,7 +8,9 @@ const ALLOWED = new Set([
   'grabKey',
   'openDoor',
   'openChest',
-])
+]
+
+const ALLOWED = new Set(RESERVED_COMMANDS)
 
 export function parseCommands(code: string) {
   const cmds: string[] = []
