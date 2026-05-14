@@ -1,9 +1,5 @@
 import React from 'react'
 
-type Props = {
-  concepts?: string[]
-}
-
 function Icon({ children }: { children: React.ReactNode }) {
   return (
     <div className="w-6 h-6 flex items-center justify-center border border-border rounded-sm bg-floor flex-shrink-0">
@@ -12,32 +8,7 @@ function Icon({ children }: { children: React.ReactNode }) {
   )
 }
 
-function conceptLabel(concept: string) {
-  switch (concept) {
-    case 'loops':
-      return 'Loops (while / for)'
-    case 'conditionals':
-      return 'Condicionais (if)'
-    case 'functions':
-      return 'Funções'
-    case 'repetition':
-      return 'Repetição'
-    case 'planning':
-      return 'Planejamento'
-    case 'reuse':
-      return 'Reuso'
-    case 'abstraction':
-      return 'Abstração'
-    case 'milestone':
-      return 'Marco'
-    case 'if':
-      return 'if'
-    default:
-      return concept
-  }
-}
-
-export default function Legend({ concepts = [] }: Props) {
+export default function Legend() {
   return (
     <div className="panel p-2 rounded-md h-full overflow-auto">
       <h3 className="font-semibold text-xs mb-2">Legenda</h3>
@@ -120,19 +91,6 @@ export default function Legend({ concepts = [] }: Props) {
           <div className="text-secondaryText">Jogador</div>
         </div>
       </div>
-
-      {concepts.length > 0 ? (
-        <div className="mt-3 border-t border-border pt-3">
-          <div className="mb-2 text-[11px] uppercase tracking-wide text-secondaryText">Conceitos da fase</div>
-          <div className="flex flex-wrap gap-2">
-            {concepts.map((concept) => (
-              <span key={concept} className="rounded-full border border-border bg-black/20 px-2 py-1 text-xs text-secondaryText">
-                {conceptLabel(concept)}
-              </span>
-            ))}
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

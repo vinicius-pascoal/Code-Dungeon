@@ -4,6 +4,7 @@ import DungeonGrid from './DungeonGrid'
 import Legend from './Legend'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
+import DocumentationModal from './DocumentationModal'
 import CodeEditor from './CodeEditor'
 import { getLevelById, levels } from '../../data/levels'
 import { parseCommands } from '../../utils/commandParser'
@@ -203,6 +204,7 @@ export default function GamePage() {
     reason: '',
     suggestion: '',
   })
+  const [docOpen, setDocOpen] = useState(false)
 
   // Salvar código quando muda
   useEffect(() => {
@@ -376,12 +378,15 @@ export default function GamePage() {
         onRetry={onRetryFromModal}
       />
 
+      <DocumentationModal isOpen={docOpen} onClose={() => setDocOpen(false)} />
+
       <header className="flex items-center justify-between px-6 py-4 bg-panel border-b border-border">
         <div>
           <h1 className="text-2xl font-bold">Code Dungeon — Fase {selectedLevel.id}</h1>
           <p className="text-sm text-secondaryText">{selectedLevel.name}</p>
         </div>
         <div className="space-x-2">
+          <button onClick={() => setDocOpen(true)} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">? Ajuda</button>
           <button onClick={() => router.push('/levels')} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Niveis</button>
           <button onClick={onReset} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Resetar</button>
           <button onClick={onRun} disabled={running} className="px-3 py-1.5 bg-magic text-bg border border-magic rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50">Executar</button>
@@ -400,10 +405,19 @@ export default function GamePage() {
         <div className="flex flex-col gap-3 overflow-hidden">
           <div className="panel p-3 rounded-md flex-shrink-0">
             <h2 className="font-semibold text-sm mb-2">Objetivo</h2>
-            <p className="text-xs text-secondaryText">{selectedLevel.objective}</p>
-            <div className="mt-2 text-xs">
-              <span className="text-secondaryText">Comandos: </span>
-              <span>{selectedLevel.availableCommands.join(', ')}</span>
+            <p className="text-xs text-secondaryText mb-3">{selectedLevel.objective}</p>
+            <div className="mt-3">
+              <h3 className="text-xs font-semibold text-primaryText uppercase tracking-wide mb-2">Comandos Disponíveis</h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedLevel.availableCommands.map((cmd) => (
+                  <span
+                    key={cmd}
+                    className="px-2.5 py-1 rounded-md text-xs font-mono bg-magic/20 border border-magic text-magic hover:bg-magic/30 transition-colors"
+                  >
+                    {cmd}()
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -433,7 +447,7 @@ export default function GamePage() {
       <div className="grid grid-cols-2 gap-3 p-3 h-40 flex-shrink-0">
         {/* Legend - bottom left */}
         <div className="overflow-auto">
-          <Legend concepts={selectedLevel.concepts ?? []} />
+          <Legend />
         </div>
 
         {/* Console - bottom right */}
