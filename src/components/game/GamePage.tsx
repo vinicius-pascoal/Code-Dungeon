@@ -168,7 +168,17 @@ export default function GamePage() {
   }, [router.query.level])
   const levelIsPlayable = selectedLevel.isPlayable !== false
 
-  const [code, setCode] = useState(starterCode(selectedLevel.id))
+  const getInitialCode = () => {
+    if (typeof window !== 'undefined') {
+      const savedCode = localStorage.getItem(`code-dungeon-level-${selectedLevel.id}`)
+      if (savedCode) {
+        return savedCode
+      }
+    }
+    return starterCode(selectedLevel.id)
+  }
+
+  const [code, setCode] = useState(getInitialCode())
   const [logs, setLogs] = useState<string[]>([])
   const [player, setPlayer] = useState(selectedLevel.playerStart)
   const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
@@ -192,8 +202,21 @@ export default function GamePage() {
     suggestion: '',
   })
 
+  // Salvar código quando muda
   useEffect(() => {
-    setCode(starterCode(selectedLevel.id))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(`code-dungeon-level-${selectedLevel.id}`, code)
+    }
+  }, [code, selectedLevel.id])
+
+  // Resetar apenas o estado do jogo quando muda de nível
+  useEffect(() => {
+    const savedCode = typeof window !== 'undefined' ? localStorage.getItem(`code-dungeon-level-${selectedLevel.id}`) : null
+    if (savedCode) {
+      setCode(savedCode)
+    } else {
+      setCode(starterCode(selectedLevel.id))
+    }
     setLogs([])
     setPlayer(selectedLevel.playerStart)
     setGrid(cloneGrid(selectedLevel.grid))
@@ -270,7 +293,6 @@ export default function GamePage() {
     setCommandCount(0)
     setLogs([])
     setRunning(false)
-    setCode(starterCode(selectedLevel.id))
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
   }
