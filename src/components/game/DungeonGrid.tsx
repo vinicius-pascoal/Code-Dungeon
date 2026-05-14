@@ -60,13 +60,19 @@ function renderTileFallback(tile: TileType) {
 
 export default function DungeonGrid({ level, playerX, playerY, enemies }: Props) {
   const cols = level.grid[0]?.length || 0
+  const rows = level.grid.length
   const [zoom, setZoom] = useState(1)
 
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
+  const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 800)
+  const containerRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    const onResize = () => setViewportWidth(window.innerWidth)
+    const onResize = () => {
+      setViewportWidth(window.innerWidth)
+      setViewportHeight(window.innerHeight)
+    }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
   }, [])
@@ -74,31 +80,88 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
     const delta = e.deltaY > 0 ? -0.1 : 0.1
-    setZoom((prev) => Math.max(0.5, Math.min(3, prev + delta)))
+    const newZoom = Math.max(0.5, Math.min(3, zoom + delta))
+    setZoom(newZoom)
   }
 
-  const maxWidth = Math.min(viewportWidth, cols * 48)
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(3, prev + 0.15))
+  }
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(0.5, prev - 0.15))
+  }
+
+  const handleResetZoom = () => {
+    setZoom(1)
+  }
+
+  // Calcula o tamanho ideal do tile baseado no zoom e espaço disponível
+  const baseTileSize = 48
+  const tileSize = Math.max(24, baseTileSize * zoom)
+  const zoomPercentage = Math.round(zoom * 100)
 
   return (
     <div className="panel h-full flex flex-col">
-      <div className="flex-1 flex items-center justify-center overflow-auto p-1.5 mx-auto" onWheel={handleWheel}>
-        <div 
-          className="grid gap-0 transition-transform duration-75" 
-          style={{ 
-            gridTemplateColumns: `repeat(${cols}, 1fr)`,
-            transform: `scale(${zoom})`
+      {/* Zoom Controls */}
+      <div className="flex items-center justify-between px-4 py-2 bg-bg/50 border-b border-primary/20">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleZoomOut}
+            className="px-2 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+            title="Diminuir zoom"
+          >
+            −
+          </button>
+          <span className="w-12 text-center text-sm font-mono text-primary">{zoomPercentage}%</span>
+          <button
+            onClick={handleZoomIn}
+            className="px-2 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+            title="Aumentar zoom"
+          >
+            +
+          </button>
+        </div>
+        <button
+          onClick={handleResetZoom}
+          className="px-3 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+          title="Resetar zoom"
+        >
+          Resetar
+        </button>
+      </div>
+
+      <div
+        ref={containerRef}
+        className="flex-1 overflow-auto p-2"
+        onWheel={handleWheel}
+      >
+        <div
+          className="grid gap-0 transition-all duration-75 mx-auto"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            width: `${cols * tileSize}px`,
+            height: `${rows * tileSize}px`
           }}
         >
           {level.grid.flatMap((row, y) =>
             row.map((tile, x) => {
               const isPlayer = x === playerX && y === playerY
               const key = `${x}-${y}`
-              const base = 'flex items-center justify-center aspect-square w-full min-w-[30px] max-w-[80px] relative overflow-hidden'
               const enemy = enemyAt(enemies, x, y)
+              const tileStyle = {
+                width: `${tileSize}px`,
+                height: `${tileSize}px`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                position: 'relative' as const
+              }
 
               if (isPlayer) {
                 return (
-                  <div key={key} className={base + ' bg-magic text-bg font-bold'}>
+                  <div key={key} style={tileStyle} className="bg-magic text-bg font-bold text-lg">
                     P
                   </div>
                 )
@@ -106,7 +169,7 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
 
               if (enemy) {
                 return (
-                  <div key={key} className={base + ' bg-danger text-bg font-bold'}>
+                  <div key={key} style={tileStyle} className="bg-danger text-bg font-bold text-lg">
                     M
                   </div>
                 )
@@ -115,17 +178,17 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
               const tileImage = getTileImage(tile, x, y)
 
               return (
-                <div key={key} className={base + (tileImage ? '' : ` ${renderTileFallback(tile)}`)}>
+                <div key={key} style={tileStyle} className={tileImage ? '' : renderTileFallback(tile)}>
                   {tileImage ? (
                     <Image
                       src={tileImage}
                       alt={tile}
                       fill
                       className="object-cover"
-                      sizes="(max-width: 80px) 100vw, 80px"
+                      sizes={`${tileSize}px`}
                     />
                   ) : (
-                    <span className="z-10">
+                    <span className="z-10 font-bold" style={{ fontSize: `${Math.max(12, tileSize * 0.5)}px` }}>
                       {tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
                     </span>
                   )}
