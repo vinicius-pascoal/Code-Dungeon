@@ -16,6 +16,7 @@ import { levelFifteen } from './level-15'
 import { levelSixteen } from './level-16'
 import { levelSeventeen } from './level-17'
 import { levelEighteen } from './level-18'
+import { generateProceduralMazeLevel } from './level-procedural'
 import { World } from '../../types/game'
 
 export const levels = [
@@ -38,6 +39,8 @@ export const levels = [
   levelSeventeen,
   levelEighteen,
 ]
+
+export const proceduralMazeLevel = generateProceduralMazeLevel()
 
 export const worlds: World[] = [
   {
@@ -75,12 +78,23 @@ export const worlds: World[] = [
     theme: 'Funções',
     levelIds: [15, 16, 17, 18],
   },
+  {
+    id: 99,
+    name: '🌀 Modo Labirinto',
+    description: 'Um labirinto procedural gerado infinitamente. Todas as funcionalidades desbloqueadas!',
+    theme: 'Desafio',
+    levelIds: [999],
+  },
 ]
 
 export function getLevelById(levelId: number) {
+  if (levelId === 999) return proceduralMazeLevel
   return levels.find((level) => level.id === levelId) ?? levels[0]
 }
 
 export function getWorldByLevelId(levelId: number) {
+  if (levelId === 999) {
+    return worlds.find((world) => world.id === 99) ?? worlds[0]
+  }
   return worlds.find((world) => world.levelIds.includes(levelId)) ?? worlds[0]
 }

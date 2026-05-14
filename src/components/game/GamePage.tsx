@@ -157,6 +157,8 @@ function starterCode(levelId: number) {
       return 'moveForward();\nmoveForward();\nturnRight();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();'
     case 10:
       return 'grabKey();\nturnRight();\nmoveForward();\nmoveForward();\nattack();\nturnLeft();\nopenDoor();\nmoveForward();'
+    case 999:
+      return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:
       return 'moveForward();'
   }

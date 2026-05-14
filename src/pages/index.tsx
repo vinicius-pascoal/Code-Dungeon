@@ -24,6 +24,14 @@ export default function Home() {
           </Link>
         </div>
 
+        <div className="py-4 border-t border-b border-border mb-6">
+          <p className="text-xs text-secondaryText mb-3 uppercase tracking-wide">Modo Especial</p>
+          <Link href="/game?level=999" className="px-4 py-3 bg-gradient-to-r from-magic/20 to-success/20 text-primaryText rounded-md border border-magic hover:from-magic/30 hover:to-success/30 transition-colors inline-block font-medium">
+            🌀 Labirinto Procedural - Desbloqueado!
+          </Link>
+          <p className="text-xs text-secondaryText mt-2">Um labirinto gerado proceduralmente com todas as funcionalidades liberadas.</p>
+        </div>
+
         <div className="text-left text-sm p-3 bg-black/20 rounded">
           <strong>Objetivo do MVP:</strong> escrever comandos simples e executar a sequência para
           mover o personagem até a saída.

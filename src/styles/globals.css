@@ -59,3 +59,21 @@ body {
 .modal-backdrop {
   background: linear-gradient(180deg, rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.9));
 }
+
+/* Dungeon Grid Optimizations */
+.dungeon-container {
+  scroll-behavior: smooth;
+  scroll-snap-type: proximity;
+}
+
+/* Tile rendering optimization - use will-change sparingly */
+.dungeon-tile {
+  contain: layout style paint;
+}
+
+/* Hide decorative images on very small zoom for performance */
+@media (max-width: 600px) {
+  .dungeon-tile img {
+    image-rendering: pixelated;
+  }
+}
