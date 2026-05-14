@@ -307,6 +307,7 @@ export default function GamePage() {
           <p className="text-sm text-secondaryText">{selectedLevel.name}</p>
         </div>
         <div className="space-x-2">
+          <button onClick={() => router.push('/levels')} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Niveis</button>
           <button onClick={onReset} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Resetar</button>
           <button onClick={onRun} disabled={running} className="px-3 py-1.5 bg-magic text-bg border border-magic rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50">Executar</button>
         </div>

@@ -9,11 +9,6 @@ export default function Header() {
           <div className="w-9 h-9 rounded-md bg-magic flex items-center justify-center text-bg font-bold">CD</div>
           <div className="text-lg font-semibold">Code Dungeon</div>
         </Link>
-
-        <nav className="flex items-center gap-3">
-          <Link href="/levels" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-floor text-primaryText border border-border hover:bg-wall transition-colors">Fases</Link>
-          <Link href="/" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-floor text-primaryText border border-border hover:bg-wall transition-colors">Jogar</Link>
-        </nav>
       </div>
     </header>
   )
