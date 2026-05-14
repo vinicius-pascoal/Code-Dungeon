@@ -24,5 +24,5 @@ export const levelTwelve: Level = {
   enemies: [],
   starRules: { threeStars: 5, twoStars: 7 },
   concepts: ['loops', 'planning'],
-  isPlayable: false,
+  isPlayable: true,
 }

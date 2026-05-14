@@ -23,5 +23,5 @@ export const levelThirteen: Level = {
   enemies: [{ x: 2, y: 2, defeated: false }],
   starRules: { threeStars: 4, twoStars: 6 },
   concepts: ['conditionals', 'if'],
-  isPlayable: false,
+  isPlayable: true,
 }
