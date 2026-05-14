@@ -16,6 +16,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   const [suggestion, setSuggestion] = useState<string | null>(null)
   const [cursorState, setCursorState] = useState({ lineIndex: 0, column: 0, prefix: '' })
   const [caretPosition, setCaretPosition] = useState({ lineIndex: 0, x: 0, visible: false })
+  const [selection, setSelection] = useState<{ start: number; end: number } | null>(null)
   const [scrollTop, setScrollTop] = useState(0)
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
       setSuggestion(null)
       setCursorState({ lineIndex: 0, column: 0, prefix: '' })
       setCaretPosition({ lineIndex: 0, x: 0, visible: false })
+      setSelection(null)
       setScrollTop(0)
       return
     }
@@ -47,6 +49,10 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     const computedStyle = window.getComputedStyle(textarea)
     const fontSize = parseFloat(computedStyle.fontSize) || 14
     const charWidth = fontSize * 0.62
+    const selectionStart = textarea.selectionStart ?? cursor
+    const selectionEnd = textarea.selectionEnd ?? cursor
+
+    setSelection(selectionStart === selectionEnd ? null : { start: selectionStart, end: selectionEnd })
     setCaretPosition({
       lineIndex,
       x: column * charWidth,
@@ -61,6 +67,20 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     const nextSuggestion = ALL_COMPLETIONS.find((cmd) => cmd.startsWith(prefix) && cmd !== prefix) ?? null
     setSuggestion(nextSuggestion)
   }, [value, disabled])
+
+  useEffect(() => {
+    if (disabled) return
+
+    const handleDocumentSelectionChange = () => {
+      const textarea = textareaRef.current
+      if (!textarea || document.activeElement !== textarea) return
+
+      handleSelectionUpdate()
+    }
+
+    document.addEventListener('selectionchange', handleDocumentSelectionChange)
+    return () => document.removeEventListener('selectionchange', handleDocumentSelectionChange)
+  }, [disabled, value])
 
   const normalizeCompletion = (command: string) => {
     if (command === 'if') return 'if (condition) {\n  \n}'
@@ -114,6 +134,8 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     if (!textarea) return
 
     const cursor = textarea.selectionStart
+    const selectionStart = textarea.selectionStart ?? cursor
+    const selectionEnd = textarea.selectionEnd ?? cursor
     const beforeCursor = value.slice(0, cursor)
     const linesBeforeCursor = beforeCursor.split('\n')
     const currentLine = linesBeforeCursor[linesBeforeCursor.length - 1] ?? ''
@@ -134,6 +156,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
       x: currentLine.length * charWidth,
       visible: true,
     })
+    setSelection(selectionStart === selectionEnd ? null : { start: selectionStart, end: selectionEnd })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -162,6 +185,39 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     : ''
 
   const lines = value.split('\n')
+  const selectionStart = selection ? Math.min(selection.start, selection.end) : null
+  const selectionEnd = selection ? Math.max(selection.start, selection.end) : null
+
+  const hasSelection = Boolean(selectionStart !== null && selectionEnd !== null && selectionStart !== selectionEnd)
+
+  const getLineBounds = (index: number) => {
+    let lineOffset = 0
+    for (let i = 0; i < index; i += 1) {
+      lineOffset += lines[i]?.length ?? 0
+      lineOffset += 1
+    }
+
+    const lineStart = lineOffset
+    const lineEnd = lineStart + (lines[index]?.length ?? 0)
+    return { lineStart, lineEnd }
+  }
+
+  const getSelectionState = (index: number) => {
+    if (selectionStart === null || selectionEnd === null) {
+      return { selected: false, first: false, last: false }
+    }
+
+    const { lineStart, lineEnd } = getLineBounds(index)
+    const selected = lineEnd > selectionStart && lineStart < selectionEnd
+    if (!selected) {
+      return { selected: false, first: false, last: false }
+    }
+
+    const first = lineStart <= selectionStart && selectionStart < lineEnd
+    const last = lineStart < selectionEnd && selectionEnd <= lineEnd
+
+    return { selected, first, last }
+  }
 
   return (
     <div className="flex border border-white/5 rounded-md overflow-hidden bg-bg h-full min-h-0">
@@ -188,25 +244,31 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
           <div className="p-3 will-change-transform" style={{ transform: `translateY(${-scrollTop}px)` }}>
             {lines.map((line, index) => {
               const isCurrentLine = index === cursorState.lineIndex
+              const selectionState = getSelectionState(index)
               const lineClassName = [
                 'relative h-6 flex items-center whitespace-pre',
-                isCurrentLine ? 'bg-primary/10 ring-1 ring-inset ring-primary/30 rounded-sm' : '',
+                selectionState.selected
+                  ? [
+                    'bg-primary/75 text-white ring-1 ring-inset ring-primary/95',
+                    selectionState.first ? 'rounded-t-sm' : '',
+                    selectionState.last ? 'rounded-b-sm' : '',
+                  ].join(' ')
+                  : '',
+                !selectionState.selected && isCurrentLine ? 'bg-primary/10 ring-1 ring-inset ring-primary/30 rounded-sm' : '',
               ].join(' ')
-
-              const beforePrefix = line.slice(0, cursorState.column)
 
               return (
                 <div key={index} className={lineClassName}>
                   {isCurrentLine && suggestionSuffix ? (
                     <>
-                      {beforePrefix}
-                      <span className="text-white/35">{suggestionSuffix}</span>
+                      {line}
+                      <span className={selectionState.selected ? 'text-white/80' : 'text-white/35'}>{suggestionSuffix}</span>
                     </>
                   ) : (
                     line
                   )}
 
-                  {isCurrentLine && caretPosition.visible ? (
+                  {isCurrentLine && caretPosition.visible && !hasSelection ? (
                     <span
                       aria-hidden="true"
                       className="absolute top-0 bottom-0 w-[2px] bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
