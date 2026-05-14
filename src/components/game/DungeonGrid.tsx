@@ -6,7 +6,9 @@ type Props = {
   level: Level
   playerX: number
   playerY: number
+  playerDirection: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
   enemies: Enemy[]
+  isRunning?: boolean
 }
 
 function enemyAt(enemies: Enemy[], x: number, y: number) {
@@ -58,10 +60,40 @@ function renderTileFallback(tile: TileType) {
   }
 }
 
-export default function DungeonGrid({ level, playerX, playerY, enemies }: Props) {
+function directionToRotation(direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') {
+  switch (direction) {
+    case 'UP':
+      return '/assets/personagem/rotations/north.png'
+    case 'RIGHT':
+      return '/assets/personagem/rotations/east.png'
+    case 'DOWN':
+      return '/assets/personagem/rotations/south.png'
+    case 'LEFT':
+    default:
+      return '/assets/personagem/rotations/west.png'
+  }
+}
+
+function directionToWalkingFrames(direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') {
+  const folder =
+    direction === 'UP'
+      ? 'north'
+      : direction === 'RIGHT'
+        ? 'east'
+        : direction === 'DOWN'
+          ? 'south'
+          : 'west'
+
+  return Array.from({ length: 6 }, (_, index) =>
+    `/assets/personagem/animations/Walking-4e049032/${folder}/frame_${String(index).padStart(3, '0')}.png`
+  )
+}
+
+export default function DungeonGrid({ level, playerX, playerY, playerDirection, enemies, isRunning }: Props) {
   const cols = level.grid[0]?.length || 0
   const rows = level.grid.length
   const [zoom, setZoom] = useState(1)
+  const [playerFrame, setPlayerFrame] = useState(0)
 
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
   const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 800)
@@ -95,6 +127,19 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
   const handleResetZoom = () => {
     setZoom(1)
   }
+
+  useEffect(() => {
+    if (!isRunning) {
+      setPlayerFrame(0)
+      return
+    }
+
+    const interval = window.setInterval(() => {
+      setPlayerFrame((current) => (current + 1) % 6)
+    }, 110)
+
+    return () => window.clearInterval(interval)
+  }, [isRunning, playerDirection])
 
   // Calcula o tamanho ideal do tile baseado no zoom e espaço disponível
   const baseTileSize = 48
@@ -149,6 +194,7 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
               const isPlayer = x === playerX && y === playerY
               const key = `${x}-${y}`
               const enemy = enemyAt(enemies, x, y)
+              const tileImage = getTileImage(tile, x, y)
               const tileStyle = {
                 width: `${tileSize}px`,
                 height: `${tileSize}px`,
@@ -160,9 +206,36 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
               }
 
               if (isPlayer) {
+                const playerImage = isRunning
+                  ? directionToWalkingFrames(playerDirection)[playerFrame]
+                  : directionToRotation(playerDirection)
+
                 return (
-                  <div key={key} style={tileStyle} className="bg-magic text-bg font-bold text-lg">
-                    P
+                  <div key={key} style={tileStyle} className={tileImage ? 'relative' : renderTileFallback(tile)}>
+                    {tileImage ? (
+                      <Image
+                        src={tileImage}
+                        alt={tile}
+                        fill
+                        className="object-cover"
+                        sizes={`${tileSize}px`}
+                      />
+                    ) : (
+                      <span className="z-10 font-bold" style={{ fontSize: `${Math.max(12, tileSize * 0.5)}px` }}>
+                        {tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
+                      </span>
+                    )}
+
+                    <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+                      <Image
+                        src={playerImage}
+                        alt="Personagem do jogador"
+                        fill
+                        className="object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]"
+                        sizes={`${tileSize}px`}
+                        priority
+                      />
+                    </div>
                   </div>
                 )
               }
@@ -174,8 +247,6 @@ export default function DungeonGrid({ level, playerX, playerY, enemies }: Props)
                   </div>
                 )
               }
-
-              const tileImage = getTileImage(tile, x, y)
 
               return (
                 <div key={key} style={tileStyle} className={tileImage ? '' : renderTileFallback(tile)}>

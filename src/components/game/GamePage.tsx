@@ -355,7 +355,14 @@ export default function GamePage() {
           </div>
 
           <div className="flex-1 overflow-hidden">
-            <DungeonGrid level={selectedLevel} playerX={player.x} playerY={player.y} enemies={enemies} />
+            <DungeonGrid
+              level={selectedLevel}
+              playerX={player.x}
+              playerY={player.y}
+              playerDirection={player.direction}
+              enemies={enemies}
+              isRunning={running}
+            />
           </div>
         </div>
 
