@@ -109,6 +109,17 @@ function calculateInitialZoom(cols: number, rows: number, viewportWidth: number,
   return Math.max(0.25, Math.min(1, maxTileSize / baseTileSize))
 }
 
+// Calcula zoom para visualizar o board inteiro
+function calculateFitZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
+  const baseTileSize = 48
+  const padding = 0.95 // 5% de margem
+  const maxTileSize = Math.min(
+    (viewportWidth / cols) * padding,
+    (viewportHeight / rows) * padding
+  )
+  return Math.max(0.1, maxTileSize / baseTileSize)
+}
+
 export default function DungeonGrid({ level, playerX, playerY, playerDirection, enemies, isRunning }: Props) {
   const cols = level.grid[0]?.length || 0
   const rows = level.grid.length
@@ -205,11 +216,16 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
   }
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(0.25, prev - 0.15))
+    setZoom((prev) => Math.max(0.1, prev - 0.15))
   }
 
   const handleResetZoom = () => {
     setZoom(initialZoom)
+  }
+
+  const handleFitToScreen = () => {
+    const fitZoom = calculateFitZoom(cols, rows, viewportWidth, viewportHeight)
+    setZoom(fitZoom)
   }
 
   // Centralizar na posição do jogador
@@ -284,6 +300,13 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
         >
           Resetar
         </button>
+        <button
+          onClick={handleFitToScreen}
+          className="px-3 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+          title="Visualizar tabuleiro completo"
+        >
+          🔍 Tudo
+        </button>
         {cols > 30 && (
           <button
             onClick={centerOnPlayer}
@@ -339,7 +362,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
                 : directionToRotation(playerDirection)
 
               return (
-                <div key={key} style={tileStyle} className={tileImage ? 'relative' : renderTileFallback(tile)}>
+                <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile)}`}>
                   {tileImage ? (
                     <Image
                       src={tileImage}
@@ -377,7 +400,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
             }
 
             return (
-              <div key={key} style={tileStyle} className={tileImage ? '' : renderTileFallback(tile)}>
+              <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile)}`}>
                 {tileImage && zoom > 0.4 ? (
                   <Image
                     src={tileImage}
@@ -386,9 +409,6 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
                     className="object-cover"
                     sizes={`${tileSize}px`}
                   />
-                ) : zoom <= 0.4 ? (
-                  // Para zoom baixo, renderizar apenas cor para melhor performance
-                  <div className="w-full h-full" />
                 ) : (
                   <span className="z-10 font-bold" style={{ fontSize: `${Math.max(12, tileSize * 0.5)}px` }}>
                     {tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
