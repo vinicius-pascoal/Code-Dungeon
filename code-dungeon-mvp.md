@@ -80,6 +80,17 @@ openDoor();
 openChest();
 ```
 
+Além disso, o sistema evoluiu para incluir sensores e saída de debug:
+
+```js
+look();   // retorna uma string com o tipo do tile à frente: 'FLOOR', 'WALL', 'ENEMY', 'OUT_OF_BOUNDS'
+print(x); // imprime valores no Console do jogo (aceita expressões e chamadas a look())
+```
+
+Observações:
+- `look()` retorna strings normalizadas (trim + UPPERCASE) para evitar falsos negativos em comparações.
+- O executor avançado aceita expressões como `print(look() == 'WALL')` e estruturas `if/while/for`.
+
 ### 6.1. `moveForward()`
 
 Move o personagem uma célula para frente, considerando a direção atual.

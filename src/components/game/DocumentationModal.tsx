@@ -138,7 +138,22 @@ export default function DocumentationModal({ isOpen, onClose }: Props) {
               <div>• grabKey()</div>
               <div>• openDoor()</div>
               <div>• openChest()</div>
+              <div>• look() — retorna o tipo do tile à frente (WALL, FLOOR, ENEMY, OUT_OF_BOUNDS)</div>
+              <div>• print(value) — imprime `value` no Console do jogo (aceita expressões)</div>
             </div>
+          </section>
+
+          {/* Sensores e Print */}
+          <section>
+            <h3 className="text-lg font-semibold text-magic mb-2">🔎 Sensores e Debug</h3>
+            <p className="text-sm text-secondaryText mb-3">Use `look()` para inspecionar a célula à frente e `print()` para enviar saídas ao Console.</p>
+            <div className="bg-black/30 p-3 rounded-md font-mono text-xs text-green-400">
+              <div>// Exemplo: imprimir o que está à frente</div>
+              <div>print(look());</div>
+              <div className="mt-2">// Exemplo: imprimir resultado de comparação</div>
+              <div>print(look() == 'WALL');</div>
+            </div>
+            <p className="text-xs text-secondaryText mt-2">Nota: `look()` retorna sempre strings normalizadas (sem espaços e em maiúsculas). Comparações com `==` também normalizam strings automaticamente.</p>
           </section>
 
           {/* Dicas */}
