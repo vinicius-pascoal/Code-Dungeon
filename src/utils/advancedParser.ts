@@ -49,7 +49,13 @@ class Tokenizer {
         this.tokens.push({ type: char, value: char, line: this.line, col: this.col })
         this.advance()
       } else if (char === '=') {
-        if (this.peek() === '=') {
+        // suportar '===' mapeando para '==' para compatibilidade com o avaliador
+        if (this.peek() === '=' && this.peek(2) === '=') {
+          this.tokens.push({ type: '==', value: '==', line: this.line, col: this.col })
+          this.advance()
+          this.advance()
+          this.advance()
+        } else if (this.peek() === '=') {
           this.tokens.push({ type: '==', value: '==', line: this.line, col: this.col })
           this.advance()
           this.advance()
@@ -57,6 +63,12 @@ class Tokenizer {
           this.tokens.push({ type: '=', value: '=', line: this.line, col: this.col })
           this.advance()
         }
+      } else if (char === '!' && this.peek() === '=' && this.peek(2) === '=') {
+        // mapear '!==' para '!='
+        this.tokens.push({ type: '!=', value: '!=', line: this.line, col: this.col })
+        this.advance()
+        this.advance()
+        this.advance()
       } else if (char === '!' && this.peek() === '=') {
         this.tokens.push({ type: '!=', value: '!=', line: this.line, col: this.col })
         this.advance()

@@ -67,6 +67,7 @@ export async function executeCommands(
 
   for (let i = 0; i < commands.length; i++) {
     const cmd = commands[i]
+    let lookMessage: string | undefined = undefined
 
     if (cmd === 'moveForward') {
       const { dx, dy } = deltaFor(state.player.direction)
@@ -100,6 +101,21 @@ export async function executeCommands(
       state.player.direction = turnLeft(state.player.direction)
     } else if (cmd === 'turnRight') {
       state.player.direction = turnRight(state.player.direction)
+    } else if (cmd === 'look') {
+      const { dx, dy } = deltaFor(state.player.direction)
+      const nx = state.player.x + dx
+      const ny = state.player.y + dy
+      const row = state.grid[ny]
+      if (!row || row[nx] === undefined) {
+        lookMessage = 'OUT_OF_BOUNDS'
+      } else {
+        const enemy = enemyAt(nx, ny)
+        if (enemy) {
+          lookMessage = 'ENEMY'
+        } else {
+          lookMessage = String(row[nx])
+        }
+      }
     } else if (cmd === 'attack') {
       const { dx, dy } = deltaFor(state.player.direction)
       const nx = state.player.x + dx
@@ -159,6 +175,7 @@ export async function executeCommands(
       player: { ...state.player },
       grid: cloneGrid(state.grid),
       enemies: cloneEnemies(state.enemies),
+      message: lookMessage,
     })
 
     // Vitória?

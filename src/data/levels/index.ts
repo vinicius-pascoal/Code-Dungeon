@@ -91,7 +91,27 @@ export const worlds: World[] = [
 
 export function getLevelById(levelId: number) {
   if (levelId === 999) return proceduralMazeLevel
-  return levels.find((level) => level.id === levelId) ?? levels[0]
+
+  // Construir mapa cumulativo por id (ordenando por id para independência da ordem do array)
+  const levelsById = [...levels].sort((a, b) => a.id - b.id)
+  const cumulativeMap = new Map<number, string[]>()
+  const seen: string[] = []
+  for (const lvl of levelsById) {
+    const cmds = lvl.availableCommands || []
+    for (const c of cmds) {
+      if (!seen.includes(c)) seen.push(c)
+    }
+    cumulativeMap.set(lvl.id, [...seen])
+  }
+
+  // se não existir, retornar primeiro nível como fallback
+  const level = levels.find((l) => l.id === levelId)
+  if (!level) {
+    const first = levelsById[0]
+    return { ...first, availableCommands: cumulativeMap.get(first.id) ?? first.availableCommands }
+  }
+
+  return { ...level, availableCommands: cumulativeMap.get(level.id) ?? level.availableCommands }
 }
 
 export function getWorldByLevelId(levelId: number) {

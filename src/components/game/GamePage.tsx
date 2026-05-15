@@ -295,7 +295,7 @@ export default function GamePage() {
         )
       } else {
         // Usar parser simples original
-        const parsed = parseCommands(code)
+        const parsed = parseCommands(code, selectedLevel.availableCommands)
         if ((parsed as any).error) {
           const errorInfo = parseErrorInfo((parsed as any).error)
           setErrorState({ open: true, ...errorInfo })

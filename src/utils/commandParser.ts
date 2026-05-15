@@ -10,9 +10,9 @@ export const RESERVED_COMMANDS = [
   'openChest',
 ]
 
-const ALLOWED = new Set(RESERVED_COMMANDS)
+const DEFAULT_ALLOWED = new Set(RESERVED_COMMANDS)
 
-export function parseCommands(code: string) {
+export function parseCommands(code: string, allowedCommands?: string[]) {
   const cmds: string[] = []
   let m: RegExpExecArray | null
   while ((m = COMMAND_RE.exec(code)) !== null) {
@@ -20,9 +20,10 @@ export function parseCommands(code: string) {
     cmds.push(name)
   }
 
-  // Validate
+  // Validate against allowedCommands (if provided) or default set
+  const allowedSet = allowedCommands ? new Set(allowedCommands) : DEFAULT_ALLOWED
   for (const c of cmds) {
-    if (!ALLOWED.has(c)) {
+    if (!allowedSet.has(c)) {
       return { error: `Comando inválido: ${c}()` }
     }
   }
