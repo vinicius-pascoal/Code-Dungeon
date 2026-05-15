@@ -13,6 +13,7 @@ export const levelTen: Level = {
     'grabKey',
     'openDoor',
     'openChest',
+    'print',
   ],
   playerStart: {
     x: 1,

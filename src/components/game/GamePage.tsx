@@ -253,8 +253,10 @@ export default function GamePage() {
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
     setCommandCount(0)
 
-    // Detectar se usa construções avançadas (if, while, for, function)
-    const usesAdvanced = /\b(if|else|while|for|function|var|let|const|return)\b/.test(code)
+    // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
+    // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
+    const simpleCommandsOnly = /^\s*([a-zA-Z0-9_]+\s*\(\s*\)\s*;?\s*)+$/m.test(code)
+    const usesAdvanced = !simpleCommandsOnly
 
     try {
       setRunning(true)
@@ -267,7 +269,8 @@ export default function GamePage() {
         await executeAdvancedCommands(
           program,
           selectedLevel,
-          ({ command, player: p, grid: nextGrid, enemies: nextEnemies }) => {
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, message }) => {
+            if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
             setGrid(nextGrid)
@@ -308,7 +311,8 @@ export default function GamePage() {
         await executeCommands(
           commands,
           selectedLevel,
-          ({ command, player: p, grid: nextGrid, enemies: nextEnemies }) => {
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, message }) => {
+            if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
             setGrid(nextGrid)

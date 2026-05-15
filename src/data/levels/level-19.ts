@@ -6,7 +6,7 @@ export const levelNineteen: Level = {
   name: 'Demo Look',
   description: 'Demonstração do comando look() para leitura do tile à frente.',
   objective: 'Use `look()` para detectar inimigos e paredes antes de agir.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'look'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'look', 'print'],
   playerStart: {
     x: 1,
     y: 2,

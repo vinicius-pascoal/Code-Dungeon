@@ -5,7 +5,7 @@ export const levelOne: Level = {
   name: 'Primeiros Passos',
   description: 'Aprenda a mover o personagem para frente.',
   objective: 'Chegue até a saída.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 1,

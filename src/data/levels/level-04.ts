@@ -5,7 +5,7 @@ export const levelFour: Level = {
   name: 'Caminho com Paredes',
   description: 'Planeje a rota para não bater nas paredes.',
   objective: 'Encontre a rota segura até a saída.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 3,

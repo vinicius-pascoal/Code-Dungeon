@@ -5,7 +5,7 @@ export const levelNine: Level = {
   name: 'Caminho Longo',
   description: 'Resolva uma fase maior com mais planejamento.',
   objective: 'Encontre a melhor sequência de movimentos.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 4,

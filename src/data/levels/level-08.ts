@@ -5,7 +5,7 @@ export const levelEight: Level = {
   name: 'Baú Opcional',
   description: 'Abra o baú para treinar a interação com objetos.',
   objective: 'Explore o corredor e chegue até a saída.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'openChest'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'openChest', 'print'],
   playerStart: {
     x: 1,
     y: 2,

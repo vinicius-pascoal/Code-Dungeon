@@ -101,7 +101,7 @@ export async function executeCommands(
       state.player.direction = turnLeft(state.player.direction)
     } else if (cmd === 'turnRight') {
       state.player.direction = turnRight(state.player.direction)
-    } else if (cmd === 'look') {
+    } else if (cmd === 'look' || cmd === 'print') {
       const { dx, dy } = deltaFor(state.player.direction)
       const nx = state.player.x + dx
       const ny = state.player.y + dy
@@ -113,7 +113,8 @@ export async function executeCommands(
         if (enemy) {
           lookMessage = 'ENEMY'
         } else {
-          lookMessage = String(row[nx])
+          // Normalizar para facilitar comparações no código do usuário
+          lookMessage = String(row[nx]).trim().toUpperCase()
         }
       }
     } else if (cmd === 'attack') {

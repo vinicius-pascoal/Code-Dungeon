@@ -6,7 +6,7 @@ export const levelFourteen: Level = {
   name: 'If e Repetição',
   description: 'Uma rota curta para introduzir composição de regras.',
   objective: 'Perceba como decisões alteram a execução.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'look'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'look', 'print'],
   playerStart: {
     x: 1,
     y: 3,

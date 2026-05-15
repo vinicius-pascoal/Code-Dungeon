@@ -6,7 +6,7 @@ export const levelEleven: Level = {
   name: 'Loop de Primeiro Passo',
   description: 'O primeiro contato com repetição controlada.',
   objective: 'Aprenda o conceito de repetir ações em sequência.',
-  availableCommands: ['moveForward', 'turnRight'],
+  availableCommands: ['moveForward', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 2,

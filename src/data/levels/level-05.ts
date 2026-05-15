@@ -5,7 +5,7 @@ export const levelFive: Level = {
   name: 'Espinhos',
   description: 'Evite as células perigosas.',
   objective: 'Chegue à saída sem pisar nos espinhos.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 3,

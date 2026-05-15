@@ -6,7 +6,7 @@ export const levelFifteen: Level = {
   name: 'Primeira Função',
   description: 'Introdução a blocos reutilizáveis de comandos.',
   objective: 'Entenda o papel das funções no código do jogador.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 2,

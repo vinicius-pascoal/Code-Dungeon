@@ -5,7 +5,7 @@ export const levelTwo: Level = {
   name: 'Virando à Direita',
   description: 'Aprenda a combinar avanço e giro à direita.',
   objective: 'Chegue até a saída usando uma curva à direita.',
-  availableCommands: ['moveForward', 'turnRight'],
+  availableCommands: ['moveForward', 'turnRight', 'print'],
   playerStart: {
     x: 1,
     y: 3,

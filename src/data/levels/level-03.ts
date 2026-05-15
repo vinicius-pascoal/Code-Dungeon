@@ -5,7 +5,7 @@ export const levelThree: Level = {
   name: 'Virando à Esquerda',
   description: 'O caminho exige uma curva à esquerda.',
   objective: 'Use turnLeft() para alcançar a saída.',
-  availableCommands: ['moveForward', 'turnLeft'],
+  availableCommands: ['moveForward', 'turnLeft', 'print'],
   playerStart: {
     x: 3,
     y: 3,

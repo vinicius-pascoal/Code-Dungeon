@@ -160,7 +160,8 @@ export async function executeAdvancedCommands(
         const enemy = enemyAt(nx, ny)
         if (enemy) return 'ENEMY'
         const tile = row[nx]
-        return tile ?? 'UNKNOWN'
+        // Normalizar retorno como string maiúscula sem espaços
+        return (String(tile ?? 'UNKNOWN')).trim().toUpperCase()
       }
       case 'turnLeft':
         state.player.direction = turnLeft(state.player.direction)
@@ -256,7 +257,7 @@ export async function executeAdvancedCommands(
     // Segunda passagem: executar programa
     for (const stmt of program.body) {
       if (stmt.type !== 'FunctionDeclaration') {
-        const result = await executeStatement(stmt, state, context, executeCommand, onError)
+        const result = await executeStatement(stmt, state, context, executeCommand, onError, onStep)
         if (result === 'exit') {
           onComplete({ player: state.player, won: true })
           return
@@ -276,7 +277,8 @@ async function executeStatement(
   state: GameState,
   context: Context,
   executeCommand: (cmd: string) => Promise<any>,
-  onError: (msg: string) => void
+  onError: (msg: string) => void,
+  onStep?: StepCallback
 ): Promise<any> {
   if (context.shouldReturn || context.shouldBreak || context.shouldContinue) {
     return true
@@ -284,7 +286,7 @@ async function executeStatement(
 
   switch (stmt.type) {
     case 'ExpressionStatement':
-      return await executeExpression((stmt as ExpressionStatement).expression, context, executeCommand, onError)
+      return await executeExpression((stmt as ExpressionStatement).expression, context, executeCommand, onError, state, onStep)
 
     case 'VariableDeclaration': {
       const decl = stmt as VariableDeclaration
@@ -299,7 +301,7 @@ async function executeStatement(
     case 'BlockStatement': {
       const block = stmt as BlockStatement
       for (const s of block.body) {
-        const result = await executeStatement(s, state, context, executeCommand, onError)
+        const result = await executeStatement(s, state, context, executeCommand, onError, onStep)
         if (result === 'exit' || result === false || context.shouldReturn || context.shouldBreak || context.shouldContinue) {
           return result
         }
@@ -311,9 +313,9 @@ async function executeStatement(
       const ifStmt = stmt as IfStatement
       const condition = await evaluateExpression(ifStmt.condition, context)
       if (toBoolean(condition)) {
-        return await executeStatement(ifStmt.consequent, state, context, executeCommand, onError)
+        return await executeStatement(ifStmt.consequent, state, context, executeCommand, onError, onStep)
       } else if (ifStmt.alternate) {
-        return await executeStatement(ifStmt.alternate, state, context, executeCommand, onError)
+        return await executeStatement(ifStmt.alternate, state, context, executeCommand, onError, onStep)
       }
       return true
     }
@@ -322,7 +324,7 @@ async function executeStatement(
       const whileStmt = stmt as WhileStatement
       while (toBoolean(await evaluateExpression(whileStmt.condition, context))) {
         context.shouldContinue = false
-        const result = await executeStatement(whileStmt.body, state, context, executeCommand, onError)
+        const result = await executeStatement(whileStmt.body, state, context, executeCommand, onError, onStep)
         if (result === 'exit' || result === false || context.shouldReturn || context.shouldBreak) {
           if (context.shouldBreak) {
             context.shouldBreak = false
@@ -338,7 +340,7 @@ async function executeStatement(
       const forStmt = stmt as ForStatement
       if (forStmt.init) {
         if ((forStmt.init as any).type === 'VariableDeclaration') {
-          await executeStatement(forStmt.init as VariableDeclaration, state, context, executeCommand, onError)
+          await executeStatement(forStmt.init as VariableDeclaration, state, context, executeCommand, onError, onStep)
         } else {
           await evaluateExpression(forStmt.init as Expression, context)
         }
@@ -346,7 +348,7 @@ async function executeStatement(
 
       while (!forStmt.condition || toBoolean(await evaluateExpression(forStmt.condition, context))) {
         context.shouldContinue = false
-        const result = await executeStatement(forStmt.body, state, context, executeCommand, onError)
+        const result = await executeStatement(forStmt.body, state, context, executeCommand, onError, onStep)
         if (result === 'exit' || result === false || context.shouldReturn || context.shouldBreak) {
           if (context.shouldBreak) {
             context.shouldBreak = false
@@ -376,13 +378,29 @@ async function executeStatement(
   }
 }
 
-async function executeExpression(expr: Expression, context: Context, executeCommand: (cmd: string) => Promise<any>, onError: (msg: string) => void): Promise<any> {
+async function executeExpression(
+  expr: Expression,
+  context: Context,
+  executeCommand: (cmd: string) => Promise<any>,
+  onError: (msg: string) => void,
+  state?: GameState,
+  onStep?: StepCallback
+): Promise<any> {
   if (expr.type === 'CallExpression') {
     const call = expr as CallExpression
     const calleeName = call.callee.name
 
-    // Verificar se é um comando do jogo
-    // Inclui 'look' que é uma função de leitura (retorna o conteúdo do tile à frente)
+    // Função print(...) — avalia argumentos e emite via onStep.message
+    if (calleeName === 'print') {
+      const args = await Promise.all(call.arguments.map((arg) => evaluateExpression(arg, context)))
+      const text = args.map((a) => String(a)).join(' ')
+      if (onStep && state) {
+        onStep({ command: 'print', player: { ...state.player }, grid: cloneGrid(state.grid), enemies: cloneEnemies(state.enemies), message: text })
+      }
+      return 0
+    }
+
+    // Verificar se é um comando do jogo (sem argumentos)
     if (['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look'].includes(calleeName)) {
       return await executeCommand(calleeName)
     }
@@ -403,7 +421,7 @@ async function executeExpression(expr: Expression, context: Context, executeComm
         newContext.variables.set(func.params[i], args[i] ?? undefined)
       }
 
-      await executeStatement(func.body, { grid: [], player: {} as any, enemies: [] }, newContext, executeCommand, onError)
+      await executeStatement(func.body, state ?? { grid: [], player: {} as any, enemies: [] }, newContext, executeCommand, onError, onStep)
 
       const result = newContext.returnValue
       return result ?? 0
@@ -441,8 +459,14 @@ async function evaluateExpression(expr: Expression, context: Context): Promise<a
         case '%':
           return toNumber(left) % toNumber(right)
         case '==':
+          if (typeof left === 'string' && typeof right === 'string') {
+            return left.trim().toUpperCase() == right.trim().toUpperCase()
+          }
           return left == right
         case '!=':
+          if (typeof left === 'string' && typeof right === 'string') {
+            return left.trim().toUpperCase() != right.trim().toUpperCase()
+          }
           return left != right
         case '<':
           return toNumber(left) < toNumber(right)
@@ -548,7 +572,7 @@ async function evaluateExpression(expr: Expression, context: Context): Promise<a
     }
 
     case 'CallExpression':
-      return await executeExpression(expr as CallExpression, null as any, async () => false as any, () => { })
+      return await executeExpression(expr as CallExpression, null as any, async () => false as any, () => { }, undefined, () => { })
 
     default:
       return 0
