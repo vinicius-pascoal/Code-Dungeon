@@ -10,7 +10,6 @@ export const levelSix: Level = {
     x: 1,
     y: 2,
     direction: 'RIGHT',
-    availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print', 'attack'],
     openedChests: 0,
   },
   grid: [
