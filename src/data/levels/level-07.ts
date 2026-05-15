@@ -10,7 +10,7 @@ export const levelSeven: Level = {
     x: 1,
     y: 2,
     direction: 'RIGHT',
-    availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'grabKey', 'openDoor', 'print'],
+    keys: 0,
     openedChests: 0,
   },
   grid: [
