@@ -149,6 +149,19 @@ export async function executeAdvancedCommands(
         state.player.y = ny
         break
       }
+      case 'look': {
+        const { dx, dy } = deltaFor(state.player.direction)
+        const nx = state.player.x + dx
+        const ny = state.player.y + dy
+        const row = state.grid[ny]
+        if (!row || row[nx] === undefined) {
+          return 'OUT_OF_BOUNDS'
+        }
+        const enemy = enemyAt(nx, ny)
+        if (enemy) return 'ENEMY'
+        const tile = row[nx]
+        return tile ?? 'UNKNOWN'
+      }
       case 'turnLeft':
         state.player.direction = turnLeft(state.player.direction)
         break
@@ -369,7 +382,8 @@ async function executeExpression(expr: Expression, context: Context, executeComm
     const calleeName = call.callee.name
 
     // Verificar se é um comando do jogo
-    if (['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest'].includes(calleeName)) {
+    // Inclui 'look' que é uma função de leitura (retorna o conteúdo do tile à frente)
+    if (['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look'].includes(calleeName)) {
       return await executeCommand(calleeName)
     }
 

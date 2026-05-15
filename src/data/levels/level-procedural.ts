@@ -26,6 +26,7 @@ export function generateProceduralMazeLevel(): Level {
       'turnLeft',
       'turnRight',
       'attack',
+      'look',
       'jump',
       'if',
       'else',

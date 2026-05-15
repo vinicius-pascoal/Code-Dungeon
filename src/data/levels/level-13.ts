@@ -6,7 +6,7 @@ export const levelThirteen: Level = {
   name: 'If na Frente',
   description: 'Primeiro contato com decisões baseadas no ambiente.',
   objective: 'Aprenda a reagir a obstáculos com condicionais.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'look'],
   playerStart: {
     x: 1,
     y: 2,

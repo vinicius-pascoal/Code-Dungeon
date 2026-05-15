@@ -16,6 +16,7 @@ import { levelFifteen } from './level-15'
 import { levelSixteen } from './level-16'
 import { levelSeventeen } from './level-17'
 import { levelEighteen } from './level-18'
+import { levelNineteen } from './level-19'
 import { generateProceduralMazeLevel } from './level-procedural'
 import { World } from '../../types/game'
 
@@ -38,6 +39,7 @@ export const levels = [
   levelSixteen,
   levelSeventeen,
   levelEighteen,
+  levelNineteen,
 ]
 
 export const proceduralMazeLevel = generateProceduralMazeLevel()
@@ -69,7 +71,7 @@ export const worlds: World[] = [
     name: 'Mundo 4 - Condicionais',
     description: 'Fases de leitura do ambiente e decisões com if.',
     theme: 'Condicionais',
-    levelIds: [13, 14],
+    levelIds: [13, 14, 19],
   },
   {
     id: 5,
