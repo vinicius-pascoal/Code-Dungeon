@@ -415,7 +415,7 @@ export default function GamePage() {
             <div className="mt-3">
               <h3 className="text-xs font-semibold text-primaryText uppercase tracking-wide mb-2">Comandos Disponíveis</h3>
               <div className="flex flex-wrap gap-2">
-                {selectedLevel.availableCommands.map((cmd) => (
+                {selectedLevel.availableCommands.map((cmd: string) => (
                   <span
                     key={cmd}
                     className="px-2.5 py-1 rounded-md text-xs font-mono bg-magic/20 border border-magic text-magic hover:bg-magic/30 transition-colors"
