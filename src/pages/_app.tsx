@@ -13,8 +13,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 site-container py-6">
+      <main className="flex-1 site-container">
         <Component {...pageProps} />
       </main>
     </div>
