@@ -192,3 +192,49 @@ blurry, low resolution, noisy, overly complex, photorealistic, text, watermark, 
 3. Itens interativos.
 4. Ícones da legenda e comandos.
 5. Logo e telas de apoio.
+
+## 11. Prompts para assets dos mundos
+
+Use estes prompts como base para gerar as artes de cada mundo. A ideia e que cada mundo tenha uma identidade forte, mas ainda combine com a dungeon escura e legivel do jogo.
+
+### Mundo 1 - Sequencia Basica
+
+```text
+Create a floating world asset for a dungeon coding game, themed around basic sequence and first steps in programming. The scene should feel like an introductory dungeon island with simple paths, a small gate, a few floor tiles, and subtle magical guidance markers. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #E2E8F0.
+```
+
+### Mundo 2 - Interacoes da Dungeon
+
+```text
+Create a floating world asset for a dungeon coding game, themed around interactions such as keys, doors, chests, and enemies. The world should look more dangerous and busier than the starter world, with a locked gate, a chest, a key pedestal, and a hint of enemy presence. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #F59E0B, #EF4444, #E2E8F0.
+```
+
+### Mundo 3 - Loops
+
+```text
+Create a floating world asset for a dungeon coding game, themed around loops and repetition. The world should visually suggest circular paths, repeated stone patterns, and a looping route through the dungeon, with a clever and educational feel. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #22C55E, #E2E8F0.
+```
+
+### Mundo 4 - Condicionais
+
+```text
+Create a floating world asset for a dungeon coding game, themed around conditional logic and decision making. The world should show branching paths, split bridges, warning signs, and environmental choices that hint at if/else logic. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #EF4444, #F59E0B, #E2E8F0.
+```
+
+### Mundo 5 - Funcoes
+
+```text
+Create a floating world asset for a dungeon coding game, themed around functions, abstraction, and reusable logic. The world should feel modular, organized, and slightly more advanced, with repeated structures, linked rooms, and a strong sense of systems design. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #22C55E, #E2E8F0.
+```
+
+### Mundo final secreto - Desafio
+
+```text
+Create a hidden final world asset for a dungeon coding game, designed as a secret challenge area at the end of the journey. The world should feel more mysterious, compact, and hard to reach, with darker tones, treasure hints, and a powerful final aura. It should look slightly more hidden than the other worlds, with a sense of reward and danger. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #F59E0B, #EF4444, #3B82F6, #E2E8F0.
+```
+
+### Versao consistente para todos os mundos
+
+```text
+Create a set of floating world assets for an educational dungeon coding game, one asset per world, all sharing the same art direction but with distinct visual identities. Each world should feel like a floating island, room cluster, or dungeon region, with transparent background, clean silhouettes, modern pixel-art inspired 2D style, game-ready composition, and no text or UI. Keep the worlds visually coherent, but make each one instantly recognizable by theme and color accents.
+```
