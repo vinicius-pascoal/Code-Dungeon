@@ -9,6 +9,7 @@ type Props = {
   playerDirection: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
   enemies: Enemy[]
   isRunning?: boolean
+  hideWalls?: boolean
 }
 
 type VisibleTiles = {
@@ -28,9 +29,10 @@ function getVariation(x: number, y: number): number {
 }
 
 // Retorna o caminho da imagem do tile, ou fallback com cor CSS
-function getTileImage(tile: TileType, x: number, y: number): string | null {
+function getTileImage(tile: TileType, x: number, y: number, hideWalls?: boolean): string | null {
   switch (tile) {
     case 'WALL':
+      if (hideWalls) return null
       return `/assets/paredes/parede${getVariation(x, y)}.png`
     case 'EXIT':
       return '/assets/portal.png'
@@ -44,10 +46,10 @@ function getTileImage(tile: TileType, x: number, y: number): string | null {
 }
 
 // Retorna classe CSS fallback para tiles sem imagem
-function renderTileFallback(tile: TileType) {
+function renderTileFallback(tile: TileType, hideWalls?: boolean) {
   switch (tile) {
     case 'WALL':
-      return 'bg-wall'
+      return hideWalls ? 'bg-transparent' : 'bg-wall'
     case 'EXIT':
       return 'bg-success text-bg font-bold'
     case 'SPIKE':
@@ -120,7 +122,7 @@ function calculateFitZoom(cols: number, rows: number, viewportWidth: number, vie
   return Math.max(0.1, maxTileSize / baseTileSize)
 }
 
-export default function DungeonGrid({ level, playerX, playerY, playerDirection, enemies, isRunning }: Props) {
+export default function DungeonGrid({ level, playerX, playerY, playerDirection, enemies, isRunning, hideWalls }: Props) {
   const cols = level.grid[0]?.length || 0
   const rows = level.grid.length
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
@@ -343,7 +345,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
             const isPlayer = x === playerX && y === playerY
             const key = `${x}-${y}`
             const enemy = enemyAt(enemies, x, y)
-            const tileImage = getTileImage(tile, x, y)
+            const tileImage = getTileImage(tile, x, y, hideWalls)
             const tileStyle: React.CSSProperties = {
               position: 'absolute',
               left: `${x * tileSize}px`,
@@ -362,7 +364,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
                 : directionToRotation(playerDirection)
 
               return (
-                <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile)}`}>
+                <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile, hideWalls)}`}>
                   {tileImage ? (
                     <Image
                       src={tileImage}
@@ -400,7 +402,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
             }
 
             return (
-              <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile)}`}>
+              <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile, hideWalls)}`}>
                 {tileImage && zoom > 0.4 ? (
                   <Image
                     src={tileImage}
