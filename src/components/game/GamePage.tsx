@@ -207,6 +207,8 @@ export default function GamePage() {
     suggestion: '',
   })
   const [docOpen, setDocOpen] = useState(false)
+  const [introOpen, setIntroOpen] = useState(false)
+  const [introLines, setIntroLines] = useState<string[]>([])
 
   // Salvar código quando muda
   useEffect(() => {
@@ -231,6 +233,59 @@ export default function GamePage() {
     setRunning(false)
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
+    // Construir texto introdutório para o nível atual
+    const buildIntro = (lvl: any) => {
+      const lines: string[] = []
+      if (lvl.description) lines.push(lvl.description)
+      if (lvl.objective) lines.push(`Objetivo: ${lvl.objective}`)
+
+      const tiles = new Set<string>()
+      for (const row of lvl.grid) {
+        for (const t of row) {
+          if (t !== 'FLOOR' && t !== 'WALL') tiles.add(t)
+        }
+      }
+
+      if ((lvl.enemies ?? []).length > 0) tiles.add('ENEMY')
+
+      const mechanics: string[] = []
+      if (tiles.has('SPIKE')) mechanics.push('Células com espinhos: evite pisar nelas.')
+      if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
+      if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')
+      if (tiles.has('ENEMY')) mechanics.push('Inimigos: use `attack()` para derrotá-los antes de avançar.')
+      if (lvl.availableCommands?.includes('look')) mechanics.push('Comando `look()`: permite ler o tile à frente e tomar decisões.')
+
+      if (mechanics.length) {
+        lines.push('Mecânicas nesta fase:')
+        for (const m of mechanics) lines.push(`- ${m}`)
+      }
+
+      // Descrições curtas para cada comando disponível
+      const cmdDescriptions: Record<string, string> = {
+        moveForward: 'Avança uma casa à frente (moveForward()).',
+        turnLeft: 'Gira 90° à esquerda (turnLeft()).',
+        turnRight: 'Gira 90° à direita (turnRight()).',
+        attack: 'Ataca o inimigo na célula à frente (attack()).',
+        grabKey: 'Coleta uma chave na célula atual (grabKey()).',
+        openDoor: 'Abre a porta à frente se você tiver chave (openDoor()).',
+        openChest: 'Abre o baú à frente (openChest()).',
+        look: 'Retorna o tipo do tile à frente (look()).',
+        print: 'Imprime valores no console para depuração (print(x)).',
+      }
+
+      if (lvl.availableCommands && lvl.availableCommands.length) {
+        lines.push('Funções disponíveis:')
+        for (const cmd of lvl.availableCommands) {
+          const desc = cmdDescriptions[cmd] ?? ''
+          lines.push(`- ${cmd}(): ${desc}`)
+        }
+      }
+
+      return lines
+    }
+
+    setIntroLines(buildIntro(selectedLevel))
+    setIntroOpen(true)
   }, [selectedLevel])
 
   function addLog(line: string) {
@@ -385,6 +440,37 @@ export default function GamePage() {
       />
 
       <DocumentationModal isOpen={docOpen} onClose={() => setDocOpen(false)} />
+
+      {introOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
+          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-panel/95 shadow-2xl p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.28em] text-magic">Novidades da fase</p>
+                <h3 className="mt-2 text-lg font-black text-primaryText">{selectedLevel.name}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIntroOpen(false)}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-floor text-primaryText transition hover:border-magic/60 hover:bg-wall"
+                aria-label="Fechar modal"
+              >
+                X
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-2 text-sm text-secondaryText">
+              {introLines.map((line, i) => (
+                <p key={i} className={line.startsWith('- ') ? 'ml-3' : ''}>{line}</p>
+              ))}
+            </div>
+
+            <div className="mt-5 flex justify-end">
+              <button onClick={() => setIntroOpen(false)} className="px-4 py-2 rounded-md bg-magic text-bg font-semibold">Entendi — começar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <header className="flex items-center justify-between px-6 py-4 bg-panel border-b border-border">
         <div>
