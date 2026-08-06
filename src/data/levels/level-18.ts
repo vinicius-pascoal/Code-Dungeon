@@ -6,7 +6,7 @@ export const levelEighteen: Level = {
   name: 'Funções e Desafio Final',
   description: 'Fechando o ciclo de funções com um mapa compacto.',
   objective: 'Visualize como funções podem organizar o caminho.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'function', 'return', 'print'],
   playerStart: {
     x: 1,
     y: 3,

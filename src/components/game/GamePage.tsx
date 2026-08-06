@@ -11,6 +11,7 @@ import { parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
 import { parseAdvancedCode } from '../../utils/advancedParser'
 import { executeAdvancedCommands } from '../../utils/advancedExecutor'
+import type { Expression, Program, Statement } from '../../utils/ast'
 import { Enemy, TileType } from '../../types/game'
 
 function cloneGrid(grid: TileType[][]) {
@@ -137,6 +138,75 @@ function calculateStars(commandCount: number, levelId: number) {
   return 1
 }
 
+const STAR_COUNTED_COMMANDS = new Set(['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'print'])
+const LANGUAGE_FEATURE_LABELS: Record<string, string> = {
+  if: 'if',
+  else: 'else',
+  while: 'while (...)',
+  for: 'for (...)',
+  function: 'function name(...)',
+  var: 'var',
+  let: 'let',
+  const: 'const',
+  return: 'return',
+}
+
+function formatAvailableCommand(cmd: string) {
+  return LANGUAGE_FEATURE_LABELS[cmd] ?? `${cmd}()`
+}
+
+function countExpressionCommands(expr?: Expression): number {
+  if (!expr) return 0
+
+  switch (expr.type) {
+    case 'CallExpression':
+      return (STAR_COUNTED_COMMANDS.has(expr.callee.name) ? 1 : 0) + expr.arguments.reduce((sum, arg) => sum + countExpressionCommands(arg), 0)
+    case 'BinaryExpression':
+    case 'LogicalExpression':
+      return countExpressionCommands(expr.left) + countExpressionCommands(expr.right)
+    case 'UnaryExpression':
+      return countExpressionCommands(expr.argument)
+    case 'AssignmentExpression':
+      return countExpressionCommands(expr.left) + countExpressionCommands(expr.right)
+    default:
+      return 0
+  }
+}
+
+function countStatementCommands(stmt: Statement): number {
+  switch (stmt.type) {
+    case 'ExpressionStatement':
+      return countExpressionCommands(stmt.expression)
+    case 'VariableDeclaration':
+      return countExpressionCommands(stmt.value)
+    case 'BlockStatement':
+      return stmt.body.reduce((sum, child) => sum + countStatementCommands(child), 0)
+    case 'IfStatement':
+      return countExpressionCommands(stmt.condition)
+        + countStatementCommands(stmt.consequent)
+        + (stmt.alternate ? countStatementCommands(stmt.alternate) : 0)
+    case 'WhileStatement':
+      return countExpressionCommands(stmt.condition) + countStatementCommands(stmt.body)
+    case 'ForStatement':
+      return (stmt.init && (stmt.init as any).type === 'VariableDeclaration'
+        ? countStatementCommands(stmt.init as Statement)
+        : countExpressionCommands(stmt.init as Expression | undefined))
+        + countExpressionCommands(stmt.condition)
+        + countExpressionCommands(stmt.update)
+        + countStatementCommands(stmt.body)
+    case 'FunctionDeclaration':
+      return countStatementCommands(stmt.body)
+    case 'ReturnStatement':
+      return countExpressionCommands(stmt.argument)
+    default:
+      return 0
+  }
+}
+
+function countAdvancedCommands(program: Program) {
+  return program.body.reduce((sum, stmt) => sum + countStatementCommands(stmt), 0)
+}
+
 function starterCode(levelId: number) {
   switch (levelId) {
     case 1:
@@ -157,6 +227,10 @@ function starterCode(levelId: number) {
       return 'moveForward();\nmoveForward();\nturnRight();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();'
     case 10:
       return 'grabKey();\nturnRight();\nmoveForward();\nmoveForward();\nattack();\nturnLeft();\nopenDoor();\nmoveForward();'
+    case 11:
+      return 'let steps = 0;\n\nturnLeft();\nmoveForward();\nturnRight();\n\nwhile (steps < 3) {\n  moveForward();\n  steps++;\n}'
+    case 12:
+      return 'for (let i = 0; i < 2; i++) {\n  moveForward();\n}\nturnRight();\nfor (let i = 0; i < 3; i++) {\n  moveForward();\n}'
     case 999:
       return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:
@@ -271,13 +345,22 @@ export default function GamePage() {
         openChest: 'Abre o baú à frente (openChest()).',
         look: 'Retorna o tipo do tile à frente (look()).',
         print: 'Imprime valores no console para depuração (print(x)).',
+        while: 'Repete um bloco enquanto a condicao for verdadeira.',
+        for: 'Repete um bloco com contador de inicio, condicao e atualizacao.',
+        if: 'Executa um bloco quando a condicao for verdadeira.',
+        else: 'Define o caminho alternativo de um if.',
+        function: 'Agrupa comandos reutilizaveis.',
+        var: 'Declara uma variavel.',
+        let: 'Declara uma variavel de controle.',
+        const: 'Declara um valor constante.',
+        return: 'Retorna um valor de uma funcao.',
       }
 
       if (lvl.availableCommands && lvl.availableCommands.length) {
-        lines.push('Funções disponíveis:')
+        lines.push('Recursos disponiveis:')
         for (const cmd of lvl.availableCommands) {
           const desc = cmdDescriptions[cmd] ?? ''
-          lines.push(`- ${cmd}(): ${desc}`)
+          lines.push(`- ${formatAvailableCommand(cmd)}: ${desc}`)
         }
       }
 
@@ -319,6 +402,7 @@ export default function GamePage() {
       if (usesAdvanced) {
         // Usar novo parser e executor
         const program = parseAdvancedCode(code)
+        const sourceCommandCount = countAdvancedCommands(program)
         let commandsExecuted = 0
 
         await executeAdvancedCommands(
@@ -343,7 +427,8 @@ export default function GamePage() {
             setPlayer({ ...final })
             setRunning(false)
             if (won) {
-              const stars = calculateStars(commandsExecuted, selectedLevel.id)
+              setCommandCount(sourceCommandCount)
+              const stars = calculateStars(sourceCommandCount, selectedLevel.id)
               setVictoryState({ open: true, stars })
               addLog('Fase concluída com sucesso')
               return
@@ -499,14 +584,14 @@ export default function GamePage() {
             <h2 className="font-semibold text-sm mb-2">Objetivo</h2>
             <p className="text-xs text-secondaryText mb-3">{selectedLevel.objective}</p>
             <div className="mt-3">
-              <h3 className="text-xs font-semibold text-primaryText uppercase tracking-wide mb-2">Comandos Disponíveis</h3>
+              <h3 className="text-xs font-semibold text-primaryText uppercase tracking-wide mb-2">Recursos Disponiveis</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedLevel.availableCommands.map((cmd: string) => (
                   <span
                     key={cmd}
                     className="px-2.5 py-1 rounded-md text-xs font-mono bg-magic/20 border border-magic text-magic hover:bg-magic/30 transition-colors"
                   >
-                    {cmd}()
+                    {formatAvailableCommand(cmd)}
                   </span>
                 ))}
               </div>

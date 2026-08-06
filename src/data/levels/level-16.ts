@@ -6,7 +6,7 @@ export const levelSixteen: Level = {
   name: 'Função e Saída',
   description: 'Mais um passo para consolidar reutilização.',
   objective: 'Use o raciocínio de função para encurtar soluções.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'function', 'return', 'print'],
   playerStart: {
     x: 1,
     y: 3,

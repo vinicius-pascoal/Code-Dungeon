@@ -6,7 +6,7 @@ export const levelSeventeen: Level = {
   name: 'Funções e Planejamento',
   description: 'Aplique pensamento modular em uma fase curta.',
   objective: 'Pense em blocos de ação repetíveis.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'function', 'return', 'print'],
   playerStart: {
     x: 1,
     y: 2,
