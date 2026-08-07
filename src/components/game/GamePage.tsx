@@ -577,67 +577,68 @@ export default function GamePage() {
         </div>
       ) : null}
 
-      <main className="flex-1 grid grid-cols-2 gap-3 p-3 overflow-hidden">
-        {/* Grid - top left */}
-        <div className="flex flex-col gap-3 overflow-hidden">
-          <div className="panel p-3 rounded-md flex-shrink-0">
-            <h2 className="font-semibold text-sm mb-2">Objetivo</h2>
-            <p className="text-xs text-secondaryText mb-3">{selectedLevel.objective}</p>
-            <div className="mt-3">
-              <h3 className="text-xs font-semibold text-primaryText uppercase tracking-wide mb-2">Recursos Disponiveis</h3>
-              <div className="flex flex-wrap gap-2">
-                {selectedLevel.availableCommands.map((cmd: string) => (
-                  <span
-                    key={cmd}
-                    className="px-2.5 py-1 rounded-md text-xs font-mono bg-magic/20 border border-magic text-magic hover:bg-magic/30 transition-colors"
-                  >
-                    {formatAvailableCommand(cmd)}
-                  </span>
-                ))}
+      <main className="flex-1 min-h-0 overflow-hidden p-3">
+        <div className="grid h-full min-h-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.9fr)]">
+          <section className="flex min-h-0 flex-col gap-4 overflow-hidden">
+            <div className="panel flex-shrink-0 rounded-xl border border-white/5 bg-panel/95 p-4 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="max-w-2xl">
+                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-magic">Leitura da fase</p>
+                  <h2 className="mt-2 text-sm font-semibold text-primaryText">Objetivo</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-secondaryText">{selectedLevel.objective}</p>
+                </div>
+
+                <div className="min-w-0 flex-1 rounded-xl border border-white/5 bg-black/20 p-3">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-primaryText">Recursos disponíveis</h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {selectedLevel.availableCommands.map((cmd: string) => (
+                      <span
+                        key={cmd}
+                        className="rounded-md border border-magic/50 bg-magic/15 px-2.5 py-1 text-xs font-mono text-magic transition-colors hover:bg-magic/25"
+                      >
+                        {formatAvailableCommand(cmd)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex-1 overflow-hidden">
-            <DungeonGrid
-              level={selectedLevel}
-              playerX={player.x}
-              playerY={player.y}
-              playerDirection={player.direction}
-              enemies={enemies}
-              isRunning={running}
-              hideWalls={true}
-            />
-          </div>
+            <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-white/5 bg-panel/90 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-primaryText">Mapa da fase</h2>
+                  </div>
+                </div>
+
+                <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-white/5 bg-black/15 p-2">
+                  <DungeonGrid
+                    level={selectedLevel}
+                    playerX={player.x}
+                    playerY={player.y}
+                    playerDirection={player.direction}
+                    enemies={enemies}
+                    isRunning={running}
+                    hideWalls={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/5 bg-panel/95 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
+            <div className="flex-shrink-0 border-b border-white/5 px-4 py-3">
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-magic">Área de código</p>
+              <h2 className="mt-1 text-sm font-semibold text-primaryText">Editor</h2>
+            </div>
+
+            <div className="min-h-0 flex-1 overflow-hidden p-3">
+              <CodeEditor value={code} onChange={setCode} disabled={running} />
+            </div>
+          </section>
         </div>
-
-        {/* Editor - top right */}
-        <div className="panel p-3 rounded-md flex flex-col overflow-hidden">
-          <h2 className="font-semibold text-sm mb-2">Editor</h2>
-          <div className="flex-1 overflow-hidden">
-            <CodeEditor value={code} onChange={setCode} disabled={running} />
-          </div>
-        </div>
-
-        {/* Bottom row */}
       </main>
-
-      <div className="grid grid-cols-2 gap-3 p-3 h-40 flex-shrink-0">
-        {/* Legend - bottom left */}
-        <div className="overflow-auto">
-          <Legend />
-        </div>
-
-        {/* Console - bottom right */}
-        <div className="panel p-3 rounded-md overflow-auto">
-          <h3 className="font-semibold text-sm mb-2">Console</h3>
-          <div className="font-mono text-xs space-y-1">
-            {logs.map((l, i) => (
-              <div key={i} className="text-slate-300 leading-relaxed">{l}</div>
-            ))}
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
