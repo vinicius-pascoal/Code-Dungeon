@@ -7,7 +7,7 @@ import ErrorModal from './ErrorModal'
 import DocumentationModal from './DocumentationModal'
 import CodeEditor from './CodeEditor'
 import { getLevelById, levels } from '../../data/levels'
-import { parseCommands } from '../../utils/commandParser'
+import { isSimpleCommandList, parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
 import { parseAdvancedCode } from '../../utils/advancedParser'
 import { executeAdvancedCommands } from '../../utils/advancedExecutor'
@@ -393,7 +393,7 @@ export default function GamePage() {
 
     // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
     // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
-    const simpleCommandsOnly = /^\s*([a-zA-Z0-9_]+\s*\(\s*\)\s*;?\s*)+$/m.test(code)
+    const simpleCommandsOnly = isSimpleCommandList(code)
     const usesAdvanced = !simpleCommandsOnly
 
     try {

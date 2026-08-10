@@ -1,4 +1,5 @@
 const COMMAND_RE = /([a-zA-Z0-9_]+)\s*\(\s*\)\s*;?/g
+const SIMPLE_COMMAND_LIST_RE = /^\s*(?:[a-zA-Z0-9_]+\s*\(\s*\)\s*;?\s*)+$/
 
 export const RESERVED_COMMANDS = [
   'moveForward',
@@ -11,6 +12,10 @@ export const RESERVED_COMMANDS = [
 ]
 
 const DEFAULT_ALLOWED = new Set(RESERVED_COMMANDS)
+
+export function isSimpleCommandList(code: string) {
+  return SIMPLE_COMMAND_LIST_RE.test(code)
+}
 
 export function parseCommands(code: string, allowedCommands?: string[]) {
   const cmds: string[] = []
