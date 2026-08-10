@@ -6,7 +6,7 @@ export const levelTwelve: Level = {
   name: 'Loop e Desvio',
   description: 'Combine repetição com mudança de direção.',
   objective: 'Entenda como loops podem reduzir comandos repetidos.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'for', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'for', 'let', 'print'],
   playerStart: {
     x: 1,
     y: 3,
@@ -16,7 +16,7 @@ export const levelTwelve: Level = {
   },
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'EXIT', 'WALL'],
+    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'FLOOR', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],

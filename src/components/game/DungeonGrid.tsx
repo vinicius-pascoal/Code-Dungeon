@@ -380,13 +380,10 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
                   )}
 
                   <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
-                    <Image
+                    <img
                       src={playerImage}
                       alt="Personagem do jogador"
-                      fill
-                      className="object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]"
-                      sizes={`${tileSize}px`}
-                      priority
+                      className="h-full w-full object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]"
                     />
                   </div>
                 </div>

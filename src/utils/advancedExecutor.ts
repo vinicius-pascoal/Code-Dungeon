@@ -39,6 +39,19 @@ type Context = {
 
 const GAME_COMMANDS = ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look']
 const MAX_LOOP_ITERATIONS = 1000
+const COMMAND_STEP_DELAY_MS = 300
+
+class ExecutionHalted extends Error {
+  constructor() {
+    super('Execution halted')
+    this.name = 'ExecutionHalted'
+  }
+}
+
+function stopExecution(onError: (msg: string) => void, message: string): never {
+  onError(message)
+  throw new ExecutionHalted()
+}
 
 function cloneGrid(grid: TileType[][]) {
   return grid.map((row) => [...row])
@@ -91,6 +104,54 @@ function toNumber(value: any): number {
   return 0
 }
 
+function collectImplicitAllowedCommands(program: Program): Set<string> {
+  const implicitCommands = new Set<string>()
+
+  const visitStatement = (stmt: Statement | undefined) => {
+    if (!stmt) return
+
+    switch (stmt.type) {
+      case 'VariableDeclaration':
+        implicitCommands.add('let')
+        break
+      case 'WhileStatement':
+        implicitCommands.add('while')
+        visitStatement(stmt.body)
+        break
+      case 'ForStatement':
+        implicitCommands.add('for')
+        if (stmt.init && (stmt.init as any).type === 'VariableDeclaration') {
+          implicitCommands.add('let')
+        }
+        visitStatement(stmt.body)
+        break
+      case 'IfStatement':
+        implicitCommands.add('if')
+        visitStatement(stmt.consequent)
+        if (stmt.alternate) visitStatement(stmt.alternate)
+        break
+      case 'FunctionDeclaration':
+        implicitCommands.add('function')
+        visitStatement(stmt.body)
+        break
+      case 'BlockStatement':
+        for (const child of stmt.body) visitStatement(child)
+        break
+      case 'ReturnStatement':
+        implicitCommands.add('return')
+        break
+      default:
+        break
+    }
+  }
+
+  for (const stmt of program.body) {
+    visitStatement(stmt)
+  }
+
+  return implicitCommands
+}
+
 export async function executeAdvancedCommands(
   program: Program,
   level: Level,
@@ -98,7 +159,8 @@ export async function executeAdvancedCommands(
   onError: (msg: string) => void,
   onComplete: (result: { player: PlayerState; won: boolean }) => void
 ) {
-  const allowedCommands = new Set(level.availableCommands ?? [])
+  const implicitAllowedCommands = collectImplicitAllowedCommands(program)
+  const allowedCommands = new Set([...(level.availableCommands ?? []), ...implicitAllowedCommands])
   const state: GameState = {
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
@@ -123,8 +185,7 @@ export async function executeAdvancedCommands(
 
   const executeCommand = async (cmd: string) => {
     if (!allowedCommands.has(cmd)) {
-      onError(`Comando inválido: ${cmd}()`)
-      return false
+      stopExecution(onError, `Comando inválido: ${cmd}()`)
     }
 
     let commandResult: any = true
@@ -137,25 +198,20 @@ export async function executeAdvancedCommands(
         const ny = state.player.y + dy
         const row = state.grid[ny]
         if (!row || !row[nx]) {
-          onError(`Tentativa de mover para fora do mapa: ${cmd}()`)
-          return false
+          stopExecution(onError, `Tentativa de mover para fora do mapa: ${cmd}()`)
         }
         if (enemyAt(nx, ny)) {
-          onError(`Existe um inimigo à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Existe um inimigo à frente: ${cmd}()`)
         }
         const tile = row[nx]
         if (tile === 'WALL') {
-          onError(`Parede à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Parede à frente: ${cmd}()`)
         }
         if (tile === 'DOOR') {
-          onError(`Porta fechada à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Porta fechada à frente: ${cmd}()`)
         }
         if (tile === 'SPIKE') {
-          onError(`Você pisou em espinhos: ${cmd}()`)
-          return false
+          stopExecution(onError, `Você pisou em espinhos: ${cmd}()`)
         }
         state.player.x = nx
         state.player.y = ny
@@ -196,12 +252,10 @@ export async function executeAdvancedCommands(
         const enemy = enemyAt(nx, ny)
         const tile = tileAt(nx, ny)
         if (!enemy) {
-          onError(`Nenhum inimigo à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Nenhum inimigo à frente: ${cmd}()`)
         }
         if (tile === 'WALL' || tile === 'DOOR' || tile === 'CHEST') {
-          onError(`Não foi possível atacar o objeto à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Não foi possível atacar o objeto à frente: ${cmd}()`)
         }
         enemy.defeated = true
         break
@@ -209,8 +263,7 @@ export async function executeAdvancedCommands(
       case 'grabKey': {
         const tile = tileAt(state.player.x, state.player.y)
         if (tile !== 'KEY') {
-          onError(`Nenhuma chave na posição atual: ${cmd}()`)
-          return false
+          stopExecution(onError, `Nenhuma chave na posição atual: ${cmd}()`)
         }
         setTile(state.player.x, state.player.y, 'FLOOR')
         state.player.keys += 1
@@ -222,12 +275,10 @@ export async function executeAdvancedCommands(
         const ny = state.player.y + dy
         const tile = tileAt(nx, ny)
         if (tile !== 'DOOR') {
-          onError(`Nenhuma porta à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Nenhuma porta à frente: ${cmd}()`)
         }
         if (state.player.keys < 1) {
-          onError(`Você precisa de uma chave para abrir a porta: ${cmd}()`)
-          return false
+          stopExecution(onError, `Você precisa de uma chave para abrir a porta: ${cmd}()`)
         }
         setTile(nx, ny, 'OPEN_DOOR')
         state.player.keys -= 1
@@ -239,16 +290,14 @@ export async function executeAdvancedCommands(
         const ny = state.player.y + dy
         const tile = tileAt(nx, ny)
         if (tile !== 'CHEST') {
-          onError(`Nenhum baú à frente: ${cmd}()`)
-          return false
+          stopExecution(onError, `Nenhum baú à frente: ${cmd}()`)
         }
         setTile(nx, ny, 'OPEN_CHEST')
         state.player.openedChests += 1
         break
       }
       default:
-        onError(`Comando desconhecido: ${cmd}()`)
-        return false
+        stopExecution(onError, `Comando desconhecido: ${cmd}()`)
     }
 
     onStep({
@@ -259,11 +308,12 @@ export async function executeAdvancedCommands(
       message: commandMessage,
     })
 
+    await new Promise((r) => setTimeout(r, COMMAND_STEP_DELAY_MS))
+
     if (state.grid[state.player.y] && state.grid[state.player.y][state.player.x] === 'EXIT') {
       return 'exit'
     }
 
-    await new Promise((r) => setTimeout(r, 300))
     return commandResult
   }
 
@@ -272,8 +322,7 @@ export async function executeAdvancedCommands(
     for (const stmt of program.body) {
       if (stmt.type === 'FunctionDeclaration') {
         if (!allowedCommands.has('function')) {
-          onError('Comando inválido: function')
-          return
+          stopExecution(onError, 'Comando inválido: function')
         }
         context.functions.set(stmt.name, stmt)
       }
@@ -293,6 +342,7 @@ export async function executeAdvancedCommands(
 
     onComplete({ player: state.player, won: false })
   } catch (error) {
+    if (error instanceof ExecutionHalted) return
     onError(`Erro ao executar: ${error instanceof Error ? error.message : String(error)}`)
   }
 }
@@ -311,13 +361,14 @@ async function executeStatement(
   }
 
   switch (stmt.type) {
-    case 'ExpressionStatement':
-      return await executeExpression((stmt as ExpressionStatement).expression, context, executeCommand, onError, state, onStep, allowedCommands)
+    case 'ExpressionStatement': {
+      const result = await executeExpression((stmt as ExpressionStatement).expression, context, executeCommand, onError, state, onStep, allowedCommands)
+      return result === 'exit' ? result : true
+    }
 
     case 'VariableDeclaration': {
       if (!allowedCommands.has('let') && !allowedCommands.has('var') && !allowedCommands.has('const')) {
-        onError('Comando inválido: let')
-        return false
+        stopExecution(onError, 'Comando inválido: let')
       }
       const decl = stmt as VariableDeclaration
       let value = 0
@@ -341,8 +392,7 @@ async function executeStatement(
 
     case 'IfStatement': {
       if (!allowedCommands.has('if')) {
-        onError('Comando inválido: if')
-        return false
+        stopExecution(onError, 'Comando inválido: if')
       }
       const ifStmt = stmt as IfStatement
       const condition = await evaluateExpression(ifStmt.condition, context, executeCommand, onError, state, onStep, allowedCommands)
@@ -356,16 +406,14 @@ async function executeStatement(
 
     case 'WhileStatement': {
       if (!allowedCommands.has('while')) {
-        onError('Comando inválido: while')
-        return false
+        stopExecution(onError, 'Comando inválido: while')
       }
       const whileStmt = stmt as WhileStatement
       let iterations = 0
       while (toBoolean(await evaluateExpression(whileStmt.condition, context, executeCommand, onError, state, onStep, allowedCommands))) {
         iterations += 1
         if (iterations > MAX_LOOP_ITERATIONS) {
-          onError(`Loop interrompido: limite de ${MAX_LOOP_ITERATIONS} iterações atingido.`)
-          return false
+          stopExecution(onError, `Loop interrompido: limite de ${MAX_LOOP_ITERATIONS} iterações atingido.`)
         }
         context.shouldContinue = false
         const result = await executeStatement(whileStmt.body, state, context, executeCommand, onError, onStep, allowedCommands)
@@ -382,8 +430,7 @@ async function executeStatement(
 
     case 'ForStatement': {
       if (!allowedCommands.has('for')) {
-        onError('Comando inválido: for')
-        return false
+        stopExecution(onError, 'Comando inválido: for')
       }
       const forStmt = stmt as ForStatement
       if (forStmt.init) {
@@ -399,8 +446,7 @@ async function executeStatement(
       while (!forStmt.condition || toBoolean(await evaluateExpression(forStmt.condition, context, executeCommand, onError, state, onStep, allowedCommands))) {
         iterations += 1
         if (iterations > MAX_LOOP_ITERATIONS) {
-          onError(`Loop interrompido: limite de ${MAX_LOOP_ITERATIONS} iterações atingido.`)
-          return false
+          stopExecution(onError, `Loop interrompido: limite de ${MAX_LOOP_ITERATIONS} iterações atingido.`)
         }
         context.shouldContinue = false
         const result = await executeStatement(forStmt.body, state, context, executeCommand, onError, onStep, allowedCommands)
@@ -421,8 +467,7 @@ async function executeStatement(
 
     case 'ReturnStatement': {
       if (!allowedCommands.has('return')) {
-        onError('Comando inválido: return')
-        return false
+        stopExecution(onError, 'Comando inválido: return')
       }
       const retStmt = stmt as ReturnStatement
       if (retStmt.argument) {
@@ -453,8 +498,7 @@ async function executeExpression(
     // Função print(...) — avalia argumentos e emite via onStep.message
     if (calleeName === 'print') {
       if (!allowedCommands.has('print')) {
-        onError('Comando inválido: print()')
-        return false
+        stopExecution(onError, 'Comando inválido: print()')
       }
       const args = await Promise.all(call.arguments.map((arg) => evaluateExpression(arg, context, executeCommand, onError, state, onStep, allowedCommands)))
       const text = args.map((a) => String(a)).join(' ')
@@ -491,8 +535,7 @@ async function executeExpression(
       return result ?? 0
     }
 
-    onError(`Função não encontrada: ${calleeName}()`)
-    return false
+    stopExecution(onError, `Função não encontrada: ${calleeName}()`)
   }
 
   return await evaluateExpression(expr, context, executeCommand, onError, state, onStep, allowedCommands)

@@ -38,7 +38,7 @@ export default function VictoryModal({
             <div className="mt-1 text-xl font-bold text-treasure">{stars}</div>
           </div>
           <div className="rounded-md bg-black/30 p-3">
-            <div className="text-secondaryText">Comandos</div>
+            <div className="text-secondaryText">Executados</div>
             <div className="mt-1 text-xl font-bold">{commandCount}</div>
           </div>
           <div className="rounded-md bg-black/30 p-3">

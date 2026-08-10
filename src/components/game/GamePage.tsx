@@ -620,7 +620,7 @@ export default function GamePage() {
                     playerDirection={player.direction}
                     enemies={enemies}
                     isRunning={running}
-                    hideWalls={true}
+                    hideWalls={false}
                   />
                 </div>
               </div>
