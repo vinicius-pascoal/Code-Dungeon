@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import Image from 'next/image'
 import { Enemy, Level, TileType } from '../../types/game'
+import { resolveTileSprite } from '../../game/tiles/tileResolver'
+import SpriteTile from './SpriteTile'
 
 type Props = {
   level: Level
+  grid?: TileType[][]
   playerX: number
   playerY: number
   playerDirection: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
@@ -19,53 +21,58 @@ type VisibleTiles = {
   maxY: number
 }
 
+const DISPLAY_TILE_SIZE = 48
+
 function enemyAt(enemies: Enemy[], x: number, y: number) {
   return enemies.find((enemy) => !enemy.defeated && enemy.x === x && enemy.y === y)
 }
 
-// Retorna deterministically uma variação (1-3) baseada em x,y
-function getVariation(x: number, y: number): number {
-  return ((x + y * 7) % 3) + 1
+function getCellClassName(tile: TileType, hideWalls?: boolean) {
+  if (tile === 'WALL' && hideWalls) return 'relative dungeon-cell bg-transparent'
+  return 'relative dungeon-cell'
 }
 
-// Retorna o caminho da imagem do tile, ou fallback com cor CSS
-function getTileImage(tile: TileType, x: number, y: number, hideWalls?: boolean): string | null {
+function renderToken(label: string, tileSize: number, className: string) {
+  return (
+    <span
+      className={`absolute inset-0 z-10 pointer-events-none flex items-center justify-center font-mono font-black ${className}`}
+      style={{ fontSize: `${Math.max(12, tileSize * 0.48)}px` }}
+    >
+      {label}
+    </span>
+  )
+}
+
+function renderObjectOverlay(tile: TileType, tileSize: number) {
   switch (tile) {
-    case 'WALL':
-      if (hideWalls) return null
-      return `/assets/paredes/parede${getVariation(x, y)}.png`
     case 'EXIT':
-      return '/assets/portal.png'
+      return (
+        <img
+          src="/assets/portal.png"
+          alt="Saida"
+          className="absolute inset-[7%] z-10 pointer-events-none h-[86%] w-[86%] object-contain dungeon-object-sprite"
+        />
+      )
     case 'SPIKE':
-      return '/assets/espinhos.png'
-    case 'FLOOR':
-      return `/assets/pisos/piso${getVariation(x, y)}.png`
+      return (
+        <img
+          src="/assets/espinhos.png"
+          alt="Espinhos"
+          className="absolute inset-0 z-10 pointer-events-none h-full w-full object-cover dungeon-object-sprite"
+        />
+      )
+    case 'KEY':
+      return renderToken('K', tileSize, 'text-treasure')
+    case 'DOOR':
+      return renderToken('D', tileSize, 'text-wood')
+    case 'OPEN_DOOR':
+      return renderToken('D', tileSize, 'text-wood/45')
+    case 'CHEST':
+      return renderToken('C', tileSize, 'text-treasure')
+    case 'OPEN_CHEST':
+      return renderToken('C', tileSize, 'text-treasure/45')
     default:
       return null
-  }
-}
-
-// Retorna classe CSS fallback para tiles sem imagem
-function renderTileFallback(tile: TileType, hideWalls?: boolean) {
-  switch (tile) {
-    case 'WALL':
-      return hideWalls ? 'bg-transparent' : 'bg-wall'
-    case 'EXIT':
-      return 'bg-success text-bg font-bold'
-    case 'SPIKE':
-      return 'bg-danger text-bg'
-    case 'KEY':
-      return 'bg-treasure text-bg font-bold'
-    case 'DOOR':
-      return 'bg-wood text-primaryText font-bold'
-    case 'OPEN_DOOR':
-      return 'bg-wood/60 text-primaryText'
-    case 'CHEST':
-      return 'bg-treasure text-bg font-bold'
-    case 'OPEN_CHEST':
-      return 'bg-treasure/60 text-bg'
-    default:
-      return 'bg-floor'
   }
 }
 
@@ -101,7 +108,7 @@ function directionToWalkingFrames(direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') {
 // Calcula zoom automático para boards grandes
 function calculateInitialZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
   const maxDim = Math.max(cols, rows)
-  const baseTileSize = 48
+  const baseTileSize = DISPLAY_TILE_SIZE
 
   // Para boards normais (até 25x25), usar zoom normal
   if (maxDim <= 25) return 1
@@ -113,7 +120,7 @@ function calculateInitialZoom(cols: number, rows: number, viewportWidth: number,
 
 // Calcula zoom para visualizar o board inteiro
 function calculateFitZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
-  const baseTileSize = 48
+  const baseTileSize = DISPLAY_TILE_SIZE
   const padding = 0.95 // 5% de margem
   const maxTileSize = Math.min(
     (viewportWidth / cols) * padding,
@@ -122,9 +129,10 @@ function calculateFitZoom(cols: number, rows: number, viewportWidth: number, vie
   return Math.max(0.1, maxTileSize / baseTileSize)
 }
 
-export default function DungeonGrid({ level, playerX, playerY, playerDirection, enemies, isRunning, hideWalls }: Props) {
-  const cols = level.grid[0]?.length || 0
-  const rows = level.grid.length
+export default function DungeonGrid({ level, grid, playerX, playerY, playerDirection, enemies, isRunning, hideWalls }: Props) {
+  const map = grid ?? level.grid
+  const cols = map[0]?.length || 0
+  const rows = map.length
   const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
   const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 800)
 
@@ -157,8 +165,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
   }, [])
 
   // Calcular tiles visíveis baseado no scroll
-  const baseTileSize = 48
-  const tileSize = Math.max(24, baseTileSize * zoom)
+  const tileSize = Math.max(24, DISPLAY_TILE_SIZE * zoom)
   const visibleTiles = useMemo((): VisibleTiles => {
     if (!containerRef.current) return { minX: 0, maxX: cols, minY: 0, maxY: rows }
 
@@ -275,7 +282,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
   }, [visibleTiles])
 
   return (
-    <div className="panel h-full flex flex-col">
+    <div className="panel h-full flex flex-col bg-[#050505]">
       {/* Zoom Controls */}
       <div className="flex items-center justify-between px-4 py-2 bg-bg/50 border-b border-primary/20 flex-wrap gap-2">
         <div className="flex items-center gap-2">
@@ -326,7 +333,7 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
 
       <div
         ref={containerRef}
-        className={`flex-1 overflow-auto p-2 bg-bg/30 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`flex-1 overflow-auto p-2 bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onScroll={handleScroll}
         onMouseDown={handleMouseDown}
       >
@@ -336,16 +343,21 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
           style={{
             width: `${cols * tileSize}px`,
             height: `${rows * tileSize}px`,
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backgroundColor: '#050505',
           }}
         >
           {/* Render apenas tiles visíveis */}
           {visibleRows.map(({ x, y }) => {
-            const tile = level.grid[y][x]
+            const tile = map[y][x]
             const isPlayer = x === playerX && y === playerY
             const key = `${x}-${y}`
             const enemy = enemyAt(enemies, x, y)
-            const tileImage = getTileImage(tile, x, y, hideWalls)
+            const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls })
+            const playerImage = isPlayer
+              ? isRunning
+                ? directionToWalkingFrames(playerDirection)[playerFrame]
+                : directionToRotation(playerDirection)
+              : null
             const tileStyle: React.CSSProperties = {
               position: 'absolute',
               left: `${x * tileSize}px`,
@@ -358,61 +370,32 @@ export default function DungeonGrid({ level, playerX, playerY, playerDirection, 
               overflow: 'hidden',
             }
 
-            if (isPlayer) {
-              const playerImage = isRunning
-                ? directionToWalkingFrames(playerDirection)[playerFrame]
-                : directionToRotation(playerDirection)
-
-              return (
-                <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile, hideWalls)}`}>
-                  {tileImage ? (
-                    <Image
-                      src={tileImage}
-                      alt={tile}
-                      fill
-                      className="object-cover"
-                      sizes={`${tileSize}px`}
-                    />
-                  ) : (
-                    <span className="z-10 font-bold" style={{ fontSize: `${Math.max(12, tileSize * 0.5)}px` }}>
-                      {tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
-                    </span>
-                  )}
-
-                  <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+            return (
+              <div key={key} style={tileStyle} className={getCellClassName(tile, hideWalls)}>
+                <SpriteTile
+                  sprite={tileSprite}
+                  size={tileSize}
+                  className="absolute inset-0"
+                  ariaLabel={tile === 'WALL' ? 'Parede' : 'Piso'}
+                />
+                {renderObjectOverlay(tile, tileSize)}
+                {enemy ? (
+                  <span
+                    className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center font-mono font-black text-danger"
+                    style={{ fontSize: `${Math.max(12, tileSize * 0.48)}px` }}
+                  >
+                    M
+                  </span>
+                ) : null}
+                {playerImage ? (
+                  <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
                     <img
                       src={playerImage}
                       alt="Personagem do jogador"
-                      className="h-full w-full object-contain drop-shadow-[0_8px_8px_rgba(0,0,0,0.45)]"
+                      className="h-full w-full object-contain dungeon-entity-sprite"
                     />
                   </div>
-                </div>
-              )
-            }
-
-            if (enemy) {
-              return (
-                <div key={key} style={tileStyle} className="bg-danger text-bg font-bold text-lg flex items-center justify-center">
-                  M
-                </div>
-              )
-            }
-
-            return (
-              <div key={key} style={tileStyle} className={`relative ${renderTileFallback(tile, hideWalls)}`}>
-                {tileImage && zoom > 0.4 ? (
-                  <Image
-                    src={tileImage}
-                    alt={tile}
-                    fill
-                    className="object-cover"
-                    sizes={`${tileSize}px`}
-                  />
-                ) : (
-                  <span className="z-10 font-bold" style={{ fontSize: `${Math.max(12, tileSize * 0.5)}px` }}>
-                    {tile === 'KEY' ? 'K' : tile === 'DOOR' ? 'D' : tile === 'CHEST' ? 'C' : ''}
-                  </span>
-                )}
+                ) : null}
               </div>
             )
           })}

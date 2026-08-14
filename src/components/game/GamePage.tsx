@@ -615,6 +615,7 @@ export default function GamePage() {
                 <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-white/5 bg-black/15 p-2">
                   <DungeonGrid
                     level={selectedLevel}
+                    grid={grid}
                     playerX={player.x}
                     playerY={player.y}
                     playerDirection={player.direction}
