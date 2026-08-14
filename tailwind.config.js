@@ -3,8 +3,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
-        mono: ['Fira Code', 'Monaco', 'Courier New', 'monospace'],
+        sans: ['"Press Start 2P"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        mono: ['"Press Start 2P"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
         bg: '#090A14',

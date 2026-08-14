@@ -69,10 +69,10 @@ export default function Home() {
             </div>
 
             <div className="pixel-type max-w-3xl text-center sm:text-left">
-              <h1 className="text-4xl font-black leading-tight text-primaryText sm:text-6xl">
+              <h1 className="text-2xl font-black leading-relaxed text-primaryText sm:text-4xl">
                 Code Dungeon
               </h1>
-              <p className="mt-5 text-base leading-7 text-secondaryText sm:text-lg">
+              <p className="mt-5 text-xs leading-7 text-secondaryText sm:text-sm">
                 Aprenda programacao resolvendo dungeons. Escreva comandos, execute a rota e encontre o portal.
               </p>
             </div>
@@ -92,8 +92,8 @@ export default function Home() {
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {stats.map((item) => (
                 <div key={item.label} className="border-2 border-border bg-black p-4">
-                  <div className="font-mono text-2xl font-black text-primaryText">{item.value}</div>
-                  <div className="mt-1 text-sm text-secondaryText">{item.label}</div>
+                  <div className="font-mono text-lg font-black text-primaryText">{item.value}</div>
+                  <div className="mt-2 text-[10px] leading-5 text-secondaryText">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -102,8 +102,8 @@ export default function Home() {
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             {steps.map((step) => (
               <PixelPanel key={step.title} variant="hud" bodyClassName="p-4">
-                <h2 className="pixel-type text-sm font-black text-primaryText">{step.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-secondaryText">{step.text}</p>
+                <h2 className="pixel-type text-[11px] font-black leading-5 text-primaryText">{step.title}</h2>
+                <p className="mt-2 text-[10px] leading-5 text-secondaryText">{step.text}</p>
               </PixelPanel>
             ))}
           </div>
@@ -158,7 +158,7 @@ export default function Home() {
               </div>
             </PixelFrame>
 
-            <div className="mt-3 border-2 border-border bg-black p-3 font-mono text-xs leading-6 text-primaryText">
+            <div className="mt-3 border-2 border-border bg-black p-3 font-mono text-[10px] leading-5 text-primaryText">
               <div>moveForward();</div>
               <div>turnRight();</div>
               <div>moveForward();</div>
@@ -191,7 +191,7 @@ export default function Home() {
               ))}
             </div>
 
-            <p className="mt-5 text-sm leading-7 text-secondaryText">
+            <p className="mt-5 text-xs leading-6 text-secondaryText">
               Os comandos rodam em sequencia. Se bater em parede, cair em espinhos ou usar um comando fora de hora,
               o console mostra o problema para voce corrigir a estrategia.
             </p>

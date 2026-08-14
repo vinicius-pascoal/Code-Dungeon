@@ -44,6 +44,7 @@ html {
 
 body {
   @apply bg-bg text-primaryText antialiased font-sans;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -95,7 +96,7 @@ body {
 }
 
 .pixel-type {
-  font-family: "Courier New", "Fira Code", monospace;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -108,7 +109,7 @@ body {
   min-width: 0;
   border: 2px solid #ebede9;
   border-radius: 0;
-  font-family: "Courier New", "Fira Code", monospace;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -121,19 +122,19 @@ body {
 .pixel-button--sm {
   min-height: 2rem;
   padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
+  font-size: 0.625rem;
 }
 
 .pixel-button--md {
   min-height: 2.5rem;
   padding: 0.55rem 0.85rem;
-  font-size: 0.875rem;
+  font-size: 0.6875rem;
 }
 
 .pixel-button--lg {
   min-height: 3rem;
   padding: 0.75rem 1.25rem;
-  font-size: 1rem;
+  font-size: 0.75rem;
 }
 
 .pixel-button--primary {
@@ -256,10 +257,10 @@ body {
 .pixel-panel__title {
   min-width: 0;
   overflow-wrap: anywhere;
-  font-family: "Courier New", "Fira Code", monospace;
-  font-size: 0.95rem;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.75rem;
   font-weight: 900;
-  line-height: 1.2;
+  line-height: 1.5;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -267,8 +268,8 @@ body {
 .pixel-eyebrow {
   margin-bottom: 0.35rem;
   color: #b989a0;
-  font-family: "Courier New", "Fira Code", monospace;
-  font-size: 0.7rem;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.55rem;
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -341,10 +342,10 @@ body {
   border: 1px solid #ebede9;
   background: #000;
   color: #ebede9;
-  font-family: "Courier New", "Fira Code", monospace;
-  font-size: 0.75rem;
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
   font-weight: 700;
-  padding: 0.3rem 0.5rem;
+  padding: 0.25rem 0.45rem;
 }
 
 /* Hide decorative images on very small zoom for performance */

@@ -550,9 +550,9 @@ export default function GamePage() {
               </PixelButton>
             }
           >
-            <div className="space-y-2 text-sm leading-6 text-secondaryText">
+            <div className="space-y-2 text-xs leading-6 text-secondaryText">
               {introLines.map((line, i) => (
-                <p key={i} className={line.startsWith('- ') ? 'ml-3 font-mono text-xs text-primaryText' : ''}>{line}</p>
+                <p key={i} className={line.startsWith('- ') ? 'ml-3 font-mono text-[10px] text-primaryText' : ''}>{line}</p>
               ))}
             </div>
 
@@ -566,7 +566,7 @@ export default function GamePage() {
       )}
 
       {!levelIsPlayable ? (
-        <div className="border-b-2 border-border bg-black px-4 py-3 text-sm text-secondaryText">
+        <div className="border-b-2 border-border bg-black px-4 py-3 text-xs leading-6 text-secondaryText">
           Esta fase e um preview do proximo mundo. Ela ja aparece na lista para organizar a progressao,
           mas ainda esta bloqueada enquanto os recursos de loops, if e funcoes sao ampliados.
         </div>
@@ -582,7 +582,7 @@ export default function GamePage() {
                 </div>
                 <div className="min-w-0">
                   <p className="pixel-eyebrow">Objetivo da fase</p>
-                  <p className="text-sm leading-6 text-secondaryText">{selectedLevel.objective}</p>
+                  <p className="text-xs leading-6 text-secondaryText">{selectedLevel.objective}</p>
                 </div>
               </div>
 
@@ -622,7 +622,7 @@ export default function GamePage() {
               className="min-h-[440px] overflow-hidden"
               bodyClassName="h-[calc(100%-4.5rem)] p-3"
               headerAction={
-                <div className="pixel-type flex items-center gap-2 text-xs text-secondaryText">
+                <div className="pixel-type flex items-center gap-2 text-[10px] text-secondaryText">
                   <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
                   Salvo
                 </div>
@@ -649,7 +649,7 @@ export default function GamePage() {
             </div>
 
             <PixelPanel variant="console" title="Console" className="min-h-[128px]" bodyClassName="max-h-40 overflow-auto p-3">
-              <div className="font-mono text-xs leading-6 text-secondaryText">
+              <div className="font-mono text-[10px] leading-5 text-secondaryText">
                 {logs.length ? (
                   logs.map((line, index) => (
                     <div key={`${line}-${index}`}>
