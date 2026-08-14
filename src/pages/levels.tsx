@@ -1,7 +1,10 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import PixelButton from '../components/ui/PixelButton'
+import PixelIcon from '../components/ui/PixelIcon'
+import PixelPanel from '../components/ui/PixelPanel'
 import { getLevelById, worlds } from '../data/levels'
+import { UI_SPRITES } from '../game/ui/uiSprites'
 
 export default function Levels() {
   const [activeWorldId, setActiveWorldId] = useState<number | null>(null)
@@ -81,42 +84,48 @@ export default function Levels() {
   const activeWorldPlayableCount = selectedLevels.filter((level) => level.isPlayable !== false).length
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_15%,rgba(56,189,248,0.16),transparent_28%),radial-gradient(circle_at_85%_5%,rgba(34,197,94,0.14),transparent_24%),linear-gradient(180deg,rgba(10,15,28,0.98),rgba(7,12,20,0.96))]" />
-      <div className="absolute inset-0 -z-10 opacity-20 [background-image:linear-gradient(rgba(248,250,252,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(248,250,252,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
-      <div className="absolute inset-x-0 top-1/2 -z-10 h-px bg-gradient-to-r from-transparent via-magic/25 to-transparent" />
+    <div className="pixel-app min-h-screen overflow-auto">
+      <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-4 px-4 py-5">
+        <PixelPanel variant="hud" bodyClassName="p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-start gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-primaryText bg-black">
+                <PixelIcon sprite={UI_SPRITES.icons.list} scale={1} />
+              </div>
+              <div className="min-w-0">
+                <p className="pixel-eyebrow">Selecao de mundo</p>
+                <h1 className="pixel-type text-2xl font-black leading-tight text-primaryText sm:text-4xl">
+                  Fases
+                </h1>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-secondaryText">
+                  Escolha um mundo no mapa para abrir as fases disponiveis e continuar sua jornada.
+                </p>
+              </div>
+            </div>
 
-      <section className="mx-auto flex min-h-[calc(100vh)] flex-col gap-6">
-        <header className="flex flex-col gap-4 border border-white/10 bg-panel/95 p-5 shadow-2xl backdrop-blur md:flex-row md:items-end md:justify-between">
-          <div className="max-w-2xl">
-            <h1 className="mt-2 text-3xl font-black text-primaryText sm:text-4xl">Fases</h1>
+            <PixelButton href="/" icon="left">
+              Voltar
+            </PixelButton>
           </div>
+        </PixelPanel>
 
-          <Link
-            href="/"
-            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-floor px-4 text-sm font-semibold text-primaryText transition hover:border-magic/60 hover:bg-wall"
-          >
-            Voltar
-          </Link>
-        </header>
-
-        <main className="relative min-h-[calc(100vh-12rem)] overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(56,189,248,0.06),transparent_42%)]" />
-          <div className="absolute inset-x-[10%] top-[18%] hidden h-px bg-gradient-to-r from-transparent via-white/10 to-transparent md:block" />
-          <div className="absolute inset-x-[12%] top-[63%] hidden h-px bg-gradient-to-r from-transparent via-white/10 to-transparent md:block" />
-          <div className="absolute left-[22%] top-[10%] hidden h-[58%] w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent md:block" />
-          <div className="absolute right-[18%] top-[8%] hidden h-[64%] w-px bg-gradient-to-b from-white/10 via-white/5 to-transparent md:block" />
+        <PixelPanel
+          variant="default"
+          className="min-h-[calc(100vh-10rem)] overflow-hidden"
+          bodyClassName="relative min-h-[calc(100vh-14.5rem)] p-3 sm:p-5 lg:p-6"
+        >
+          <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(235,237,233,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(235,237,233,0.08)_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="pointer-events-none absolute inset-4 border-2 border-border/60 bg-black/20" />
+          <div className="pointer-events-none absolute inset-x-[10%] top-[18%] hidden h-px bg-border md:block" />
+          <div className="pointer-events-none absolute inset-x-[12%] top-[63%] hidden h-px bg-border md:block" />
+          <div className="pointer-events-none absolute left-[22%] top-[10%] hidden h-[58%] w-px bg-border md:block" />
+          <div className="pointer-events-none absolute right-[18%] top-[8%] hidden h-[64%] w-px bg-border md:block" />
 
           <div className="pointer-events-none absolute inset-0 hidden md:block">
             <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <defs>
-                <linearGradient id="journeyLine" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="rgba(56,189,248,0.7)" />
-                  <stop offset="55%" stopColor="rgba(34,197,94,0.55)" />
-                  <stop offset="100%" stopColor="rgba(251,191,36,0.55)" />
-                </linearGradient>
                 <marker id="journeyArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
-                  <path d="M0,0 L6,3 L0,6 Z" fill="rgba(248,250,252,0.75)" />
+                  <path d="M0,0 L6,3 L0,6 Z" fill="#ebede9" />
                 </marker>
               </defs>
 
@@ -131,177 +140,196 @@ export default function Levels() {
 
                 return (
                   <g key={`${fromId}-${toId}`}>
-                    <path d={path} fill="none" stroke="url(#journeyLine)" strokeWidth="0.8" strokeLinecap="round" strokeDasharray="1.2 1.4" markerEnd="url(#journeyArrow)" />
-                    <circle cx={from.x} cy={from.y} r="0.9" fill="rgba(248,250,252,0.55)" />
+                    <path d={path} fill="none" stroke="#ebede9" strokeWidth="0.55" strokeLinecap="square" strokeDasharray="1 1.4" markerEnd="url(#journeyArrow)" />
+                    <circle cx={from.x} cy={from.y} r="0.9" fill="#090a14" stroke="#ebede9" strokeWidth="0.35" />
                   </g>
                 )
               })}
-              <circle cx={worldPoints[99].x} cy={worldPoints[99].y} r="1.2" fill="rgba(251,191,36,0.85)" />
+              <circle cx={worldPoints[99].x} cy={worldPoints[99].y} r="1.2" fill="#ebede9" />
             </svg>
           </div>
 
-          <div className="relative min-h-[inherit] p-3 sm:p-6 lg:p-8">
+          <div className="relative grid gap-3 md:block md:min-h-[inherit]">
             {worlds.map((world) => {
               const worldLevels = world.levelIds.map((levelId) => getLevelById(levelId))
               const isAvailable = worldAvailability[world.id] !== false
               const worldClasses = worldPlacements[world.id] ?? 'md:left-[50%] md:top-[50%] md:-translate-x-1/2 md:-translate-y-1/2'
               const isFinalChallenge = world.id === 99
+              const playableCount = worldLevels.filter((level) => level.isPlayable !== false).length
 
               return (
                 <button
                   key={world.id}
                   type="button"
                   onClick={() => isAvailable && setActiveWorldId(world.id)}
-                  className={`group relative mb-4 w-full text-left transition duration-200 md:absolute md:mb-0 md:w-[220px] ${worldClasses} ${isAvailable
+                  className={`group relative w-full border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood md:absolute md:w-[230px] ${worldClasses} ${isAvailable
                     ? isFinalChallenge
-                      ? 'hover:-translate-y-1 md:w-[190px] md:scale-[0.92]'
-                      : 'hover:-translate-y-1'
-                    : 'cursor-not-allowed grayscale opacity-60'
+                      ? 'md:w-[200px] md:scale-[0.92]'
+                      : ''
+                    : 'cursor-not-allowed grayscale opacity-50'
                     }`}
                   aria-disabled={!isAvailable}
                   aria-label={world.name}
                 >
-                  <div className="relative overflow-hidden bg-transparent">
+                  <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-border bg-black">
                     {worldAssets[world.id] ? (
-                      <div className="relative aspect-[4/3]">
-                        <Image
-                          src={worldAssets[world.id]}
-                          alt={`Asset do ${world.name}`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 220px"
-                          className={`object-cover transition duration-300 group-hover:scale-[1.03] ${isAvailable ? '' : 'grayscale opacity-60'}`}
-                          priority={world.id === 1}
-                        />
-                      </div>
+                      <Image
+                        src={worldAssets[world.id]}
+                        alt={`Asset do ${world.name}`}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 230px"
+                        className={`object-cover [image-rendering:pixelated] transition duration-100 group-hover:scale-[1.03] ${isAvailable ? '' : 'grayscale opacity-60'}`}
+                        priority={world.id === 1}
+                      />
                     ) : (
-                      <div className="flex aspect-[4/3] items-end justify-between bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.2),transparent_45%),linear-gradient(180deg,rgba(15,23,42,0.85),rgba(2,6,23,0.98))] p-4">
-                        <div>
-                          <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-treasure">Final secreto</div>
-                          <div className="mt-2 text-sm text-amber-100/80">O desafio fica escondido no fim da jornada.</div>
-                        </div>
-                        <div className="rounded-full border border-treasure/20 bg-treasure/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.22em] text-treasure">
-                          Boss
-                        </div>
+                      <div className="flex h-full items-center justify-center bg-black p-4">
+                        <PixelIcon sprite={UI_SPRITES.icons.target} scale={2} />
                       </div>
                     )}
+                    <div className="absolute right-2 top-2 border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
+                      {isFinalChallenge ? 'Extra' : `${playableCount}/${worldLevels.length}`}
+                    </div>
                   </div>
 
-                  <div className="absolute inset-x-0 bottom-2 flex items-center justify-center px-2">
-                    <div className="flex max-w-[90%] items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1.5 backdrop-blur-sm">
-                      <h2 className={`text-center text-[11px] font-black leading-none sm:text-xs ${isFinalChallenge ? 'text-treasure' : 'text-primaryText'}`}>
-                        {world.name}
-                      </h2>
-                      <span className={`rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.16em] ${isAvailable ? (isFinalChallenge ? 'bg-treasure/15 text-treasure' : 'bg-success/15 text-success') : 'bg-border text-secondaryText'}`}>
-                        {isAvailable ? (isFinalChallenge ? 'Final' : 'Aberto') : 'Indisponível'}
-                      </span>
+                  <div className="p-3">
+                    <div className="flex items-start gap-2">
+                      <PixelIcon sprite={isFinalChallenge ? UI_SPRITES.icons.target : UI_SPRITES.icons.play} scale={1} />
+                      <div className="min-w-0">
+                        <h2 className="pixel-type text-sm font-black leading-5 text-primaryText">
+                          {world.name}
+                        </h2>
+                        <p className="mt-1 text-xs leading-5 text-secondaryText">
+                          {world.theme}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </button>
               )
             })}
           </div>
-        </main>
-      </section>
+        </PixelPanel>
+      </main>
 
       {selectedWorld ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 px-4 py-6 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-panel/95 shadow-2xl">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.12),transparent_42%)]" />
-
-            <div className="relative flex flex-col gap-4 border-b border-border/70 p-5 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.28em] text-magic">Mundo selecionado</p>
-                <h2 className="mt-2 text-2xl font-black text-primaryText sm:text-3xl">{selectedWorld.name}</h2>
-                <p className="mt-2 max-w-2xl text-sm leading-7 text-secondaryText">{selectedWorld.description}</p>
-              </div>
-
-              <button
+        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+          <PixelPanel
+            variant="modal"
+            className="w-full max-w-5xl"
+            eyebrow="Selecionar fase"
+            title={selectedWorld.name}
+            icon="list"
+            headerAction={
+              <PixelButton
                 type="button"
+                icon="reset"
+                size="sm"
+                variant="ghost"
                 onClick={() => setActiveWorldId(null)}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border bg-floor text-primaryText transition hover:border-magic/60 hover:bg-wall"
                 aria-label="Fechar modal"
               >
-                X
-              </button>
-            </div>
+                Fechar
+              </PixelButton>
+            }
+            bodyClassName="p-4 sm:p-5"
+          >
+            <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+              <aside className="min-w-0">
+                <div className="border-2 border-primaryText bg-black">
+                  <div className="relative aspect-[4/3] border-b-2 border-border bg-black">
+                    {worldAssets[selectedWorld.id] ? (
+                      <Image
+                        src={worldAssets[selectedWorld.id]}
+                        alt={`Asset do ${selectedWorld.name}`}
+                        fill
+                        sizes="280px"
+                        className="object-cover [image-rendering:pixelated]"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <PixelIcon sprite={UI_SPRITES.icons.target} scale={2} />
+                      </div>
+                    )}
+                  </div>
 
-            <div className="relative grid gap-4 p-5 lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="rounded-xl border border-white/10 bg-black/25 p-4">
-                <div className="flex flex-wrap gap-3 text-sm">
-                  <div className="rounded-lg border border-white/10 bg-bg/70 px-4 py-3">
-                    <div className="text-xs uppercase tracking-[0.22em] text-secondaryText">Tema</div>
-                    <div className="mt-1 font-semibold text-primaryText">{selectedWorld.theme}</div>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-bg/70 px-4 py-3">
-                    <div className="text-xs uppercase tracking-[0.22em] text-secondaryText">Fases</div>
-                    <div className="mt-1 font-semibold text-primaryText">{selectedLevels.length}</div>
-                  </div>
-                  <div className="rounded-lg border border-white/10 bg-bg/70 px-4 py-3">
-                    <div className="text-xs uppercase tracking-[0.22em] text-secondaryText">Jogáveis</div>
-                    <div className="mt-1 font-semibold text-primaryText">{activeWorldPlayableCount}</div>
+                  <div className="p-3">
+                    <p className="text-sm leading-6 text-secondaryText">{selectedWorld.description}</p>
+
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                      <div className="border-2 border-border bg-bg p-2">
+                        <div className="pixel-eyebrow">Tema</div>
+                        <div className="truncate font-mono text-xs font-black text-primaryText">{selectedWorld.theme}</div>
+                      </div>
+                      <div className="border-2 border-border bg-bg p-2">
+                        <div className="pixel-eyebrow">Fases</div>
+                        <div className="font-mono text-lg font-black text-primaryText">{selectedLevels.length}</div>
+                      </div>
+                      <div className="border-2 border-border bg-bg p-2">
+                        <div className="pixel-eyebrow">Abertas</div>
+                        <div className="font-mono text-lg font-black text-primaryText">{activeWorldPlayableCount}</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </aside>
 
-                <p className="mt-4 text-sm leading-7 text-secondaryText">
-                  Este mundo aparece como um cartão flutuante no mapa. Quando os assets entrarem, a arte pode substituir esse bloco sem mudar a estrutura.
-                </p>
-              </div>
+              <div className="max-h-[68vh] min-w-0 overflow-y-auto pr-1">
+                <div className="grid gap-3">
+                  {selectedLevels.map((level, index) => {
+                    const isPlayable = level.isPlayable !== false
 
-              <div className="grid gap-3 max-h-[60vh] overflow-y-auto pr-1">
-                {selectedLevels.map((level, index) => {
-                  const isPlayable = level.isPlayable !== false
-
-                  return (
-                    <article key={level.id} className="rounded-xl border border-white/10 bg-bg/75 p-4">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="rounded-full bg-magic/15 px-2.5 py-1 text-xs font-bold text-magic">
-                              Fase {String(index + 1).padStart(2, '0')}
-                            </span>
-                            <h3 className="text-lg font-bold text-primaryText">{level.name}</h3>
-                            <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${isPlayable ? 'bg-success/15 text-success' : 'bg-border text-secondaryText'}`}>
-                              {isPlayable ? 'Jogável' : 'Em breve'}
-                            </span>
-                          </div>
-
-                          <p className="mt-3 text-sm leading-6 text-secondaryText">{level.description}</p>
-
-                          <div className="mt-3 text-sm text-secondaryText">
-                            <span className="font-semibold text-primaryText">Objetivo: </span>
-                            {level.objective}
-                          </div>
-
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {(level.concepts ?? []).map((concept) => (
-                              <span key={concept} className="rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-xs text-secondaryText">
-                                {concept}
+                    return (
+                      <article key={level.id} className="border-2 border-border bg-black p-3">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="pixel-command-chip">
+                                Fase {String(index + 1).padStart(2, '0')}
                               </span>
-                            ))}
+                              <span className={`border px-2 py-1 font-mono text-[10px] font-black uppercase ${isPlayable ? 'border-primaryText text-primaryText' : 'border-border text-secondaryText'}`}>
+                                {isPlayable ? 'Jogavel' : 'Em breve'}
+                              </span>
+                            </div>
+
+                            <h3 className="pixel-type mt-3 text-base font-black leading-5 text-primaryText">
+                              {level.name}
+                            </h3>
+                            <p className="mt-2 text-sm leading-6 text-secondaryText">{level.description}</p>
+
+                            <div className="mt-3 border-l-2 border-border pl-3 text-sm leading-6 text-secondaryText">
+                              <span className="font-mono font-black text-primaryText">Objetivo: </span>
+                              {level.objective}
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {(level.concepts ?? []).map((concept) => (
+                                <span key={concept} className="border border-border bg-bg px-2 py-1 font-mono text-xs text-secondaryText">
+                                  {concept}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="shrink-0">
+                            {isPlayable ? (
+                              <PixelButton href={`/game?level=${level.id}`} icon="play" variant="primary">
+                                Jogar
+                              </PixelButton>
+                            ) : (
+                              <span className="pixel-button pixel-button--secondary pixel-button--md" aria-disabled="true">
+                                <PixelIcon sprite={UI_SPRITES.icons.reset} scale={1} />
+                                <span>Bloqueado</span>
+                              </span>
+                            )}
                           </div>
                         </div>
-
-                        <div className="shrink-0">
-                          {isPlayable ? (
-                            <Link
-                              href={`/game?level=${level.id}`}
-                              className="inline-flex h-11 items-center justify-center rounded-md border border-magic bg-magic px-4 text-sm font-bold text-bg transition hover:bg-sky-300"
-                            >
-                              Jogar fase
-                            </Link>
-                          ) : (
-                            <span className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-border/70 px-4 text-sm font-semibold text-secondaryText">
-                              Bloqueado
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  )
-                })}
+                      </article>
+                    )
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          </PixelPanel>
         </div>
       ) : null}
     </div>
