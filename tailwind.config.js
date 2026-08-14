@@ -7,18 +7,18 @@ module.exports = {
         mono: ['Fira Code', 'Monaco', 'Courier New', 'monospace'],
       },
       colors: {
-        bg: '#0F172A',
-        panel: '#111827',
-        floor: '#1E293B',
-        wall: '#334155',
-        border: '#475569',
-        primaryText: '#F8FAFC',
-        secondaryText: '#CBD5E1',
-        magic: '#38BDF8',
-        danger: '#EF4444',
-        success: '#22C55E',
-        treasure: '#FACC15',
-        wood: '#92400E'
+        bg: '#090A14',
+        panel: '#0D0E18',
+        floor: '#000000',
+        wall: '#171826',
+        border: '#752438',
+        primaryText: '#EBEDE9',
+        secondaryText: '#B9BDB6',
+        magic: '#EBEDE9',
+        danger: '#752438',
+        success: '#EBEDE9',
+        treasure: '#EBEDE9',
+        wood: '#7A367B'
       }
     }
   },

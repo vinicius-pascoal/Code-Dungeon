@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { Enemy, Level, TileType } from '../../types/game'
 import { resolveTileSprite } from '../../game/tiles/tileResolver'
 import SpriteTile from './SpriteTile'
+import PixelButton from '../ui/PixelButton'
 
 type Props = {
   level: Level
@@ -282,52 +283,57 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
   }, [visibleTiles])
 
   return (
-    <div className="panel h-full flex flex-col bg-[#050505]">
+    <div className="h-full flex flex-col bg-[#050505]">
       {/* Zoom Controls */}
-      <div className="flex items-center justify-between px-4 py-2 bg-bg/50 border-b border-primary/20 flex-wrap gap-2">
+      <div className="flex items-center justify-between border-b-2 border-border bg-bg px-3 py-2 flex-wrap gap-2">
         <div className="flex items-center gap-2">
-          <button
+          <PixelButton
+            type="button"
             onClick={handleZoomOut}
-            className="px-2 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+            size="sm"
             title="Diminuir zoom"
           >
             −
-          </button>
-          <span className="w-12 text-center text-sm font-mono text-primary">{zoomPercentage}%</span>
-          <button
+          </PixelButton>
+          <span className="w-14 text-center font-mono text-sm text-primaryText">{zoomPercentage}%</span>
+          <PixelButton
+            type="button"
             onClick={handleZoomIn}
-            className="px-2 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+            size="sm"
             title="Aumentar zoom"
           >
             +
-          </button>
+          </PixelButton>
         </div>
-        <button
+        <PixelButton
+          type="button"
           onClick={handleResetZoom}
-          className="px-3 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+          size="sm"
           title="Resetar zoom"
         >
           Resetar
-        </button>
-        <button
+        </PixelButton>
+        <PixelButton
+          type="button"
           onClick={handleFitToScreen}
-          className="px-3 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+          size="sm"
           title="Visualizar tabuleiro completo"
         >
-          🔍 Tudo
-        </button>
+          Tudo
+        </PixelButton>
         {cols > 30 && (
-          <button
+          <PixelButton
+            type="button"
             onClick={centerOnPlayer}
-            className="px-3 py-1 text-sm bg-primary/20 hover:bg-primary/40 rounded transition-colors"
+            size="sm"
             title="Centralizar no jogador"
           >
-            📍 Jogador
-          </button>
+            Jogador
+          </PixelButton>
         )}
-        <div className="text-xs text-primary/60 ml-auto flex items-center gap-3">
-          <span className="italic">🖱️ Clique + arraste para navegar</span>
-          <span>{cols} × {rows}</span>
+        <div className="pixel-type ml-auto flex items-center gap-3 text-xs text-secondaryText">
+          <span>Clique + arraste</span>
+          <span>{cols} x {rows}</span>
         </div>
       </div>
 

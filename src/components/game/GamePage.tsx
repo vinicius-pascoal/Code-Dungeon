@@ -1,11 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import DungeonGrid from './DungeonGrid'
-import Legend from './Legend'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
 import DocumentationModal from './DocumentationModal'
 import CodeEditor from './CodeEditor'
+import PixelButton from '../ui/PixelButton'
+import PixelFrame from '../ui/PixelFrame'
+import PixelIcon from '../ui/PixelIcon'
+import PixelPanel from '../ui/PixelPanel'
+import { UI_SPRITES } from '../../game/ui/uiSprites'
 import { getLevelById, levels } from '../../data/levels'
 import { isSimpleCommandList, parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
@@ -505,7 +509,7 @@ export default function GamePage() {
   const nextLevel = levels.find((level) => level.id === selectedLevel.id + 1)
 
   return (
-    <div className="flex flex-col h-screen bg-bg">
+    <div className="pixel-app flex min-h-screen flex-col overflow-hidden">
       <VictoryModal
         isOpen={victoryState.open}
         levelName={selectedLevel.name}
@@ -527,117 +531,137 @@ export default function GamePage() {
       <DocumentationModal isOpen={docOpen} onClose={() => setDocOpen(false)} />
 
       {introOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4 py-6">
-          <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10 bg-panel/95 shadow-2xl p-6">
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.28em] text-magic">Novidades da fase</p>
-                <h3 className="mt-2 text-lg font-black text-primaryText">{selectedLevel.name}</h3>
-              </div>
-              <button
+        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
+          <PixelPanel
+            variant="modal"
+            className="relative w-full max-w-2xl"
+            eyebrow="Novidades da fase"
+            title={selectedLevel.name}
+            headerAction={
+              <PixelButton
                 type="button"
+                icon="reset"
+                variant="ghost"
+                size="sm"
                 onClick={() => setIntroOpen(false)}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-floor text-primaryText transition hover:border-magic/60 hover:bg-wall"
                 aria-label="Fechar modal"
               >
-                X
-              </button>
-            </div>
-
-            <div className="mt-4 space-y-2 text-sm text-secondaryText">
+                Fechar
+              </PixelButton>
+            }
+          >
+            <div className="space-y-2 text-sm leading-6 text-secondaryText">
               {introLines.map((line, i) => (
-                <p key={i} className={line.startsWith('- ') ? 'ml-3' : ''}>{line}</p>
+                <p key={i} className={line.startsWith('- ') ? 'ml-3 font-mono text-xs text-primaryText' : ''}>{line}</p>
               ))}
             </div>
 
             <div className="mt-5 flex justify-end">
-              <button onClick={() => setIntroOpen(false)} className="px-4 py-2 rounded-md bg-magic text-bg font-semibold">Entendi — começar</button>
+              <PixelButton type="button" icon="play" variant="primary" onClick={() => setIntroOpen(false)}>
+                Entendi
+              </PixelButton>
             </div>
-          </div>
+          </PixelPanel>
         </div>
       )}
 
-      <header className="flex items-center justify-between px-6 py-4 bg-panel border-b border-border">
-        <div>
-          <h1 className="text-2xl font-bold">Code Dungeon — Fase {selectedLevel.id}</h1>
-          <p className="text-sm text-secondaryText">{selectedLevel.name}</p>
-        </div>
-        <div className="space-x-2">
-          <button onClick={() => setDocOpen(true)} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">? Ajuda</button>
-          <button onClick={() => router.push('/levels')} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Niveis</button>
-          <button onClick={onReset} className="px-3 py-1.5 bg-floor text-primaryText border border-border rounded-md hover:bg-wall transition-colors">Resetar</button>
-          <button onClick={onRun} disabled={running} className="px-3 py-1.5 bg-magic text-bg border border-magic rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50">Executar</button>
-        </div>
-      </header>
-
       {!levelIsPlayable ? (
-        <div className="px-6 py-3 border border-border bg-black/20 text-sm text-secondaryText">
-          Esta fase é um preview do próximo mundo. Ela já aparece na lista para organizar a progressão,
-          mas ainda está bloqueada enquanto os recursos de loops, if e funções são ampliados.
+        <div className="border-b-2 border-border bg-black px-4 py-3 text-sm text-secondaryText">
+          Esta fase e um preview do proximo mundo. Ela ja aparece na lista para organizar a progressao,
+          mas ainda esta bloqueada enquanto os recursos de loops, if e funcoes sao ampliados.
         </div>
       ) : null}
 
-      <main className="flex-1 min-h-0 overflow-hidden p-3">
-        <div className="grid h-full min-h-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.9fr)]">
-          <section className="flex min-h-0 flex-col gap-4 overflow-hidden">
-            <div className="panel flex-shrink-0 rounded-xl border border-white/5 bg-panel/95 p-4 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="max-w-2xl">
-                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-magic">Leitura da fase</p>
-                  <h2 className="mt-2 text-sm font-semibold text-primaryText">Objetivo</h2>
-                  <p className="mt-1 text-sm leading-relaxed text-secondaryText">{selectedLevel.objective}</p>
+      <main className="min-h-0 flex-1 overflow-auto p-3">
+        <div className="mx-auto grid min-h-full max-w-[1500px] gap-3 lg:grid-rows-[auto_minmax(0,1fr)_auto]">
+          <PixelPanel variant="hud" className="shrink-0" bodyClassName="p-3">
+            <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-primaryText bg-black">
+                  <PixelIcon sprite={UI_SPRITES.icons.target} scale={1} />
                 </div>
+                <div className="min-w-0">
+                  <p className="pixel-eyebrow">Objetivo da fase</p>
+                  <p className="text-sm leading-6 text-secondaryText">{selectedLevel.objective}</p>
+                </div>
+              </div>
 
-                <div className="min-w-0 flex-1 rounded-xl border border-white/5 bg-black/20 p-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-primaryText">Recursos disponíveis</h3>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {selectedLevel.availableCommands.map((cmd: string) => (
-                      <span
-                        key={cmd}
-                        className="rounded-md border border-magic/50 bg-magic/15 px-2.5 py-1 text-xs font-mono text-magic transition-colors hover:bg-magic/25"
-                      >
-                        {formatAvailableCommand(cmd)}
-                      </span>
-                    ))}
-                  </div>
+              <div className="min-w-0">
+                <p className="pixel-eyebrow">Recursos disponiveis</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedLevel.availableCommands.map((cmd: string) => (
+                    <span key={cmd} className="pixel-command-chip">
+                      {formatAvailableCommand(cmd)}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
+          </PixelPanel>
 
-            <div className="flex min-h-0 flex-1 overflow-hidden rounded-xl border border-white/5 bg-panel/90 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3">
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-sm font-semibold text-primaryText">Mapa da fase</h2>
-                  </div>
+          <div className="grid min-h-[520px] gap-3 lg:min-h-0 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.9fr)]">
+            <PixelPanel variant="default" title="Dungeon" eyebrow="Mapa da fase" className="min-h-[440px] overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] p-3">
+              <PixelFrame className="min-h-[360px]">
+                <DungeonGrid
+                  level={selectedLevel}
+                  grid={grid}
+                  playerX={player.x}
+                  playerY={player.y}
+                  playerDirection={player.direction}
+                  enemies={enemies}
+                  isRunning={running}
+                  hideWalls={false}
+                />
+              </PixelFrame>
+            </PixelPanel>
+
+            <PixelPanel
+              variant="editor"
+              title="Editor"
+              eyebrow="Area de codigo"
+              className="min-h-[440px] overflow-hidden"
+              bodyClassName="h-[calc(100%-4.5rem)] p-3"
+              headerAction={
+                <div className="pixel-type flex items-center gap-2 text-xs text-secondaryText">
+                  <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
+                  Salvo
                 </div>
-
-                <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-white/5 bg-black/15 p-2">
-                  <DungeonGrid
-                    level={selectedLevel}
-                    grid={grid}
-                    playerX={player.x}
-                    playerY={player.y}
-                    playerDirection={player.direction}
-                    enemies={enemies}
-                    isRunning={running}
-                    hideWalls={false}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="flex min-h-0 flex-col overflow-hidden rounded-xl border border-white/5 bg-panel/95 shadow-[0_18px_50px_rgba(2,6,23,0.35)]">
-            <div className="flex-shrink-0 border-b border-white/5 px-4 py-3">
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-magic">Área de código</p>
-              <h2 className="mt-1 text-sm font-semibold text-primaryText">Editor</h2>
-            </div>
-
-            <div className="min-h-0 flex-1 overflow-hidden p-3">
+              }
+            >
               <CodeEditor value={code} onChange={setCode} disabled={running} />
+            </PixelPanel>
+          </div>
+
+          <div className="grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)]">
+            <div className="flex flex-wrap gap-2">
+              <PixelButton type="button" icon="play" variant="primary" onClick={onRun} disabled={running}>
+                {running ? 'Executando' : 'Executar'}
+              </PixelButton>
+              <PixelButton type="button" icon="reset" variant="danger" onClick={onReset}>
+                Resetar
+              </PixelButton>
+              <PixelButton type="button" icon="help" onClick={() => setDocOpen(true)}>
+                Ajuda
+              </PixelButton>
+              <PixelButton href="/levels" icon="list">
+                Fases
+              </PixelButton>
             </div>
-          </section>
+
+            <PixelPanel variant="console" title="Console" className="min-h-[128px]" bodyClassName="max-h-40 overflow-auto p-3">
+              <div className="font-mono text-xs leading-6 text-secondaryText">
+                {logs.length ? (
+                  logs.map((line, index) => (
+                    <div key={`${line}-${index}`}>
+                      <span className="text-primaryText">&gt;</span> {line}
+                    </div>
+                  ))
+                ) : (
+                  <div><span className="text-primaryText">&gt;</span> aguardando execucao</div>
+                )}
+              </div>
+            </PixelPanel>
+          </div>
         </div>
       </main>
     </div>

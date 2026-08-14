@@ -3,6 +3,7 @@ import { TILESET_CONFIG, type SpriteCoordinate } from '../../game/tiles/tileConf
 
 type SpriteTileBaseProps = {
   size: number
+  fill?: boolean
   className?: string
   style?: React.CSSProperties
   ariaLabel?: string
@@ -32,10 +33,19 @@ function joinClassNames(...classes: Array<string | undefined>) {
 }
 
 function SpriteTile(props: SpriteTileProps) {
-  const { size, className, style, ariaLabel } = props
+  const { size, fill, className, style, ariaLabel } = props
   const sprite = getSpriteCoordinate(props)
 
   if (!sprite) return null
+
+  const width = fill ? '100%' : `${size}px`
+  const height = fill ? '100%' : `${size}px`
+  const backgroundSize = fill
+    ? `${TILESET_CONFIG.columns * 100}% ${TILESET_CONFIG.rows * 100}%`
+    : `${TILESET_CONFIG.columns * size}px ${TILESET_CONFIG.rows * size}px`
+  const backgroundPosition = fill
+    ? `${(sprite.col / (TILESET_CONFIG.columns - 1)) * 100}% ${(sprite.row / (TILESET_CONFIG.rows - 1)) * 100}%`
+    : `-${sprite.col * size}px -${sprite.row * size}px`
 
   return (
     <div
@@ -44,12 +54,12 @@ function SpriteTile(props: SpriteTileProps) {
       aria-hidden={ariaLabel ? undefined : true}
       className={joinClassNames('dungeon-sprite-tile', className)}
       style={{
-        width: `${size}px`,
-        height: `${size}px`,
+        width,
+        height,
         backgroundImage: `url("${TILESET_CONFIG.src}")`,
         backgroundRepeat: 'no-repeat',
-        backgroundSize: `${TILESET_CONFIG.columns * size}px ${TILESET_CONFIG.rows * size}px`,
-        backgroundPosition: `-${sprite.col * size}px -${sprite.row * size}px`,
+        backgroundSize,
+        backgroundPosition,
         ...style,
       }}
     />

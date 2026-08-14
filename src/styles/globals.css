@@ -11,12 +11,12 @@ body,
 html {
   scrollbar-gutter: stable;
   scrollbar-width: thin;
-  scrollbar-color: rgba(56, 189, 248, 0.7) rgba(15, 23, 42, 0.9);
+  scrollbar-color: #ebede9 #090a14;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(56, 189, 248, 0.7) rgba(15, 23, 42, 0.9);
+  scrollbar-color: #ebede9 #090a14;
 }
 
 *::-webkit-scrollbar {
@@ -25,23 +25,21 @@ html {
 }
 
 *::-webkit-scrollbar-track {
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(17, 24, 39, 0.96));
-  border-radius: 9999px;
+  background: #090a14;
+  border: 1px solid #752438;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.72), rgba(34, 197, 94, 0.45));
-  border: 2px solid rgba(15, 23, 42, 0.92);
-  border-radius: 9999px;
-  box-shadow: inset 0 0 0 1px rgba(248, 250, 252, 0.08);
+  background: #ebede9;
+  border: 2px solid #090a14;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.92), rgba(34, 197, 94, 0.7));
+  background: #7a367b;
 }
 
 *::-webkit-scrollbar-corner {
-  background: rgba(15, 23, 42, 0.96);
+  background: #090a14;
 }
 
 body {
@@ -52,12 +50,15 @@ body {
 
 /* Utility class for common panel style */
 .panel {
-  @apply bg-panel p-3 rounded-md border border-white/[0.03];
+  @apply bg-panel p-3 border;
+  border-color: #ebede9;
+  border-radius: 0;
+  box-shadow: inset 0 0 0 2px #090a14, inset 0 0 0 4px #752438;
 }
 
 /* Modal backdrop gradient */
 .modal-backdrop {
-  background: linear-gradient(180deg, rgba(2, 6, 23, 0.6), rgba(2, 6, 23, 0.9));
+  background: rgba(0, 0, 0, 0.82);
 }
 
 /* Dungeon Grid Optimizations */
@@ -81,6 +82,269 @@ body {
 .dungeon-entity-sprite {
   image-rendering: crisp-edges;
   image-rendering: pixelated;
+}
+
+.pixel-app {
+  min-height: 100%;
+  background:
+    linear-gradient(90deg, rgba(235, 237, 233, 0.035) 1px, transparent 1px),
+    linear-gradient(rgba(235, 237, 233, 0.035) 1px, transparent 1px),
+    #090a14;
+  background-size: 32px 32px;
+  color: #ebede9;
+}
+
+.pixel-type {
+  font-family: "Courier New", "Fira Code", monospace;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pixel-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 2px solid #ebede9;
+  border-radius: 0;
+  font-family: "Courier New", "Fira Code", monospace;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  line-height: 1;
+  image-rendering: pixelated;
+  box-shadow: inset 0 0 0 2px #090a14;
+  transition: transform 80ms steps(1), background-color 120ms steps(1), color 120ms steps(1), border-color 120ms steps(1);
+}
+
+.pixel-button--sm {
+  min-height: 2rem;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.pixel-button--md {
+  min-height: 2.5rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.875rem;
+}
+
+.pixel-button--lg {
+  min-height: 3rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+}
+
+.pixel-button--primary {
+  background: #ebede9;
+  color: #090a14;
+}
+
+.pixel-button--secondary {
+  background: #090a14;
+  color: #ebede9;
+}
+
+.pixel-button--danger {
+  background: #752438;
+  color: #ebede9;
+}
+
+.pixel-button--ghost {
+  background: transparent;
+  color: #ebede9;
+}
+
+.pixel-button:hover:not(:disabled),
+.pixel-button:focus-visible {
+  background: #ebede9;
+  color: #090a14;
+  outline: 2px solid #7a367b;
+  outline-offset: 3px;
+}
+
+.pixel-button--primary:hover:not(:disabled),
+.pixel-button--primary:focus-visible {
+  background: #752438;
+  color: #ebede9;
+}
+
+.pixel-button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  background: #7a367b;
+  color: #ebede9;
+}
+
+.pixel-button:disabled,
+.pixel-button[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pixel-panel {
+  position: relative;
+  min-width: 0;
+  border: 2px solid #ebede9;
+  border-radius: 0;
+  background: #090a14;
+  color: #ebede9;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 0 0 0 4px #752438;
+}
+
+.pixel-panel::before,
+.pixel-panel::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+  background: #ebede9;
+}
+
+.pixel-panel::before {
+  left: -2px;
+  top: -2px;
+}
+
+.pixel-panel::after {
+  right: -2px;
+  bottom: -2px;
+}
+
+.pixel-panel--editor,
+.pixel-panel--console {
+  background: #06070e;
+}
+
+.pixel-panel--hud {
+  background: #090a14;
+}
+
+.pixel-panel--modal {
+  background: #090a14;
+  box-shadow:
+    inset 0 0 0 2px #000,
+    inset 0 0 0 5px #752438,
+    0 0 0 4px #000;
+}
+
+.pixel-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  border-bottom: 2px solid #752438;
+  padding: 0.85rem 1rem 0.75rem;
+}
+
+.pixel-panel__body {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.pixel-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.pixel-panel__title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: "Courier New", "Fira Code", monospace;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pixel-eyebrow {
+  margin-bottom: 0.35rem;
+  color: #b989a0;
+  font-family: "Courier New", "Fira Code", monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.pixel-game-frame {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  border: 2px solid #ebede9;
+  background: #000;
+  padding: 1rem;
+  box-shadow:
+    inset 0 0 0 2px #090a14,
+    inset 0 0 0 5px #ebede9,
+    inset 0 0 0 7px #090a14;
+}
+
+.pixel-game-frame__inner {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #030303;
+}
+
+.pixel-game-frame__corner {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pixel-game-frame__corner--tl {
+  left: -4px;
+  top: -4px;
+}
+
+.pixel-game-frame__corner--tr {
+  right: -4px;
+  top: -4px;
+}
+
+.pixel-game-frame__corner--bl {
+  left: -4px;
+  bottom: -4px;
+}
+
+.pixel-game-frame__corner--br {
+  right: -4px;
+  bottom: -4px;
+}
+
+.pixel-code-shell {
+  border: 0;
+  border-radius: 0;
+  background: #090a14;
+}
+
+.pixel-code-gutter {
+  background: #000;
+  border-right: 2px solid #752438;
+}
+
+.pixel-modal-backdrop {
+  background: rgba(0, 0, 0, 0.82);
+}
+
+.pixel-command-chip {
+  border: 1px solid #ebede9;
+  background: #000;
+  color: #ebede9;
+  font-family: "Courier New", "Fira Code", monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.5rem;
 }
 
 /* Hide decorative images on very small zoom for performance */

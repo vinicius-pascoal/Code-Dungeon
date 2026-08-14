@@ -220,8 +220,8 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   }
 
   return (
-    <div className="flex border border-white/5 rounded-md overflow-hidden bg-bg h-full min-h-0">
-      <div className="relative bg-bg border-r border-white/10 select-none text-slate-500 font-mono text-sm min-w-12 overflow-hidden">
+    <div className="pixel-code-shell flex overflow-hidden h-full min-h-0">
+      <div className="pixel-code-gutter relative select-none text-secondaryText/65 font-mono text-sm min-w-12 overflow-hidden">
         <div
           className="p-3 will-change-transform"
           style={{ transform: `translateY(${-scrollTop}px)` }}
@@ -231,7 +231,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
               key={i + 1}
               className={[
                 'h-6 flex items-center justify-end pr-3 transition-colors',
-                i === cursorState.lineIndex ? 'text-primary bg-primary/10 border-r-2 border-primary/60' : '',
+                i === cursorState.lineIndex ? 'text-primaryText bg-border/35 border-r-2 border-primaryText' : '',
               ].join(' ')}
             >
               {i + 1}
@@ -249,12 +249,12 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
                 'relative h-6 flex items-center whitespace-pre',
                 selectionState.selected
                   ? [
-                    'bg-primary/75 text-white ring-1 ring-inset ring-primary/95',
+                    'bg-primaryText text-bg ring-1 ring-inset ring-primaryText',
                     selectionState.first ? 'rounded-t-sm' : '',
                     selectionState.last ? 'rounded-b-sm' : '',
                   ].join(' ')
                   : '',
-                !selectionState.selected && isCurrentLine ? 'bg-primary/10 ring-1 ring-inset ring-primary/30 rounded-sm' : '',
+                !selectionState.selected && isCurrentLine ? 'bg-border/25 ring-1 ring-inset ring-border' : '',
               ].join(' ')
 
               return (
@@ -262,7 +262,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
                   {isCurrentLine && suggestionSuffix ? (
                     <>
                       {line}
-                      <span className={selectionState.selected ? 'text-white/80' : 'text-white/35'}>{suggestionSuffix}</span>
+                      <span className={selectionState.selected ? 'text-bg/80' : 'text-primaryText/35'}>{suggestionSuffix}</span>
                     </>
                   ) : (
                     line
@@ -271,7 +271,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
                   {isCurrentLine && caretPosition.visible && !hasSelection ? (
                     <span
                       aria-hidden="true"
-                      className="absolute top-0 bottom-0 w-[2px] bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]"
+                      className="absolute top-0 bottom-0 w-[2px] bg-primaryText"
                       style={{ left: `${caretPosition.x}px` }}
                     />
                   ) : null}
@@ -291,7 +291,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
           onFocus={handleSelectionUpdate}
           onKeyDown={handleKeyDown}
           disabled={disabled}
-          className="relative z-10 w-full h-full min-h-0 p-3 bg-transparent text-transparent caret-primary font-mono text-sm leading-6 border-none outline-none resize-none overflow-auto disabled:opacity-60 selection:bg-primary/30 selection:text-transparent"
+          className="relative z-10 w-full h-full min-h-0 p-3 bg-transparent text-transparent caret-primaryText font-mono text-sm leading-6 border-none outline-none resize-none overflow-auto disabled:opacity-60 selection:bg-primaryText/30 selection:text-transparent"
           spellCheck={false}
           style={{ tabSize: 2 }}
         />
@@ -301,7 +301,7 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
             type="button"
             disabled={disabled}
             onClick={() => applySuggestion(suggestion)}
-            className="absolute bottom-3 right-3 z-10 rounded-md border border-primary/30 bg-panel/95 px-3 py-1 text-xs font-mono text-primaryText shadow-lg hover:bg-panel disabled:opacity-50"
+            className="absolute bottom-3 right-3 z-10 border-2 border-primaryText bg-bg px-3 py-1 text-xs font-mono font-bold uppercase text-primaryText hover:bg-primaryText hover:text-bg disabled:opacity-50"
           >
             Completar: {suggestion}
           </button>
