@@ -1,3 +1,12 @@
+export interface SpriteAtlasConfig {
+  src: string
+  sourceTileSize: number
+  columns: number
+  rows: number
+  width: number
+  height: number
+}
+
 export const TILESET_CONFIG = {
   src: '/assets/tilesets/tileset.png',
   sourceTileSize: 20,
@@ -5,7 +14,7 @@ export const TILESET_CONFIG = {
   rows: 14,
   width: 440,
   height: 280,
-} as const
+} as const satisfies SpriteAtlasConfig
 
 export const SOURCE_TILE_SIZE = TILESET_CONFIG.sourceTileSize
 

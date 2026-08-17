@@ -1,9 +1,10 @@
 import React from 'react'
-import { TILESET_CONFIG, type SpriteCoordinate } from '../../game/tiles/tileConfig'
+import { TILESET_CONFIG, type SpriteAtlasConfig, type SpriteCoordinate } from '../../game/tiles/tileConfig'
 
 type SpriteTileBaseProps = {
   size: number
   fill?: boolean
+  atlas?: Pick<SpriteAtlasConfig, 'src' | 'columns' | 'rows'>
   className?: string
   style?: React.CSSProperties
   ariaLabel?: string
@@ -34,6 +35,7 @@ function joinClassNames(...classes: Array<string | undefined>) {
 
 function SpriteTile(props: SpriteTileProps) {
   const { size, fill, className, style, ariaLabel } = props
+  const atlas = props.atlas ?? TILESET_CONFIG
   const sprite = getSpriteCoordinate(props)
 
   if (!sprite) return null
@@ -41,10 +43,10 @@ function SpriteTile(props: SpriteTileProps) {
   const width = fill ? '100%' : `${size}px`
   const height = fill ? '100%' : `${size}px`
   const backgroundSize = fill
-    ? `${TILESET_CONFIG.columns * 100}% ${TILESET_CONFIG.rows * 100}%`
-    : `${TILESET_CONFIG.columns * size}px ${TILESET_CONFIG.rows * size}px`
+    ? `${atlas.columns * 100}% ${atlas.rows * 100}%`
+    : `${atlas.columns * size}px ${atlas.rows * size}px`
   const backgroundPosition = fill
-    ? `${(sprite.col / (TILESET_CONFIG.columns - 1)) * 100}% ${(sprite.row / (TILESET_CONFIG.rows - 1)) * 100}%`
+    ? `${(sprite.col / (atlas.columns - 1)) * 100}% ${(sprite.row / (atlas.rows - 1)) * 100}%`
     : `-${sprite.col * size}px -${sprite.row * size}px`
 
   return (
@@ -56,7 +58,7 @@ function SpriteTile(props: SpriteTileProps) {
       style={{
         width,
         height,
-        backgroundImage: `url("${TILESET_CONFIG.src}")`,
+        backgroundImage: `url("${atlas.src}")`,
         backgroundRepeat: 'no-repeat',
         backgroundSize,
         backgroundPosition,

@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { Enemy, Level, TileType } from '../../types/game'
 import { resolveTileSprite } from '../../game/tiles/tileResolver'
+import { DETAILS_TILESET_CONFIG } from '../../game/tiles/detailConfig'
+import { resolveDetailSprite } from '../../game/tiles/detailResolver'
 import SpriteTile from './SpriteTile'
 import PixelButton from '../ui/PixelButton'
 
@@ -45,33 +47,35 @@ function renderToken(label: string, tileSize: number, className: string) {
 }
 
 function renderObjectOverlay(tile: TileType, tileSize: number) {
+  const detailSprite = resolveDetailSprite(tile)
+  if (detailSprite) {
+    const ariaLabel =
+      tile === 'EXIT'
+        ? 'Saida'
+        : tile === 'SPIKE'
+          ? 'Espinhos'
+          : tile === 'KEY'
+            ? 'Chave'
+            : tile === 'OPEN_CHEST'
+              ? 'Bau aberto'
+              : 'Bau fechado'
+
+    return (
+      <SpriteTile
+        sprite={detailSprite}
+        atlas={DETAILS_TILESET_CONFIG}
+        size={tileSize}
+        className="absolute inset-0 z-10 pointer-events-none"
+        ariaLabel={ariaLabel}
+      />
+    )
+  }
+
   switch (tile) {
-    case 'EXIT':
-      return (
-        <img
-          src="/assets/portal.png"
-          alt="Saida"
-          className="absolute inset-[7%] z-10 pointer-events-none h-[86%] w-[86%] object-contain dungeon-object-sprite"
-        />
-      )
-    case 'SPIKE':
-      return (
-        <img
-          src="/assets/espinhos.png"
-          alt="Espinhos"
-          className="absolute inset-0 z-10 pointer-events-none h-full w-full object-cover dungeon-object-sprite"
-        />
-      )
-    case 'KEY':
-      return renderToken('K', tileSize, 'text-treasure')
     case 'DOOR':
       return renderToken('D', tileSize, 'text-wood')
     case 'OPEN_DOOR':
       return renderToken('D', tileSize, 'text-wood/45')
-    case 'CHEST':
-      return renderToken('C', tileSize, 'text-treasure')
-    case 'OPEN_CHEST':
-      return renderToken('C', tileSize, 'text-treasure/45')
     default:
       return null
   }
