@@ -8,6 +8,7 @@ Code Dungeon é um jogo educativo de lógica e programação em que o jogador re
 - [Objetivos](#objetivos)
 - [Funcionalidades](#funcionalidades)
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
+- [Fontes dos assets](#fontes-dos-assets)
 - [Como executar](#como-executar)
 - [Scripts disponíveis](#scripts-disponíveis)
 - [Rotas da aplicação](#rotas-da-aplicação)
@@ -51,6 +52,16 @@ A aplicação possui 19 fases guiadas, organizadas em mundos temáticos, e um mo
 - [TypeScript](https://www.typescriptlang.org/)
 - [Tailwind CSS](https://tailwindcss.com/)
 - Node.js e npm
+
+## Fontes dos assets
+
+Os assets visuais utilizados no projeto vieram das seguintes fontes:
+
+| Asset | Fonte |
+| --- | --- |
+| Interface / UI | [1 Bit Game UI Pack](https://andelrodis.itch.io/1-bit-game-ui-pack) |
+| Personagem | [Dummy Dungeon Character Pack](https://sorto-dedd.itch.io/dummy-dungeon-character-pack) |
+| Mapa, detalhes e inimigo | [Playdate Dungeon Tileset Top Down 20x20](https://schwarnhild.itch.io/playdate-dungeon-tileset-top-down-20x20) |
 
 ## Como executar
 
