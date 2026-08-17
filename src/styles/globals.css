@@ -348,6 +348,34 @@ body {
   padding: 0.25rem 0.45rem;
 }
 
+.bat-sprite {
+  display: block;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+  animation-name: bat-idle;
+  animation-iteration-count: infinite;
+}
+
+@keyframes bat-idle {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: var(--bat-sheet-offset) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bat-sprite {
+    animation: none !important;
+    background-position: 0 0 !important;
+  }
+}
+
 /* Hide decorative images on very small zoom for performance */
 @media (max-width: 600px) {
   .dungeon-tile img {

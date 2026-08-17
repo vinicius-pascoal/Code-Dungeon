@@ -5,6 +5,7 @@ import { DETAILS_TILESET_CONFIG } from '../../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../../game/tiles/detailResolver'
 import SpriteTile from './SpriteTile'
 import PixelButton from '../ui/PixelButton'
+import BatSprite from './entities/BatSprite'
 
 type Props = {
   level: Level
@@ -363,6 +364,7 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
             const key = `${x}-${y}`
             const enemy = enemyAt(enemies, x, y)
             const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
+            const enemySize = Math.max(18, Math.round(tileSize * 0.78))
             const playerImage = isPlayer
               ? isRunning
                 ? directionToWalkingFrames(playerDirection)[playerFrame]
@@ -390,12 +392,9 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
                 />
                 {renderObjectOverlay(tile, tileSize)}
                 {enemy ? (
-                  <span
-                    className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center font-mono font-black text-danger"
-                    style={{ fontSize: `${Math.max(12, tileSize * 0.48)}px` }}
-                  >
-                    M
-                  </span>
+                  <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+                    <BatSprite size={enemySize} x={x} y={y} />
+                  </div>
                 ) : null}
                 {playerImage ? (
                   <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
