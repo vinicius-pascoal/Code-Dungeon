@@ -358,7 +358,7 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
             const isPlayer = x === playerX && y === playerY
             const key = `${x}-${y}`
             const enemy = enemyAt(enemies, x, y)
-            const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls })
+            const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
             const playerImage = isPlayer
               ? isRunning
                 ? directionToWalkingFrames(playerDirection)[playerFrame]

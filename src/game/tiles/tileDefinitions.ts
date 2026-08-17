@@ -1,6 +1,6 @@
 import type { SpriteCoordinate } from './tileConfig'
 
-export type FloorVariant = 'normal' | 'variant1' | 'variant2' | 'cracked' | 'decorated'
+export type FloorVariant = 'floor1' | 'floor2' | 'floor3'
 
 export type WallVariant =
   | 'topLeft'
@@ -16,14 +16,21 @@ export type WallVariant =
 export type TileVariant = FloorVariant | WallVariant
 
 type FloorSpriteCatalog = {
-  normal: SpriteCoordinate
-} & Partial<Record<Exclude<FloorVariant, 'normal'>, SpriteCoordinate>>
+  variants: readonly SpriteCoordinate[]
+} & Record<FloorVariant, SpriteCoordinate>
 
 type WallSpriteCatalog = Record<WallVariant, SpriteCoordinate>
 
 export const DUNGEON_SPRITES = {
   floor: {
-    normal: { col: 2, row: 2 },
+    floor1: { col: 14, row: 1 },
+    floor2: { col: 15, row: 1 },
+    floor3: { col: 16, row: 1 },
+    variants: [
+      { col: 14, row: 1 },
+      { col: 15, row: 1 },
+      { col: 16, row: 1 },
+    ],
   },
   walls: {
     topLeft: { col: 1, row: 1 },
