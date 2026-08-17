@@ -19,6 +19,8 @@ const previewTiles: TileType[][] = [
   ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
 ]
 
+const HOME_PLAYER_SPRITE_SCALE = 2
+
 function renderTileOverlay(tile: TileType, tileSize: number) {
   const sprite = resolveDetailSprite(tile)
   if (!sprite) return null
@@ -141,8 +143,13 @@ export default function Home() {
                     return (
                       <div
                         key={`${x}-${y}`}
-                        className="relative aspect-square overflow-hidden"
-                        style={{ margin: 0, padding: 0 }}
+                        className="relative aspect-square"
+                        style={{
+                          margin: 0,
+                          padding: 0,
+                          overflow: isPlayer ? 'visible' : 'hidden',
+                          zIndex: isPlayer ? 30 : 0,
+                        }}
                       >
                         {sprite ? <SpriteTile sprite={sprite} size={48} fill className="absolute inset-0" /> : null}
                         {renderTileOverlay(tile, 48)}
@@ -150,7 +157,14 @@ export default function Home() {
                           <img
                             src="/assets/personagem/Idle/Ghost_idle_side_1.png"
                             alt="Personagem"
-                            className="absolute inset-0 z-20 h-full w-full object-contain dungeon-entity-sprite"
+                            className="absolute left-1/2 top-1/2 z-20 object-contain dungeon-entity-sprite"
+                            style={{
+                              width: `${HOME_PLAYER_SPRITE_SCALE * 100}%`,
+                              height: `${HOME_PLAYER_SPRITE_SCALE * 100}%`,
+                              maxWidth: 'none',
+                              maxHeight: 'none',
+                              transform: 'translate(-50%, -50%)',
+                            }}
                           />
                         ) : null}
                       </div>
