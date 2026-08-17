@@ -1,18 +1,20 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Enemy, Level, TileType } from '../../types/game'
+import { Direction, Enemy, Level, PlayerAnimationState, TileType } from '../../types/game'
 import { resolveTileSprite } from '../../game/tiles/tileResolver'
 import { DETAILS_TILESET_CONFIG } from '../../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../../game/tiles/detailResolver'
 import SpriteTile from './SpriteTile'
 import PixelButton from '../ui/PixelButton'
 import BatSprite from './entities/BatSprite'
+import PlayerSprite from './entities/PlayerSprite'
 
 type Props = {
   level: Level
   grid?: TileType[][]
   playerX: number
   playerY: number
-  playerDirection: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
+  playerDirection: Direction
+  playerAnimationState?: PlayerAnimationState
   enemies: Enemy[]
   isRunning?: boolean
   hideWalls?: boolean
@@ -26,6 +28,7 @@ type VisibleTiles = {
 }
 
 const DISPLAY_TILE_SIZE = 48
+const PLAYER_SPRITE_SCALE = 2
 
 function enemyAt(enemies: Enemy[], x: number, y: number) {
   return enemies.find((enemy) => !enemy.defeated && enemy.x === x && enemy.y === y)
@@ -82,35 +85,6 @@ function renderObjectOverlay(tile: TileType, tileSize: number) {
   }
 }
 
-function directionToRotation(direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') {
-  switch (direction) {
-    case 'UP':
-      return '/assets/personagem/rotations/north.png'
-    case 'RIGHT':
-      return '/assets/personagem/rotations/east.png'
-    case 'DOWN':
-      return '/assets/personagem/rotations/south.png'
-    case 'LEFT':
-    default:
-      return '/assets/personagem/rotations/west.png'
-  }
-}
-
-function directionToWalkingFrames(direction: 'UP' | 'RIGHT' | 'DOWN' | 'LEFT') {
-  const folder =
-    direction === 'UP'
-      ? 'north'
-      : direction === 'RIGHT'
-        ? 'east'
-        : direction === 'DOWN'
-          ? 'south'
-          : 'west'
-
-  return Array.from({ length: 6 }, (_, index) =>
-    `/assets/personagem/animations/Walking-4e049032/${folder}/frame_${String(index).padStart(3, '0')}.png`
-  )
-}
-
 // Calcula zoom automático para boards grandes
 function calculateInitialZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
   const maxDim = Math.max(cols, rows)
@@ -135,7 +109,17 @@ function calculateFitZoom(cols: number, rows: number, viewportWidth: number, vie
   return Math.max(0.1, maxTileSize / baseTileSize)
 }
 
-export default function DungeonGrid({ level, grid, playerX, playerY, playerDirection, enemies, isRunning, hideWalls }: Props) {
+export default function DungeonGrid({
+  level,
+  grid,
+  playerX,
+  playerY,
+  playerDirection,
+  playerAnimationState,
+  enemies,
+  isRunning,
+  hideWalls,
+}: Props) {
   const map = grid ?? level.grid
   const cols = map[0]?.length || 0
   const rows = map.length
@@ -148,7 +132,6 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
   )
 
   const [zoom, setZoom] = useState(initialZoom)
-  const [playerFrame, setPlayerFrame] = useState(0)
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -252,19 +235,6 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
     containerRef.current.scrollTop = playerPixelY - viewportHeight / 2 + tileSize / 2
   }, [playerX, playerY, tileSize, viewportWidth, viewportHeight])
 
-  useEffect(() => {
-    if (!isRunning) {
-      setPlayerFrame(0)
-      return
-    }
-
-    const interval = window.setInterval(() => {
-      setPlayerFrame((current) => (current + 1) % 6)
-    }, 110)
-
-    return () => window.clearInterval(interval)
-  }, [isRunning, playerDirection])
-
   // Auto-centralizar na posição do jogador quando executando código grande
   useEffect(() => {
     if (cols > 30 && rows > 30) {
@@ -275,6 +245,7 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
   }, [])
 
   const zoomPercentage = Math.round(zoom * 100)
+  const resolvedPlayerAnimationState: PlayerAnimationState = playerAnimationState ?? (isRunning ? 'walk' : 'idle')
 
   // Renderizar apenas tiles visíveis para performance
   const visibleRows = useMemo(() => {
@@ -360,16 +331,10 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
           {/* Render apenas tiles visíveis */}
           {visibleRows.map(({ x, y }) => {
             const tile = map[y][x]
-            const isPlayer = x === playerX && y === playerY
             const key = `${x}-${y}`
             const enemy = enemyAt(enemies, x, y)
             const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
             const enemySize = Math.max(18, Math.round(tileSize * 0.78))
-            const playerImage = isPlayer
-              ? isRunning
-                ? directionToWalkingFrames(playerDirection)[playerFrame]
-                : directionToRotation(playerDirection)
-              : null
             const tileStyle: React.CSSProperties = {
               position: 'absolute',
               left: `${x * tileSize}px`,
@@ -396,18 +361,25 @@ export default function DungeonGrid({ level, grid, playerX, playerY, playerDirec
                     <BatSprite size={enemySize} x={x} y={y} />
                   </div>
                 ) : null}
-                {playerImage ? (
-                  <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center">
-                    <img
-                      src={playerImage}
-                      alt="Personagem do jogador"
-                      className="h-full w-full object-contain dungeon-entity-sprite"
-                    />
-                  </div>
-                ) : null}
               </div>
             )
           })}
+
+          <div
+            className="absolute z-30 pointer-events-none flex items-center justify-center"
+            style={{
+              left: `${playerX * tileSize}px`,
+              top: `${playerY * tileSize}px`,
+              width: `${tileSize}px`,
+              height: `${tileSize}px`,
+            }}
+          >
+            <PlayerSprite
+              direction={playerDirection}
+              animationState={resolvedPlayerAnimationState}
+              size={tileSize * PLAYER_SPRITE_SCALE}
+            />
+          </div>
         </div>
       </div>
     </div>

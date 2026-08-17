@@ -11,6 +11,8 @@ export type TileType =
 
 export type Direction = 'UP' | 'RIGHT' | 'DOWN' | 'LEFT'
 
+export type PlayerAnimationState = 'idle' | 'walk' | 'hit' | 'death'
+
 export type EntityType = 'PLAYER' | 'ENEMY'
 
 export type PlayerState = {

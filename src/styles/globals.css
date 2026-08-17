@@ -85,6 +85,12 @@ body {
   image-rendering: pixelated;
 }
 
+.player-sprite {
+  display: block;
+  background: transparent;
+  user-select: none;
+}
+
 .pixel-app {
   min-height: 100%;
   background:

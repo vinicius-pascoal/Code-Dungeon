@@ -148,9 +148,9 @@ export default function Home() {
                         {renderTileOverlay(tile, 48)}
                         {isPlayer ? (
                           <img
-                            src="/assets/personagem/rotations/east.png"
+                            src="/assets/personagem/Idle/Ghost_idle_side_1.png"
                             alt="Personagem"
-                            className="absolute inset-0 z-20 h-full w-full object-contain"
+                            className="absolute inset-0 z-20 h-full w-full object-contain dungeon-entity-sprite"
                           />
                         ) : null}
                       </div>

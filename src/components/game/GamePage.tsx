@@ -16,7 +16,7 @@ import { executeCommands } from '../../utils/commandExecutor'
 import { parseAdvancedCode } from '../../utils/advancedParser'
 import { executeAdvancedCommands } from '../../utils/advancedExecutor'
 import type { Expression, Program, Statement } from '../../utils/ast'
-import { Enemy, TileType } from '../../types/game'
+import { Enemy, PlayerAnimationState, TileType } from '../../types/game'
 
 function cloneGrid(grid: TileType[][]) {
   return grid.map((row) => [...row])
@@ -264,6 +264,7 @@ export default function GamePage() {
   const [code, setCode] = useState(getInitialCode())
   const [logs, setLogs] = useState<string[]>([])
   const [player, setPlayer] = useState(selectedLevel.playerStart)
+  const [playerAnimationState, setPlayerAnimationState] = useState<PlayerAnimationState>('idle')
   const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
   const [enemies, setEnemies] = useState(() => cloneEnemies(selectedLevel.enemies))
   const [commandCount, setCommandCount] = useState(0)
@@ -305,6 +306,7 @@ export default function GamePage() {
     }
     setLogs([])
     setPlayer(selectedLevel.playerStart)
+    setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
     setCommandCount(0)
@@ -394,6 +396,7 @@ export default function GamePage() {
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
     setCommandCount(0)
+    setPlayerAnimationState('idle')
 
     // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
     // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
@@ -416,6 +419,7 @@ export default function GamePage() {
             if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
+            setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
             commandsExecuted += 1
@@ -425,10 +429,12 @@ export default function GamePage() {
             const errorInfo = parseErrorInfo(err)
             setErrorState({ open: true, ...errorInfo })
             addLog(errorInfo.reason)
+            setPlayerAnimationState('idle')
             setRunning(false)
           },
           ({ player: final, won }) => {
             setPlayer({ ...final })
+            setPlayerAnimationState('idle')
             setRunning(false)
             if (won) {
               setCommandCount(sourceCommandCount)
@@ -459,6 +465,7 @@ export default function GamePage() {
             if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
+            setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
             setCommandCount((current) => current + 1)
@@ -467,10 +474,12 @@ export default function GamePage() {
             const errorInfo = parseErrorInfo(err)
             setErrorState({ open: true, ...errorInfo })
             addLog(errorInfo.reason)
+            setPlayerAnimationState('idle')
             setRunning(false)
           },
           ({ player: final, won }) => {
             setPlayer({ ...final })
+            setPlayerAnimationState('idle')
             setRunning(false)
             if (won) {
               const stars = calculateStars(commands.length, selectedLevel.id)
@@ -487,12 +496,14 @@ export default function GamePage() {
       const errorInfo = parseErrorInfo(error instanceof Error ? error.message : String(error))
       setErrorState({ open: true, ...errorInfo })
       addLog(errorInfo.reason)
+      setPlayerAnimationState('idle')
       setRunning(false)
     }
   }
 
   function onReset() {
     setPlayer(selectedLevel.playerStart)
+    setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
     setCommandCount(0)
@@ -608,6 +619,7 @@ export default function GamePage() {
                   playerX={player.x}
                   playerY={player.y}
                   playerDirection={player.direction}
+                  playerAnimationState={playerAnimationState}
                   enemies={enemies}
                   isRunning={running}
                   hideWalls={false}
