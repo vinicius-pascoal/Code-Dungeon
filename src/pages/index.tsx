@@ -4,6 +4,8 @@ import PixelFrame from '../components/ui/PixelFrame'
 import PixelIcon from '../components/ui/PixelIcon'
 import PixelPanel from '../components/ui/PixelPanel'
 import SpriteTile from '../components/game/SpriteTile'
+import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
+import { resolveDetailSprite } from '../game/tiles/detailResolver'
 import { resolveTileSprite } from '../game/tiles/tileResolver'
 import { UI_SPRITES } from '../game/ui/uiSprites'
 import type { TileType } from '../types/game'
@@ -17,31 +19,31 @@ const previewTiles: TileType[][] = [
   ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
 ]
 
-function renderTileOverlay(tile: string, tileSize: number) {
-  switch (tile) {
-    case 'EXIT':
-      return (
-        <img
-          src="/assets/portal.png"
-          alt="Saida"
-          className="absolute inset-[7%] z-10 pointer-events-none h-[86%] w-[86%] object-contain"
-        />
-      )
-    case 'SPIKE':
-      return (
-        <img
-          src="/assets/espinhos.png"
-          alt="Espinhos"
-          className="absolute inset-0 z-10 pointer-events-none h-full w-full object-cover"
-        />
-      )
-    case 'KEY':
-      return <span className="absolute inset-0 z-10 flex items-center justify-center font-mono text-lg font-black text-amber-300">K</span>
-    case 'CHEST':
-      return <span className="absolute inset-0 z-10 flex items-center justify-center font-mono text-lg font-black text-amber-300">C</span>
-    default:
-      return null
-  }
+function renderTileOverlay(tile: TileType, tileSize: number) {
+  const sprite = resolveDetailSprite(tile)
+  if (!sprite) return null
+
+  const ariaLabel =
+    tile === 'EXIT'
+      ? 'Saida'
+      : tile === 'SPIKE'
+        ? 'Espinhos'
+        : tile === 'KEY'
+          ? 'Chave'
+          : tile === 'OPEN_CHEST'
+            ? 'Bau aberto'
+            : 'Bau fechado'
+
+  return (
+    <SpriteTile
+      sprite={sprite}
+      atlas={DETAILS_TILESET_CONFIG}
+      size={tileSize}
+      fill
+      className="absolute inset-0 z-10 pointer-events-none"
+      ariaLabel={ariaLabel}
+    />
+  )
 }
 
 const stats = [
