@@ -1,6 +1,8 @@
 import type { SpriteCoordinate } from './tileConfig'
 
 export type FloorVariant = 'floor1' | 'floor2' | 'floor3'
+export type DoorOrientation = 'north' | 'east' | 'south' | 'west'
+export type DoorState = 'closed' | 'open'
 
 export type WallVariant =
   | 'topLeft'
@@ -13,13 +15,14 @@ export type WallVariant =
   | 'bottomRight'
   | 'fallback'
 
-export type TileVariant = FloorVariant | WallVariant
+export type TileVariant = FloorVariant | WallVariant | DoorOrientation
 
 type FloorSpriteCatalog = {
   variants: readonly SpriteCoordinate[]
 } & Record<FloorVariant, SpriteCoordinate>
 
 type WallSpriteCatalog = Record<WallVariant, SpriteCoordinate>
+type DoorSpriteCatalog = Record<DoorState, Record<DoorOrientation, SpriteCoordinate>>
 
 export const DUNGEON_SPRITES = {
   floor: {
@@ -43,7 +46,22 @@ export const DUNGEON_SPRITES = {
     bottomRight: { col: 3, row: 3 },
     fallback: { col: 2, row: 1 },
   },
+  door: {
+    closed: {
+      north: { col: 13, row: 9 },
+      east: { col: 13, row: 10 },
+      south: { col: 13, row: 11 },
+      west: { col: 13, row: 12 },
+    },
+    open: {
+      north: { col: 14, row: 9 },
+      east: { col: 14, row: 10 },
+      south: { col: 14, row: 11 },
+      west: { col: 14, row: 12 },
+    },
+  },
 } as const satisfies {
   floor: FloorSpriteCatalog
   walls: WallSpriteCatalog
+  door: DoorSpriteCatalog
 }

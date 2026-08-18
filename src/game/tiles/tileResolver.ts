@@ -1,6 +1,6 @@
 import type { TileType } from '../../types/game'
 import type { TileSprite } from './tileConfig'
-import { DUNGEON_SPRITES } from './tileDefinitions'
+import { DUNGEON_SPRITES, type DoorOrientation } from './tileDefinitions'
 
 type TileMap = TileType[][]
 
@@ -16,12 +16,24 @@ type ResolveTileSpriteArgs = TilePosition & {
   levelId?: number | string
 }
 
+const DEFAULT_DOOR_ORIENTATION: DoorOrientation = 'north'
+const INVERTED_DOOR_ORIENTATION: Record<DoorOrientation, DoorOrientation> = {
+  north: 'south',
+  east: 'west',
+  south: 'north',
+  west: 'east',
+}
+
 function tileAt(map: TileMap, x: number, y: number): TileType | undefined {
   return map[y]?.[x]
 }
 
+function isStructuralTile(tile: TileType | undefined): boolean {
+  return tile === 'WALL' || tile === 'DOOR' || tile === 'OPEN_DOOR'
+}
+
 function isOpenTile(tile: TileType | undefined): boolean {
-  return tile !== undefined && tile !== 'WALL'
+  return tile !== undefined && !isStructuralTile(tile)
 }
 
 function getSeedValue(seed: number | string | undefined): number {
@@ -85,9 +97,66 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
   return DUNGEON_SPRITES.walls.fallback
 }
 
+export function resolveDoorOrientation({ map, x, y }: TilePosition): DoorOrientation {
+  const top = tileAt(map, x, y - 1)
+  const right = tileAt(map, x + 1, y)
+  const bottom = tileAt(map, x, y + 1)
+  const left = tileAt(map, x - 1, y)
+
+  const wallTop = isStructuralTile(top)
+  const wallRight = isStructuralTile(right)
+  const wallBottom = isStructuralTile(bottom)
+  const wallLeft = isStructuralTile(left)
+
+  const openTop = isOpenTile(top)
+  const openRight = isOpenTile(right)
+  const openBottom = isOpenTile(bottom)
+  const openLeft = isOpenTile(left)
+
+  if (wallLeft && wallRight) {
+    if (openTop && !openBottom) return 'north'
+    if (openBottom && !openTop) return 'south'
+    return DEFAULT_DOOR_ORIENTATION
+  }
+
+  if (wallTop && wallBottom) {
+    if (openRight && !openLeft) return 'east'
+    if (openLeft && !openRight) return 'west'
+    return 'east'
+  }
+
+  if (wallTop) return 'north'
+  if (wallRight) return 'east'
+  if (wallBottom) return 'south'
+  if (wallLeft) return 'west'
+
+  return DEFAULT_DOOR_ORIENTATION
+}
+
+export function resolveDoorSprite({
+  map,
+  x,
+  y,
+  isOpen,
+  orientation,
+}: TilePosition & {
+  isOpen: boolean
+  orientation?: DoorOrientation
+}): TileSprite {
+  const resolvedOrientation = orientation ?? resolveDoorOrientation({ map, x, y })
+  const spriteOrientation = INVERTED_DOOR_ORIENTATION[resolvedOrientation]
+  const state = isOpen ? 'open' : 'closed'
+
+  return DUNGEON_SPRITES.door[state][spriteOrientation]
+}
+
 export function resolveTileSprite({ tile, map, x, y, hideWalls, levelId }: ResolveTileSpriteArgs): TileSprite | null {
   if (tile === 'WALL') {
     return hideWalls ? null : resolveWallSprite({ map, x, y })
+  }
+
+  if (tile === 'DOOR' || tile === 'OPEN_DOOR') {
+    return resolveDoorSprite({ map, x, y, isOpen: tile === 'OPEN_DOOR' })
   }
 
   return resolveFloorSprite({ x, y, levelId })

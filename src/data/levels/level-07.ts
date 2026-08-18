@@ -8,15 +8,14 @@ export const levelSeven: Level = {
   availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'grabKey', 'openDoor'],
   playerStart: {
     x: 1,
-    y: 2,
+    y: 1,
     direction: 'RIGHT',
     keys: 0,
     openedChests: 0,
   },
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
-    ['WALL', 'KEY', 'DOOR', 'FLOOR', 'FLOOR', 'WALL'],
+    ['WALL', 'KEY', 'DOOR', 'FLOOR', 'EXIT', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
   enemies: [],

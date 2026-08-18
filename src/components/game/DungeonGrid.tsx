@@ -39,17 +39,6 @@ function getCellClassName(tile: TileType, hideWalls?: boolean) {
   return 'relative dungeon-cell'
 }
 
-function renderToken(label: string, tileSize: number, className: string) {
-  return (
-    <span
-      className={`absolute inset-0 z-10 pointer-events-none flex items-center justify-center font-mono font-black ${className}`}
-      style={{ fontSize: `${Math.max(12, tileSize * 0.48)}px` }}
-    >
-      {label}
-    </span>
-  )
-}
-
 function renderObjectOverlay(tile: TileType, tileSize: number) {
   const detailSprite = resolveDetailSprite(tile)
   if (detailSprite) {
@@ -75,14 +64,14 @@ function renderObjectOverlay(tile: TileType, tileSize: number) {
     )
   }
 
-  switch (tile) {
-    case 'DOOR':
-      return renderToken('D', tileSize, 'text-wood')
-    case 'OPEN_DOOR':
-      return renderToken('D', tileSize, 'text-wood/45')
-    default:
-      return null
-  }
+  return null
+}
+
+function getTileAriaLabel(tile: TileType) {
+  if (tile === 'WALL') return 'Parede'
+  if (tile === 'DOOR') return 'Porta fechada'
+  if (tile === 'OPEN_DOOR') return 'Porta aberta'
+  return 'Piso'
 }
 
 // Calcula zoom automático para boards grandes
@@ -353,7 +342,7 @@ export default function DungeonGrid({
                   sprite={tileSprite}
                   size={tileSize}
                   className="absolute inset-0"
-                  ariaLabel={tile === 'WALL' ? 'Parede' : 'Piso'}
+                  ariaLabel={getTileAriaLabel(tile)}
                 />
                 {renderObjectOverlay(tile, tileSize)}
                 {enemy ? (
