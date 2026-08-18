@@ -61,4 +61,6 @@ export type GameState = {
   grid: TileType[][]
   player: PlayerState
   enemies: Enemy[]
+  spikesActive: boolean
+  spikeTurnCount: number
 }

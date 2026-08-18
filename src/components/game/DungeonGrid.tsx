@@ -7,6 +7,7 @@ import SpriteTile from './SpriteTile'
 import PixelButton from '../ui/PixelButton'
 import BatSprite from './entities/BatSprite'
 import PlayerSprite from './entities/PlayerSprite'
+import SpikeSprite from './SpikeSprite'
 
 type Props = {
   level: Level
@@ -18,6 +19,7 @@ type Props = {
   enemies: Enemy[]
   isRunning?: boolean
   hideWalls?: boolean
+  spikesActive?: boolean
 }
 
 type VisibleTiles = {
@@ -39,15 +41,24 @@ function getCellClassName(tile: TileType, hideWalls?: boolean) {
   return 'relative dungeon-cell'
 }
 
-function renderObjectOverlay(tile: TileType, tileSize: number) {
+function renderObjectOverlay(tile: TileType, tileSize: number, spikesActive: boolean) {
+  if (tile === 'SPIKE') {
+    return (
+      <SpikeSprite
+        active={spikesActive}
+        size={tileSize}
+        className="absolute inset-0 z-10 pointer-events-none"
+        ariaLabel={spikesActive ? 'Espinhos ativos' : 'Espinhos recolhidos'}
+      />
+    )
+  }
+
   const detailSprite = resolveDetailSprite(tile)
   if (detailSprite) {
     const ariaLabel =
       tile === 'EXIT'
         ? 'Saida'
-        : tile === 'SPIKE'
-          ? 'Espinhos'
-          : tile === 'KEY'
+        : tile === 'KEY'
             ? 'Chave'
             : tile === 'OPEN_CHEST'
               ? 'Bau aberto'
@@ -108,6 +119,7 @@ export default function DungeonGrid({
   enemies,
   isRunning,
   hideWalls,
+  spikesActive = true,
 }: Props) {
   const map = grid ?? level.grid
   const cols = map[0]?.length || 0
@@ -344,7 +356,7 @@ export default function DungeonGrid({
                   className="absolute inset-0"
                   ariaLabel={getTileAriaLabel(tile)}
                 />
-                {renderObjectOverlay(tile, tileSize)}
+                {renderObjectOverlay(tile, tileSize, spikesActive)}
                 {enemy ? (
                   <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
                     <BatSprite size={enemySize} x={x} y={y} />

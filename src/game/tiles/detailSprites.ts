@@ -13,10 +13,6 @@ export const DETAIL_SPRITES = {
     col: 5,
     row: 2,
   },
-  spikes: {
-    col: 4,
-    row: 4,
-  },
   exit: {
     col: 3,
     row: 8,

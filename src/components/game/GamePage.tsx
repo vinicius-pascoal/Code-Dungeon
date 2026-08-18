@@ -17,6 +17,7 @@ import { parseAdvancedCode } from '../../utils/advancedParser'
 import { executeAdvancedCommands } from '../../utils/advancedExecutor'
 import type { Expression, Program, Statement } from '../../utils/ast'
 import { Enemy, PlayerAnimationState, TileType } from '../../types/game'
+import { INITIAL_SPIKES_ACTIVE } from '../../game/tiles/spikeConfig'
 
 function cloneGrid(grid: TileType[][]) {
   return grid.map((row) => [...row])
@@ -267,6 +268,7 @@ export default function GamePage() {
   const [playerAnimationState, setPlayerAnimationState] = useState<PlayerAnimationState>('idle')
   const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
   const [enemies, setEnemies] = useState(() => cloneEnemies(selectedLevel.enemies))
+  const [spikesActive, setSpikesActive] = useState(INITIAL_SPIKES_ACTIVE)
   const [commandCount, setCommandCount] = useState(0)
   const [running, setRunning] = useState(false)
   const [victoryState, setVictoryState] = useState<{ open: boolean; stars: number }>({
@@ -309,6 +311,7 @@ export default function GamePage() {
     setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setRunning(false)
     setVictoryState({ open: false, stars: 0 })
@@ -329,7 +332,7 @@ export default function GamePage() {
       if ((lvl.enemies ?? []).length > 0) tiles.add('ENEMY')
 
       const mechanics: string[] = []
-      if (tiles.has('SPIKE')) mechanics.push('Células com espinhos: evite pisar nelas.')
+      if (tiles.has('SPIKE')) mechanics.push('Espinhos: alternam entre ativos e recolhidos a cada 2 comandos; atravesse quando estiverem recolhidos.')
       if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
       if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')
       if (tiles.has('ENEMY')) mechanics.push('Inimigos: use `attack()` para derrotá-los antes de avançar.')
@@ -397,6 +400,7 @@ export default function GamePage() {
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
     setCommandCount(0)
     setPlayerAnimationState('idle')
+    setSpikesActive(INITIAL_SPIKES_ACTIVE)
 
     // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
     // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
@@ -415,13 +419,14 @@ export default function GamePage() {
         await executeAdvancedCommands(
           program,
           selectedLevel,
-          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, message }) => {
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, spikesActive: nextSpikesActive, message }) => {
             if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
+            setSpikesActive(nextSpikesActive)
             commandsExecuted += 1
             setCommandCount(commandsExecuted)
           },
@@ -461,13 +466,14 @@ export default function GamePage() {
         await executeCommands(
           commands,
           selectedLevel,
-          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, message }) => {
+          ({ command, player: p, grid: nextGrid, enemies: nextEnemies, spikesActive: nextSpikesActive, message }) => {
             if (message) addLog(String(message))
             addLog(`${command} executado`)
             setPlayer({ ...p })
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
+            setSpikesActive(nextSpikesActive)
             setCommandCount((current) => current + 1)
           },
           (err) => {
@@ -506,6 +512,7 @@ export default function GamePage() {
     setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setLogs([])
     setRunning(false)
@@ -623,6 +630,7 @@ export default function GamePage() {
                   enemies={enemies}
                   isRunning={running}
                   hideWalls={false}
+                  spikesActive={spikesActive}
                 />
               </PixelFrame>
             </PixelPanel>

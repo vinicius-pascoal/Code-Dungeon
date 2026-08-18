@@ -9,8 +9,6 @@ export function resolveDetailSprite(tile: TileType): DetailSprite | null {
       return DETAIL_SPRITES.chestClosed
     case 'OPEN_CHEST':
       return DETAIL_SPRITES.chestOpen
-    case 'SPIKE':
-      return DETAIL_SPRITES.spikes
     case 'EXIT':
       return DETAIL_SPRITES.exit
     default:

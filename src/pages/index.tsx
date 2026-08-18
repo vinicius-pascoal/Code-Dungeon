@@ -4,6 +4,7 @@ import PixelFrame from '../components/ui/PixelFrame'
 import PixelIcon from '../components/ui/PixelIcon'
 import PixelPanel from '../components/ui/PixelPanel'
 import SpriteTile from '../components/game/SpriteTile'
+import SpikeSprite from '../components/game/SpikeSprite'
 import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../game/tiles/detailResolver'
 import { resolveTileSprite } from '../game/tiles/tileResolver'
@@ -22,15 +23,25 @@ const previewTiles: TileType[][] = [
 const HOME_PLAYER_SPRITE_SCALE = 2
 
 function renderTileOverlay(tile: TileType, tileSize: number) {
+  if (tile === 'SPIKE') {
+    return (
+      <SpikeSprite
+        active={true}
+        size={tileSize}
+        fill
+        className="absolute inset-0 z-10 pointer-events-none"
+        ariaLabel="Espinhos ativos"
+      />
+    )
+  }
+
   const sprite = resolveDetailSprite(tile)
   if (!sprite) return null
 
   const ariaLabel =
     tile === 'EXIT'
       ? 'Saida'
-      : tile === 'SPIKE'
-        ? 'Espinhos'
-        : tile === 'KEY'
+      : tile === 'KEY'
           ? 'Chave'
           : tile === 'OPEN_CHEST'
             ? 'Bau aberto'

@@ -1,10 +1,12 @@
 import { Direction, Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
+import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, isSpikeDangerous } from '../game/tiles/spikeConfig'
 
 type StepCallback = (info: {
   command: string
   player: PlayerState
   grid: TileType[][]
   enemies: Enemy[]
+  spikesActive: boolean
   message?: string
 }) => void
 
@@ -53,6 +55,8 @@ export async function executeCommands(
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
     enemies: cloneEnemies(level.enemies),
+    spikesActive: INITIAL_SPIKES_ACTIVE,
+    spikeTurnCount: 0,
   }
 
   const enemyAt = (x: number, y: number) => state.enemies.find((enemy) => !enemy.defeated && enemy.x === x && enemy.y === y)
@@ -91,7 +95,7 @@ export async function executeCommands(
         onError(`Porta fechada à frente no comando ${i + 1}: ${cmd}()`)
         return
       }
-      if (tile === 'SPIKE') {
+      if (isSpikeDangerous(tile, state.spikesActive)) {
         onError(`Você pisou em espinhos no comando ${i + 1}: ${cmd}()`)
         return
       }
@@ -171,11 +175,16 @@ export async function executeCommands(
       return
     }
 
+    const nextSpikeState = advanceSpikeTurn(state.spikesActive, state.spikeTurnCount)
+    state.spikesActive = nextSpikeState.spikesActive
+    state.spikeTurnCount = nextSpikeState.spikeTurnCount
+
     onStep({
       command: cmd,
       player: { ...state.player },
       grid: cloneGrid(state.grid),
       enemies: cloneEnemies(state.enemies),
+      spikesActive: state.spikesActive,
       message: lookMessage,
     })
 

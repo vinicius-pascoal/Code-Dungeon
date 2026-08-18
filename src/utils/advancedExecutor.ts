@@ -19,12 +19,14 @@ import {
   LogicalExpression,
 } from './ast'
 import { Direction, Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
+import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, isSpikeDangerous } from '../game/tiles/spikeConfig'
 
 type StepCallback = (info: {
   command: string
   player: PlayerState
   grid: TileType[][]
   enemies: Enemy[]
+  spikesActive: boolean
   message?: string
 }) => void
 
@@ -165,6 +167,8 @@ export async function executeAdvancedCommands(
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
     enemies: cloneEnemies(level.enemies),
+    spikesActive: INITIAL_SPIKES_ACTIVE,
+    spikeTurnCount: 0,
   }
 
   const context: Context = {
@@ -210,7 +214,7 @@ export async function executeAdvancedCommands(
         if (tile === 'DOOR') {
           stopExecution(onError, `Porta fechada à frente: ${cmd}()`)
         }
-        if (tile === 'SPIKE') {
+        if (isSpikeDangerous(tile, state.spikesActive)) {
           stopExecution(onError, `Você pisou em espinhos: ${cmd}()`)
         }
         state.player.x = nx
@@ -300,11 +304,16 @@ export async function executeAdvancedCommands(
         stopExecution(onError, `Comando desconhecido: ${cmd}()`)
     }
 
+    const nextSpikeState = advanceSpikeTurn(state.spikesActive, state.spikeTurnCount)
+    state.spikesActive = nextSpikeState.spikesActive
+    state.spikeTurnCount = nextSpikeState.spikeTurnCount
+
     onStep({
       command: cmd,
       player: { ...state.player },
       grid: cloneGrid(state.grid),
       enemies: cloneEnemies(state.enemies),
+      spikesActive: state.spikesActive,
       message: commandMessage,
     })
 
@@ -503,7 +512,17 @@ async function executeExpression(
       const args = await Promise.all(call.arguments.map((arg) => evaluateExpression(arg, context, executeCommand, onError, state, onStep, allowedCommands)))
       const text = args.map((a) => String(a)).join(' ')
       if (onStep && state) {
-        onStep({ command: 'print', player: { ...state.player }, grid: cloneGrid(state.grid), enemies: cloneEnemies(state.enemies), message: text })
+        const nextSpikeState = advanceSpikeTurn(state.spikesActive, state.spikeTurnCount)
+        state.spikesActive = nextSpikeState.spikesActive
+        state.spikeTurnCount = nextSpikeState.spikeTurnCount
+        onStep({
+          command: 'print',
+          player: { ...state.player },
+          grid: cloneGrid(state.grid),
+          enemies: cloneEnemies(state.enemies),
+          spikesActive: state.spikesActive,
+          message: text,
+        })
       }
       return 0
     }
@@ -529,7 +548,7 @@ async function executeExpression(
         newContext.variables.set(func.params[i], args[i] ?? undefined)
       }
 
-      await executeStatement(func.body, state ?? { grid: [], player: {} as any, enemies: [] }, newContext, executeCommand, onError, onStep, allowedCommands)
+      await executeStatement(func.body, state ?? { grid: [], player: {} as any, enemies: [], spikesActive: INITIAL_SPIKES_ACTIVE, spikeTurnCount: 0 }, newContext, executeCommand, onError, onStep, allowedCommands)
 
       const result = newContext.returnValue
       return result ?? 0

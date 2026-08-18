@@ -2,11 +2,12 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { parseAdvancedCode } from './advancedParser'
 import { executeAdvancedCommands } from './advancedExecutor'
+import { executeCommands } from './commandExecutor'
 import { isSimpleCommandList } from './commandParser'
 import { levelEleven } from '../data/levels/level-11'
-import type { Level } from '../types/game'
+import type { Level, TileType } from '../types/game'
 
-function createLevel(availableCommands: string[]): Level {
+function createLevel(availableCommands: string[], grid: TileType[][] = [['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR']]): Level {
   return {
     id: 999,
     worldId: 1,
@@ -15,7 +16,7 @@ function createLevel(availableCommands: string[]): Level {
     objective: 'Test objective',
     availableCommands,
     playerStart: { x: 0, y: 0, direction: 'RIGHT', keys: 0, openedChests: 0 },
-    grid: [['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR']],
+    grid,
     enemies: [],
     starRules: { threeStars: 1, twoStars: 2 },
     concepts: [],
@@ -100,4 +101,41 @@ test('for loop with let initializer should execute multiple iterations', async (
   )
 
   assert.equal(executedCommands, 3)
+})
+
+test('active spikes block movement until two turns deactivate them', async () => {
+  const level = createLevel(['moveForward', 'look'], [['FLOOR', 'SPIKE', 'FLOOR']])
+  let errorMessage = ''
+
+  await executeCommands(
+    ['moveForward'],
+    level,
+    () => undefined,
+    (message) => {
+      errorMessage = message
+    },
+    () => undefined
+  )
+
+  assert.match(errorMessage, /espinhos/)
+
+  const spikeStates: boolean[] = []
+  let finalX = 0
+
+  await executeCommands(
+    ['look', 'look', 'moveForward'],
+    level,
+    ({ spikesActive }) => {
+      spikeStates.push(spikesActive)
+    },
+    (message) => {
+      throw new Error(message)
+    },
+    ({ player }) => {
+      finalX = player.x
+    }
+  )
+
+  assert.deepEqual(spikeStates, [true, false, false])
+  assert.equal(finalX, 1)
 })
