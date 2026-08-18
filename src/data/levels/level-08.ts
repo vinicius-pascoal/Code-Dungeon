@@ -16,7 +16,7 @@ export const levelEight: Level = {
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
-    ['WALL', 'CHEST', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'CHEST', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
   enemies: [],

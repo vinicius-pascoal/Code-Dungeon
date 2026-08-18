@@ -3,11 +3,11 @@ import type { SpriteCoordinate } from './tileConfig'
 export const DETAIL_SPRITES = {
   chestClosed: {
     col: 4,
-    row: 1,
+    row: 2,
   },
   chestOpen: {
     col: 4,
-    row: 2,
+    row: 3,
   },
   key: {
     col: 5,
