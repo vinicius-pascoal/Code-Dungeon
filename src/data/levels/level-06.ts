@@ -8,7 +8,7 @@ export const levelSix: Level = {
   availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack'],
   playerStart: {
     x: 1,
-    y: 2,
+    y: 1,
     direction: 'RIGHT',
     keys: 0,
     openedChests: 0,
@@ -16,9 +16,8 @@ export const levelSix: Level = {
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
-    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
-  enemies: [{ x: 2, y: 2, defeated: false }],
+  enemies: [{ x: 2, y: 1, defeated: false }],
   starRules: { threeStars: 4, twoStars: 5 },
 }
