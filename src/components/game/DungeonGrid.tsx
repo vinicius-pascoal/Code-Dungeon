@@ -30,7 +30,14 @@ type VisibleTiles = {
 }
 
 const DISPLAY_TILE_SIZE = 48
+const MIN_ZOOM = 0.2
+const MAX_ZOOM = 3
 const PLAYER_SPRITE_SCALE = 2
+
+type ViewportSize = {
+  width: number
+  height: number
+}
 
 function enemyAt(enemies: Enemy[], x: number, y: number) {
   return enemies.find((enemy) => !enemy.defeated && enemy.x === x && enemy.y === y)
@@ -85,28 +92,40 @@ function getTileAriaLabel(tile: TileType) {
   return 'Piso'
 }
 
-// Calcula zoom automático para boards grandes
-function calculateInitialZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
-  const maxDim = Math.max(cols, rows)
-  const baseTileSize = DISPLAY_TILE_SIZE
-
-  // Para boards normais (até 25x25), usar zoom normal
-  if (maxDim <= 25) return 1
-
-  // Para boards maiores, calcular zoom que cabe na tela
-  const maxTileSize = Math.min(viewportWidth / cols, viewportHeight / rows) * 0.9
-  return Math.max(0.25, Math.min(1, maxTileSize / baseTileSize))
+function clampZoom(value: number, max = MAX_ZOOM): number {
+  return Math.max(MIN_ZOOM, Math.min(max, value))
 }
 
-// Calcula zoom para visualizar o board inteiro
-function calculateFitZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
-  const baseTileSize = DISPLAY_TILE_SIZE
-  const padding = 0.95 // 5% de margem
+function calculateContainZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number, max = MAX_ZOOM): number {
+  if (!cols || !rows || !viewportWidth || !viewportHeight) return 1
+
+  const padding = 0.96
   const maxTileSize = Math.min(
     (viewportWidth / cols) * padding,
     (viewportHeight / rows) * padding
   )
-  return Math.max(0.1, maxTileSize / baseTileSize)
+
+  return clampZoom(maxTileSize / DISPLAY_TILE_SIZE, max)
+}
+
+// Calcula zoom automatico usando o tamanho real do painel do mapa.
+function calculateAutoZoom(cols: number, rows: number, viewportWidth: number, viewportHeight: number): number {
+  if (!cols || !rows || !viewportWidth || !viewportHeight) return 1
+
+  const containZoom = calculateContainZoom(cols, rows, viewportWidth, viewportHeight)
+  const maxDim = Math.max(cols, rows)
+
+  if (maxDim > 25) {
+    return Math.min(1, containZoom)
+  }
+
+  const fillTileSize = Math.max(
+    (viewportWidth / cols) * 0.96,
+    (viewportHeight / rows) * 0.96
+  )
+  const fillZoom = clampZoom(fillTileSize / DISPLAY_TILE_SIZE)
+
+  return clampZoom(Math.min(fillZoom, containZoom * 1.45))
 }
 
 export default function DungeonGrid({
@@ -124,15 +143,18 @@ export default function DungeonGrid({
   const map = grid ?? level.grid
   const cols = map[0]?.length || 0
   const rows = map.length
-  const [viewportWidth, setViewportWidth] = useState<number>(typeof window !== 'undefined' ? window.innerWidth : 1200)
-  const [viewportHeight, setViewportHeight] = useState<number>(typeof window !== 'undefined' ? window.innerHeight : 800)
+  const [viewportSize, setViewportSize] = useState<ViewportSize>({ width: 0, height: 0 })
 
-  const initialZoom = useMemo(
-    () => calculateInitialZoom(cols, rows, viewportWidth, viewportHeight),
+  const viewportWidth = viewportSize.width || 900
+  const viewportHeight = viewportSize.height || 520
+
+  const autoZoom = useMemo(
+    () => calculateAutoZoom(cols, rows, viewportWidth, viewportHeight),
     [cols, rows, viewportWidth, viewportHeight]
   )
 
-  const [zoom, setZoom] = useState(initialZoom)
+  const [zoom, setZoom] = useState(autoZoom)
+  const [zoomMode, setZoomMode] = useState<'auto' | 'manual'>('auto')
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -140,14 +162,39 @@ export default function DungeonGrid({
   const gridRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const onResize = () => {
-      setViewportWidth(window.innerWidth)
-      setViewportHeight(window.innerHeight)
+    const container = containerRef.current
+    if (!container) return
+
+    const measure = () => {
+      setViewportSize({
+        width: container.clientWidth,
+        height: container.clientHeight,
+      })
     }
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
+
+    measure()
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measure)
+      return () => window.removeEventListener('resize', measure)
+    }
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(container)
+    return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    if (zoomMode === 'auto') {
+      setZoom(autoZoom)
+    }
+  }, [autoZoom, zoomMode])
+
+  useEffect(() => {
+    setZoomMode('auto')
+    setZoom(autoZoom)
+    setScrollPosition({ x: 0, y: 0 })
+  }, [level.id, cols, rows])
 
   const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget
@@ -155,7 +202,9 @@ export default function DungeonGrid({
   }, [])
 
   // Calcular tiles visíveis baseado no scroll
-  const tileSize = Math.max(24, DISPLAY_TILE_SIZE * zoom)
+  const tileSize = Math.max(10, DISPLAY_TILE_SIZE * zoom)
+  const gridPixelWidth = cols * tileSize
+  const gridPixelHeight = rows * tileSize
   const visibleTiles = useMemo((): VisibleTiles => {
     if (!containerRef.current) return { minX: 0, maxX: cols, minY: 0, maxY: rows }
 
@@ -211,19 +260,23 @@ export default function DungeonGrid({
   }, [isDragging, dragStart])
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(3, prev + 0.15))
+    setZoomMode('manual')
+    setZoom((prev) => Math.min(MAX_ZOOM, prev + 0.15))
   }
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(0.1, prev - 0.15))
+    setZoomMode('manual')
+    setZoom((prev) => Math.max(MIN_ZOOM, prev - 0.15))
   }
 
   const handleResetZoom = () => {
-    setZoom(initialZoom)
+    setZoomMode('auto')
+    setZoom(autoZoom)
   }
 
   const handleFitToScreen = () => {
-    const fitZoom = calculateFitZoom(cols, rows, viewportWidth, viewportHeight)
+    setZoomMode('manual')
+    const fitZoom = calculateContainZoom(cols, rows, viewportWidth, viewportHeight)
     setZoom(fitZoom)
   }
 
@@ -316,16 +369,24 @@ export default function DungeonGrid({
 
       <div
         ref={containerRef}
-        className={`flex-1 overflow-auto p-2 bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`flex-1 overflow-auto bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onScroll={handleScroll}
         onMouseDown={handleMouseDown}
       >
         <div
+          className="flex items-center justify-center p-2"
+          style={{
+            boxSizing: 'border-box',
+            minWidth: `${Math.max(gridPixelWidth + 16, viewportWidth)}px`,
+            minHeight: `${Math.max(gridPixelHeight + 16, viewportHeight)}px`,
+          }}
+        >
+        <div
           ref={gridRef}
           className="relative"
           style={{
-            width: `${cols * tileSize}px`,
-            height: `${rows * tileSize}px`,
+            width: `${gridPixelWidth}px`,
+            height: `${gridPixelHeight}px`,
             backgroundColor: '#050505',
           }}
         >
@@ -381,6 +442,7 @@ export default function DungeonGrid({
               size={tileSize * PLAYER_SPRITE_SCALE}
             />
           </div>
+        </div>
         </div>
       </div>
     </div>
