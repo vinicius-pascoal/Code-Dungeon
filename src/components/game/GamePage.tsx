@@ -590,9 +590,9 @@ export default function GamePage() {
         </div>
       ) : null}
 
-      <main className="min-h-0 flex-1 overflow-auto p-3">
-        <div className="mx-auto grid min-h-full max-w-[1500px] gap-3 lg:grid-rows-[auto_minmax(0,1fr)_auto]">
-          <PixelPanel variant="hud" className="shrink-0" bodyClassName="p-3">
+      <main className="min-h-0 flex-1 overflow-hidden p-2 sm:p-3">
+        <div className="mx-auto grid h-full min-h-0 max-w-[1500px] grid-rows-[auto_minmax(0,1fr)_auto] gap-2 sm:gap-3">
+          <PixelPanel variant="hud" className="min-h-0 shrink-0 overflow-hidden" bodyClassName="p-2 sm:p-3">
             <div className="grid gap-3 lg:grid-cols-[minmax(0,1.1fr)_minmax(280px,0.9fr)]">
               <div className="flex items-start gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center border-2 border-primaryText bg-black">
@@ -617,9 +617,9 @@ export default function GamePage() {
             </div>
           </PixelPanel>
 
-          <div className="grid min-h-[520px] gap-3 lg:min-h-0 lg:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.9fr)]">
-            <PixelPanel variant="default" title="Dungeon" eyebrow="Mapa da fase" className="min-h-[440px] overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] p-3">
-              <PixelFrame className="min-h-[360px]">
+          <div className="grid min-h-0 grid-rows-[minmax(0,0.72fr)_minmax(0,1.28fr)] gap-2 sm:gap-3 lg:grid-cols-[minmax(280px,0.82fr)_minmax(360px,1.18fr)] lg:grid-rows-none">
+            <PixelPanel variant="default" title="Dungeon" eyebrow="Mapa da fase" className="min-h-0 overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
+              <PixelFrame className="min-h-0 compact">
                 <DungeonGrid
                   level={selectedLevel}
                   grid={grid}
@@ -639,8 +639,8 @@ export default function GamePage() {
               variant="editor"
               title="Editor"
               eyebrow="Area de codigo"
-              className="min-h-[440px] overflow-hidden"
-              bodyClassName="h-[calc(100%-4.5rem)] p-3"
+              className="min-h-0 overflow-hidden"
+              bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-2 sm:p-3"
               headerAction={
                 <div className="pixel-type flex items-center gap-2 text-[10px] text-secondaryText">
                   <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
@@ -652,8 +652,8 @@ export default function GamePage() {
             </PixelPanel>
           </div>
 
-          <div className="grid gap-3 xl:grid-cols-[auto_minmax(0,1fr)]">
-            <div className="flex flex-wrap gap-2">
+          <div className="grid min-h-0 gap-2 sm:gap-3 xl:grid-cols-[auto_minmax(0,1fr)]">
+            <div className="flex min-h-0 flex-wrap content-start gap-2">
               <PixelButton type="button" icon="play" variant="primary" onClick={onRun} disabled={running}>
                 {running ? 'Executando' : 'Executar'}
               </PixelButton>
@@ -668,7 +668,7 @@ export default function GamePage() {
               </PixelButton>
             </div>
 
-            <PixelPanel variant="console" title="Console" className="min-h-[128px]" bodyClassName="max-h-40 overflow-auto p-3">
+            <PixelPanel variant="console" title="Console" className="min-h-0 overflow-hidden" bodyClassName="max-h-24 overflow-hidden p-2 sm:p-3">
               <div className="font-mono text-[10px] leading-5 text-secondaryText">
                 {logs.length ? (
                   logs.map((line, index) => (

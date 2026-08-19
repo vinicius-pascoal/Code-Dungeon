@@ -294,6 +294,10 @@ body {
     inset 0 0 0 7px #090a14;
 }
 
+.pixel-game-frame.compact {
+  padding: 0.5rem;
+}
+
 .pixel-game-frame__inner {
   position: relative;
   z-index: 1;
