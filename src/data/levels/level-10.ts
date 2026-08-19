@@ -18,17 +18,17 @@ export const levelTen: Level = {
   playerStart: {
     x: 1,
     y: 3,
-    direction: 'RIGHT',
+    direction: 'UP',
     keys: 0,
     openedChests: 0,
   },
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'SPIKE', 'FLOOR', 'CHEST', 'FLOOR', 'WALL'],
-    ['WALL', 'FLOOR', 'WALL', 'DOOR', 'FLOOR', 'EXIT', 'WALL'],
-    ['WALL', 'KEY', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'SPIKE', 'KEY', 'CHEST', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
+    ['WALL', 'FLOOR', 'DOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
-  enemies: [{ x: 3, y: 1, defeated: false }],
+  enemies: [{ x: 3, y: 2, defeated: false }],
   starRules: { threeStars: 8, twoStars: 10 },
 }
