@@ -17,7 +17,7 @@ export const levelThree: Level = {
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'EXIT', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL'],
-    ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
   enemies: [],
