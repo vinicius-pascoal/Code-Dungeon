@@ -17,7 +17,7 @@ export const levelFive: Level = {
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'SPIKE', 'FLOOR', 'EXIT', 'WALL'],
     ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
   enemies: [],
