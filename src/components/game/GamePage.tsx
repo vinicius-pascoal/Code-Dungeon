@@ -668,7 +668,7 @@ export default function GamePage() {
               </PixelButton>
             </div>
 
-            <PixelPanel variant="console" title="Console" className="min-h-0 overflow-hidden" bodyClassName="max-h-24 overflow-hidden p-2 sm:p-3">
+            <PixelPanel variant="console" title="Console" className="min-h-0 overflow-hidden" bodyClassName="max-h-24 min-h-0 overflow-y-auto p-2 sm:p-3">
               <div className="font-mono text-[10px] leading-5 text-secondaryText">
                 {logs.length ? (
                   logs.map((line, index) => (
