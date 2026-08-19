@@ -220,10 +220,10 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   }
 
   return (
-    <div className="pixel-code-shell flex overflow-hidden h-full min-h-0">
-      <div className="pixel-code-gutter relative select-none text-secondaryText/65 font-mono text-[10px] min-w-12 overflow-hidden">
+    <div className="pixel-code-shell flex h-full min-h-0 max-h-full w-full overflow-hidden">
+      <div className="pixel-code-gutter relative h-full min-h-0 max-h-full select-none overflow-hidden text-secondaryText/65 font-mono text-[10px] min-w-12">
         <div
-          className="p-3 will-change-transform"
+          className="absolute inset-x-0 top-0 p-3 will-change-transform"
           style={{ transform: `translateY(${-scrollTop}px)` }}
         >
           {Array.from({ length: lineCount }).map((_, i) => (

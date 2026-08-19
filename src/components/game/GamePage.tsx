@@ -639,8 +639,8 @@ export default function GamePage() {
               variant="editor"
               title="Editor"
               eyebrow="Area de codigo"
-              className="min-h-0 overflow-hidden"
-              bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-2 sm:p-3"
+              className="flex h-full min-h-0 max-h-full flex-col overflow-hidden"
+              bodyClassName="flex min-h-0 max-h-full flex-1 overflow-hidden p-2 sm:p-3"
               headerAction={
                 <div className="pixel-type flex items-center gap-2 text-[10px] text-secondaryText">
                   <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
