@@ -24,11 +24,12 @@ export const levelTen: Level = {
   },
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'SPIKE', 'KEY', 'CHEST', 'FLOOR', 'WALL'],
+    ['WALL', 'FLOOR', 'SPIKE', 'FLOOR', 'KEY', 'CHEST', 'WALL'],
+    ['WALL', 'FLOOR', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
     ['WALL', 'FLOOR', 'DOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
-  enemies: [{ x: 3, y: 2, defeated: false }],
+  enemies: [{ x: 3, y: 4, defeated: false }],
   starRules: { threeStars: 8, twoStars: 10 },
 }
