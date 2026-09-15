@@ -332,23 +332,23 @@ function starterCode(levelId: number) {
     case 10:
       return 'grabKey();\nturnRight();\nmoveForward();\nmoveForward();\nattack();\nturnLeft();\nopenDoor();\nmoveForward();'
     case 11:
-      return 'if (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();'
+      return 'if (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nmoveForward();\ngrabKey();\nopenChest();\nturnLeft();\nmoveForward();\nopenDoor();'
     case 12:
-      return 'if (look() == "WALL") {\n  turnRight();\n} else {\n  moveForward();\n}'
+      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
     case 13:
-      return 'if (look() == "ENEMY") {\n  attack();\n} else if (look() == "WALL") {\n  turnRight();\n} else {\n  moveForward();\n}'
+      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\n\nif (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
     case 14:
-      return 'let steps = 0;\n\nwhile (steps < 6) {\n  moveForward();\n  steps++;\n}\n\nturnLeft();'
+      return 'moveForward();\ngrabKey();\n\nlet steps = 0;\nwhile (steps < 2) {\n  moveForward();\n  steps++;\n}\n\nattack();\nmoveForward();\n\nsteps = 0;\nwhile (steps < 2) {\n  moveForward();\n  steps++;\n}\n\nturnLeft();\nopenChest();\nmoveForward();\nopenDoor();'
     case 15:
-      return 'for (let i = 0; i < 4; i++) {\n  moveForward();\n}\n\nturnLeft();'
+      return 'moveForward();\ngrabKey();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nattack();\nmoveForward();\nturnLeft();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nturnLeft();\nfor (let i = 0; i < 3; i++) {\n  moveForward();\n}\n\nopenChest();\nturnRight();\nmoveForward();\nopenDoor();'
     case 16:
-      return 'function step() {\n  moveForward();\n}\n\nturnLeft();\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\nstep();\ngrabKey();\nopenChest();\nstep();\nopenDoor();'
     case 17:
-      return 'function step() {\n  moveForward();\n}\n\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\nstep();\ngrabKey();\nstep();\nstep();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
     case 18:
-      return 'function clearAndStep() {\n  attack();\n  moveForward();\n}\n\nclearAndStep();'
+      return 'function step() {\n  moveForward();\n}\n\nfunction clearAndStep() {\n  attack();\n  moveForward();\n}\n\nstep();\ngrabKey();\nstep();\nclearAndStep();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
     case 19:
-      return 'function step() {\n  moveForward();\n}\n\nstep();'
+      return 'function walk(times) {\n  for (let i = 0; i < times; i++) {\n    moveForward();\n  }\n}\n\nfunction clearAndStep() {\n  if (look() == "ENEMY") {\n    attack();\n  }\n  moveForward();\n}\n\nwalk(1);\ngrabKey();\nwalk(2);\nclearAndStep();\nturnLeft();\nwalk(1);\nclearAndStep();\nturnLeft();\nwalk(3);\nopenChest();\nturnRight();\nwalk(1);\nopenDoor();'
     case 999:
       return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:

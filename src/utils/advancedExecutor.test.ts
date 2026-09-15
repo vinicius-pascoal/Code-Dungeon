@@ -69,17 +69,35 @@ test('unavailable advanced language feature should be rejected', async () => {
 
 test('level 14 while loop should run every command until exit', async () => {
   const program = parseAdvancedCode(`
+    moveForward();
+    grabKey();
+
     let steps = 0;
 
-    while (steps < 6) {
+    while (steps < 2) {
+      moveForward();
+      steps++;
+    }
+
+    attack();
+    moveForward();
+
+    steps = 0;
+    while (steps < 2) {
       moveForward();
       steps++;
     }
 
     turnLeft();
+    openChest();
+    moveForward();
+    openDoor();
+    moveForward();
+    turnLeft();
+
     steps = 0;
 
-    while (steps < 2) {
+    while (steps < 6) {
       moveForward();
       steps++;
     }
@@ -104,12 +122,23 @@ test('level 14 while loop should run every command until exit', async () => {
   assert.equal(completed, true)
   assert.deepEqual(commands, [
     'moveForward',
+    'grabKey',
     'moveForward',
     'moveForward',
+    'attack',
     'moveForward',
     'moveForward',
     'moveForward',
     'turnLeft',
+    'openChest',
+    'moveForward',
+    'openDoor',
+    'moveForward',
+    'turnLeft',
+    'moveForward',
+    'moveForward',
+    'moveForward',
+    'moveForward',
     'moveForward',
     'moveForward',
   ])
