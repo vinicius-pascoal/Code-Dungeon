@@ -56,12 +56,12 @@ export default function Levels() {
   }
 
   const worldPlacements: Record<number, string> = {
-    1: 'md:left-[2%] md:top-[8%] md:-rotate-6',
-    2: 'md:left-[35%] md:top-[2%] md:rotate-2',
-    3: 'md:right-[2%] md:top-[14%] md:rotate-6',
-    4: 'md:left-[8%] md:bottom-[12%] md:rotate-1',
-    5: 'md:left-1/2 md:bottom-[8%] md:-rotate-4',
-    99: 'md:right-[2%] md:bottom-[-1%] md:-translate-x-1/2 md:rotate-1',
+    1: 'xl:left-[2%] xl:top-[8%] xl:-rotate-6',
+    2: 'xl:left-[35%] xl:top-[2%] xl:rotate-2',
+    3: 'xl:right-[2%] xl:top-[14%] xl:rotate-6',
+    4: 'xl:left-[8%] xl:bottom-[12%] xl:rotate-1',
+    5: 'xl:left-1/2 xl:bottom-[8%] xl:-rotate-4',
+    99: 'xl:right-[2%] xl:bottom-[-1%] xl:-translate-x-1/2 xl:rotate-1',
   }
 
   const worldPoints: Record<number, { x: number; y: number }> = {
@@ -111,17 +111,17 @@ export default function Levels() {
 
         <PixelPanel
           variant="default"
-          className="min-h-[calc(100vh-10rem)] overflow-hidden"
-          bodyClassName="relative min-h-[calc(100vh-14.5rem)] p-3 sm:p-5 lg:p-6"
+          className="overflow-hidden xl:min-h-[calc(100vh-10rem)]"
+          bodyClassName="relative p-3 sm:p-5 lg:p-6 xl:min-h-[calc(100vh-14.5rem)]"
         >
           <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(235,237,233,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(235,237,233,0.08)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute inset-4 border-2 border-border/60 bg-black/20" />
-          <div className="pointer-events-none absolute inset-x-[10%] top-[18%] hidden h-px bg-border md:block" />
-          <div className="pointer-events-none absolute inset-x-[12%] top-[63%] hidden h-px bg-border md:block" />
-          <div className="pointer-events-none absolute left-[22%] top-[10%] hidden h-[58%] w-px bg-border md:block" />
-          <div className="pointer-events-none absolute right-[18%] top-[8%] hidden h-[64%] w-px bg-border md:block" />
+          <div className="pointer-events-none absolute inset-x-[10%] top-[18%] hidden h-px bg-border xl:block" />
+          <div className="pointer-events-none absolute inset-x-[12%] top-[63%] hidden h-px bg-border xl:block" />
+          <div className="pointer-events-none absolute left-[22%] top-[10%] hidden h-[58%] w-px bg-border xl:block" />
+          <div className="pointer-events-none absolute right-[18%] top-[8%] hidden h-[64%] w-px bg-border xl:block" />
 
-          <div className="pointer-events-none absolute inset-0 hidden md:block">
+          <div className="pointer-events-none absolute inset-0 hidden xl:block">
             <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <defs>
                 <marker id="journeyArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
@@ -149,11 +149,11 @@ export default function Levels() {
             </svg>
           </div>
 
-          <div className="relative grid gap-3 md:block md:min-h-[inherit]">
+          <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:block xl:min-h-[inherit]">
             {worlds.map((world) => {
               const worldLevels = world.levelIds.map((levelId) => getLevelById(levelId))
               const isAvailable = worldAvailability[world.id] !== false
-              const worldClasses = worldPlacements[world.id] ?? 'md:left-[50%] md:top-[50%] md:-translate-x-1/2 md:-translate-y-1/2'
+              const worldClasses = worldPlacements[world.id] ?? 'xl:left-[50%] xl:top-[50%] xl:-translate-x-1/2 xl:-translate-y-1/2'
               const isFinalChallenge = world.id === 99
               const playableCount = worldLevels.filter((level) => level.isPlayable !== false).length
 
@@ -162,9 +162,9 @@ export default function Levels() {
                   key={world.id}
                   type="button"
                   onClick={() => isAvailable && setActiveWorldId(world.id)}
-                  className={`group relative w-full border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood md:absolute md:w-[230px] ${worldClasses} ${isAvailable
+                  className={`group relative w-full border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood xl:absolute xl:w-[230px] ${worldClasses} ${isAvailable
                     ? isFinalChallenge
-                      ? 'md:w-[200px] md:scale-[0.92]'
+                      ? 'xl:w-[200px] xl:scale-[0.92]'
                       : ''
                     : 'cursor-not-allowed grayscale opacity-50'
                     }`}
@@ -177,7 +177,7 @@ export default function Levels() {
                         src={worldAssets[world.id]}
                         alt={`Asset do ${world.name}`}
                         fill
-                        sizes="(max-width: 768px) 100vw, 230px"
+                        sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 230px"
                         className={`object-cover [image-rendering:pixelated] transition duration-100 group-hover:scale-[1.03] ${isAvailable ? '' : 'grayscale opacity-60'}`}
                         priority={world.id === 1}
                       />
@@ -215,7 +215,7 @@ export default function Levels() {
         <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
           <PixelPanel
             variant="modal"
-            className="w-full max-w-5xl"
+            className="max-h-[92vh] w-full max-w-5xl overflow-hidden"
             eyebrow="Selecionar fase"
             title={selectedWorld.name}
             icon="list"
@@ -231,7 +231,7 @@ export default function Levels() {
                 Fechar
               </PixelButton>
             }
-            bodyClassName="p-4 sm:p-5"
+            bodyClassName="max-h-[calc(92vh-5rem)] overflow-y-auto p-4 sm:p-5"
           >
             <div className="grid gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
               <aside className="min-w-0">
@@ -273,7 +273,7 @@ export default function Levels() {
                 </div>
               </aside>
 
-              <div className="max-h-[68vh] min-w-0 overflow-y-auto pr-1">
+              <div className="min-w-0 overflow-visible pr-1 lg:max-h-[68vh] lg:overflow-y-auto">
                 <div className="grid gap-3">
                   {selectedLevels.map((level, index) => {
                     const isPlayable = level.isPlayable !== false
