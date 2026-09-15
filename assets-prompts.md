@@ -195,46 +195,69 @@ blurry, low resolution, noisy, overly complex, photorealistic, text, watermark, 
 
 ## 11. Prompts para assets dos mundos
 
-Use estes prompts como base para gerar as artes de cada mundo. A ideia e que cada mundo tenha uma identidade forte, mas ainda combine com a dungeon escura e legivel do jogo.
+Use estes prompts para gerar novas artes dos cards de mundo. A prioridade e combinar com o estilo real do projeto: dungeon top-down 1-bit, tiles de 20x20, contornos duros, poucos tons, leitura alta e objetos parecidos com os atlases `tileset.png` e `details.png`.
+
+### Regras de estilo para todos os mundos
+
+- Formato: PNG 4:3, preferencialmente 1536x1152 ou 1024x768.
+- Composicao: uma mini-regiao de dungeon vista de cima, como um pequeno mapa/room cluster, nao uma ilha isometrica renderizada.
+- Linguagem visual: 1-bit / Playdate-like, preto profundo, branco osso e cinzas pontuais, com no maximo um acento tematico discreto.
+- Base do mapa: paredes de pedra, pisos quadrados rachados, portas, corredores e salas usando a mesma sensacao do atlas de mapa.
+- Detalhes: chaves, baus, saidas, placas, tochas, pedras soltas e pequenas marcas usando a mesma densidade do atlas `details.png`.
+- Evitar: 3D, isometrico, pintura digital suave, gradientes grandes, brilho neon, excesso de cor, texto, UI, logos, personagens grandes ou cenarios cinematograficos.
+
+### Prompt base dos mundos
+
+Use este trecho no inicio de cada prompt:
+
+```text
+Create a 4:3 world card image for Code Dungeon, an educational coding dungeon game. The image must look like a top-down 1-bit dungeon mini-map built from 20x20 pixel tiles, matching the existing black-and-bone dungeon tileset and details atlas: hard square edges, stone wall blocks, cracked floor tiles, tiny props, high readability, low color count, no text, no UI, no logo, no characters as the main subject. Use mostly #090A14, #000000, #171826, #EBEDE9, #B9BDB6, with only one subtle accent color when needed.
+```
+
+### Negativo especifico para mundos
+
+```text
+isometric floating island, 3D render, painterly fantasy concept art, smooth gradients, cinematic lighting, realistic rocks, soft airbrush, oversized hero character, large UI icons, text, labels, logo, watermark, colorful neon palette, too many props, cluttered composition, low readability, non-tile-based shapes
+```
 
 ### Mundo 1 - Sequencia Basica
 
 ```text
-Create a floating world asset for a dungeon coding game, themed around basic sequence and first steps in programming. The scene should feel like an introductory dungeon island with simple paths, a small gate, a few floor tiles, and subtle magical guidance markers. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #E2E8F0.
+Create a beginner world card using the base world style. Show a simple readable dungeon route made of a few straight floor tiles, one small entrance gate, one exit marker, and two or three arrow-like floor markings made from tile shapes. Keep the layout sparse and instructional, with strong black negative space around the room cluster. Use almost no accent color; if needed, use a tiny #EBEDE9 glow on the exit only.
 ```
 
 ### Mundo 2 - Interacoes da Dungeon
 
 ```text
-Create a floating world asset for a dungeon coding game, themed around interactions such as keys, doors, chests, and enemies. The world should look more dangerous and busier than the starter world, with a locked gate, a chest, a key pedestal, and a hint of enemy presence. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #F59E0B, #EF4444, #E2E8F0.
+Create an interaction world card using the base world style. Show a compact top-down dungeon room cluster with a locked door, a key on a pedestal, a closed chest, an opened chest, and one small enemy silhouette as a tiny map detail. Use the same 1-bit prop density as the details atlas: small, readable, not decorative overload. Add one muted danger accent using #752438 only on the enemy or warning tile.
 ```
 
-### Mundo 3 - Loops
+### Mundo 3 - Condicionais
 
 ```text
-Create a floating world asset for a dungeon coding game, themed around loops and repetition. The world should visually suggest circular paths, repeated stone patterns, and a looping route through the dungeon, with a clever and educational feel. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #22C55E, #E2E8F0.
+Create a conditional-logic world card using the base world style. Show a forked dungeon layout with two or three branching corridors, hidden-wall feeling, warning tiles, a wall directly in one branch, and a safe path in another branch. Include tiny "look ahead" visual cues made only from tile details: eye-like floor mark, small signpost shape, or highlighted tile edge, but no text. The image should communicate if/else decision making through branching paths and obstacles.
 ```
 
-### Mundo 4 - Condicionais
+### Mundo 4 - Loops
 
 ```text
-Create a floating world asset for a dungeon coding game, themed around conditional logic and decision making. The world should show branching paths, split bridges, warning signs, and environmental choices that hint at if/else logic. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #EF4444, #F59E0B, #E2E8F0.
+Create a loops world card using the base world style. Show repeated corridor segments and a square or spiral-like route built from the same floor tile repeated many times. Include repeating pillars, repeated cracked floor variants, and a route that visually cycles back before reaching the exit. Keep it top-down and grid-aligned, like a puzzle map that rewards repeated commands, with one subtle #B9BDB6 rhythm highlight across every third tile.
 ```
 
 ### Mundo 5 - Funcoes
 
 ```text
-Create a floating world asset for a dungeon coding game, themed around functions, abstraction, and reusable logic. The world should feel modular, organized, and slightly more advanced, with repeated structures, linked rooms, and a strong sense of systems design. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #3B82F6, #22C55E, #E2E8F0.
+Create a functions world card using the base world style. Show modular dungeon rooms connected by short corridors, with repeated room motifs reused in different positions: same door shape, same floor patch, same chest alcove, same small exit structure. The composition should feel organized and reusable, like repeated code blocks represented as repeated rooms. Keep details crisp, grid-based, and 1-bit.
 ```
 
-### Mundo final secreto - Desafio
+### Mundo final secreto - Labirinto Procedural
 
 ```text
-Create a hidden final world asset for a dungeon coding game, designed as a secret challenge area at the end of the journey. The world should feel more mysterious, compact, and hard to reach, with darker tones, treasure hints, and a powerful final aura. It should look slightly more hidden than the other worlds, with a sense of reward and danger. Clean 2D game art, top-down or slightly isometric, transparent background, readable silhouette, no text. Palette: #0F172A, #111827, #1E293B, #334155, #475569, #F59E0B, #EF4444, #3B82F6, #E2E8F0.
+Create a secret procedural maze world card using the base world style. Show a dense top-down maze made from many tiny 20x20 wall and floor tiles, with a small entrance, a distant exit detail, a few hidden treasure props, and darker corners. It should feel compact, challenging, and mysterious, but still readable at card size. Use mostly black and bone tones, with a very small #752438 danger accent in one dead end.
 ```
 
 ### Versao consistente para todos os mundos
 
 ```text
-Create a set of floating world assets for an educational dungeon coding game, one asset per world, all sharing the same art direction but with distinct visual identities. Each world should feel like a floating island, room cluster, or dungeon region, with transparent background, clean silhouettes, modern pixel-art inspired 2D style, game-ready composition, and no text or UI. Keep the worlds visually coherent, but make each one instantly recognizable by theme and color accents.
+Create a consistent set of six 4:3 world card images for Code Dungeon. Every image must look like it belongs to the same top-down 1-bit dungeon tileset: black background, bone-white stone tiles, hard pixel edges, 20x20 tile logic, tiny details from a matching details atlas, no text, no UI, no isometric view, no painterly rendering. Make each world recognizable by layout language rather than color overload: simple route for sequence, key-door-chest room for interactions, branching hidden corridors for conditionals, repeated corridors for loops, modular repeated rooms for functions, dense maze for the procedural challenge.
 ```
