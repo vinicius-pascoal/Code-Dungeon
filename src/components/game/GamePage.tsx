@@ -708,7 +708,7 @@ export default function GamePage() {
               </PixelButton>
             }
           >
-            <div className="space-y-2 text-xs leading-6 text-secondaryText">
+            <div className="space-y-2 text-xs leading-6 text-secondaryText max-h-80 overflow-y-auto">
               {introLines.map((line, i) => (
                 <p key={i} className={line.startsWith('- ') ? 'ml-3 font-mono text-[10px] text-primaryText' : ''}>{line}</p>
               ))}
