@@ -37,10 +37,10 @@ A aplicação possui 19 fases guiadas, organizadas em mundos temáticos, e um mo
 - Editor de código integrado à tela do jogo.
 - Execução passo a passo dos comandos escritos pelo jogador.
 - Sistema de fases com objetivos, comandos disponíveis e regras de estrelas.
-- Mundos organizados por tema: fundamentos, interações, loops, condicionais e funções.
+- Mundos organizados por tema: fundamentos, interações, condicionais, loops e funções.
 - Labirinto procedural disponível pela fase `999`.
 - Parser simples para listas diretas de comandos.
-- Parser e executor avançados para variáveis, expressões, loops, condicionais e funções.
+- Parser e executor avançados para variáveis, expressões, condicionais, loops e funções.
 - Salvamento automático do código no `localStorage`.
 - Modais de ajuda, introdução da fase, vitória e erro.
 - Assets visuais para personagem, pisos, paredes, espinhos, mundos e portal.

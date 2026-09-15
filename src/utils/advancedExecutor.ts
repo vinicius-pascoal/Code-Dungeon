@@ -106,54 +106,6 @@ function toNumber(value: any): number {
   return 0
 }
 
-function collectImplicitAllowedCommands(program: Program): Set<string> {
-  const implicitCommands = new Set<string>()
-
-  const visitStatement = (stmt: Statement | undefined) => {
-    if (!stmt) return
-
-    switch (stmt.type) {
-      case 'VariableDeclaration':
-        implicitCommands.add('let')
-        break
-      case 'WhileStatement':
-        implicitCommands.add('while')
-        visitStatement(stmt.body)
-        break
-      case 'ForStatement':
-        implicitCommands.add('for')
-        if (stmt.init && (stmt.init as any).type === 'VariableDeclaration') {
-          implicitCommands.add('let')
-        }
-        visitStatement(stmt.body)
-        break
-      case 'IfStatement':
-        implicitCommands.add('if')
-        visitStatement(stmt.consequent)
-        if (stmt.alternate) visitStatement(stmt.alternate)
-        break
-      case 'FunctionDeclaration':
-        implicitCommands.add('function')
-        visitStatement(stmt.body)
-        break
-      case 'BlockStatement':
-        for (const child of stmt.body) visitStatement(child)
-        break
-      case 'ReturnStatement':
-        implicitCommands.add('return')
-        break
-      default:
-        break
-    }
-  }
-
-  for (const stmt of program.body) {
-    visitStatement(stmt)
-  }
-
-  return implicitCommands
-}
-
 export async function executeAdvancedCommands(
   program: Program,
   level: Level,
@@ -161,8 +113,7 @@ export async function executeAdvancedCommands(
   onError: (msg: string) => void,
   onComplete: (result: { player: PlayerState; won: boolean }) => void
 ) {
-  const implicitAllowedCommands = collectImplicitAllowedCommands(program)
-  const allowedCommands = new Set([...(level.availableCommands ?? []), ...implicitAllowedCommands])
+  const allowedCommands = new Set(level.availableCommands ?? [])
   const state: GameState = {
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
@@ -404,6 +355,9 @@ async function executeStatement(
         stopExecution(onError, 'Comando inválido: if')
       }
       const ifStmt = stmt as IfStatement
+      if (ifStmt.alternate && !allowedCommands.has('else')) {
+        stopExecution(onError, 'Comando inválido: else')
+      }
       const condition = await evaluateExpression(ifStmt.condition, context, executeCommand, onError, state, onStep, allowedCommands)
       if (toBoolean(condition)) {
         return await executeStatement(ifStmt.consequent, state, context, executeCommand, onError, onStep, allowedCommands)

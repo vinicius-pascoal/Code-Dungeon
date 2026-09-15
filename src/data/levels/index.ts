@@ -47,42 +47,42 @@ export const proceduralMazeLevel = generateProceduralMazeLevel()
 export const worlds: World[] = [
   {
     id: 1,
-    name: 'Mundo 1 - Sequência Básica',
-    description: 'Aprenda a mover, virar e pensar em ordem de execução.',
+    name: 'Mundo 1 - Sequencia Basica',
+    description: 'Aprenda a mover, virar e pensar em ordem de execucao.',
     theme: 'Fundamentos',
     levelIds: [1, 2, 3, 4],
   },
   {
     id: 2,
-    name: 'Mundo 2 - Interações da Dungeon',
-    description: 'Chaves, portas, inimigos e baús entram em cena.',
-    theme: 'Interações',
+    name: 'Mundo 2 - Interacoes da Dungeon',
+    description: 'Chaves, portas, inimigos e baus entram em cena.',
+    theme: 'Interacoes',
     levelIds: [5, 6, 7, 8, 9, 10],
   },
   {
     id: 3,
-    name: 'Mundo 3 - Loops',
-    description: 'Fases de introdução à repetição e otimização da solução.',
-    theme: 'Loops',
-    levelIds: [11, 12],
+    name: 'Mundo 3 - Condicionais',
+    description: 'Fases de leitura do ambiente e decisoes com if.',
+    theme: 'Condicionais',
+    levelIds: [11, 12, 13],
   },
   {
     id: 4,
-    name: 'Mundo 4 - Condicionais',
-    description: 'Fases de leitura do ambiente e decisões com if.',
-    theme: 'Condicionais',
-    levelIds: [13, 14, 19],
+    name: 'Mundo 4 - Loops',
+    description: 'Fases de introducao a repeticao e otimizacao da solucao.',
+    theme: 'Loops',
+    levelIds: [14, 15],
   },
   {
     id: 5,
-    name: 'Mundo 5 - Funções',
-    description: 'Fases de abstração, reutilização e pensamento modular.',
-    theme: 'Funções',
-    levelIds: [15, 16, 17, 18],
+    name: 'Mundo 5 - Funcoes',
+    description: 'Fases de abstracao, reutilizacao e pensamento modular.',
+    theme: 'Funcoes',
+    levelIds: [16, 17, 18, 19],
   },
   {
     id: 99,
-    name: '🌀 Modo Labirinto',
+    name: 'Modo Labirinto',
     description: 'Um labirinto procedural gerado infinitamente. Todas as funcionalidades desbloqueadas!',
     theme: 'Desafio',
     levelIds: [999],
@@ -92,7 +92,6 @@ export const worlds: World[] = [
 export function getLevelById(levelId: number) {
   if (levelId === 999) return proceduralMazeLevel
 
-  // Construir mapa cumulativo por id (ordenando por id para independência da ordem do array)
   const levelsById = [...levels].sort((a, b) => a.id - b.id)
   const cumulativeMap = new Map<number, string[]>()
   const seen: string[] = []
@@ -104,7 +103,6 @@ export function getLevelById(levelId: number) {
     cumulativeMap.set(lvl.id, [...seen])
   }
 
-  // se não existir, retornar primeiro nível como fallback
   const level = levels.find((l) => l.id === levelId)
   if (!level) {
     const first = levelsById[0]

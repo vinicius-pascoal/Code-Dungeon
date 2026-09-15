@@ -46,6 +46,8 @@ export type Level = {
   enemies: Enemy[]
   starRules: StarRules
   concepts?: string[]
+  requiredCommands?: string[]
+  hideWalls?: boolean
   isPlayable?: boolean
 }
 

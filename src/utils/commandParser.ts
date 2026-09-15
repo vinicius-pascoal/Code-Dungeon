@@ -9,6 +9,8 @@ export const RESERVED_COMMANDS = [
   'grabKey',
   'openDoor',
   'openChest',
+  'look',
+  'print',
 ]
 
 const DEFAULT_ALLOWED = new Set(RESERVED_COMMANDS)

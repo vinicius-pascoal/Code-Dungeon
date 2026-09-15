@@ -160,6 +160,105 @@ function formatAvailableCommand(cmd: string) {
   return LANGUAGE_FEATURE_LABELS[cmd] ?? `${cmd}()`
 }
 
+function formatRequirementList(commands: string[]) {
+  return commands.map(formatAvailableCommand).join(', ')
+}
+
+function collectExpressionFeatures(expr: Expression | undefined, used: Set<string>) {
+  if (!expr) return
+
+  switch (expr.type) {
+    case 'CallExpression':
+      used.add(expr.callee.name)
+      for (const arg of expr.arguments) collectExpressionFeatures(arg, used)
+      break
+    case 'BinaryExpression':
+    case 'LogicalExpression':
+      collectExpressionFeatures(expr.left, used)
+      collectExpressionFeatures(expr.right, used)
+      break
+    case 'UnaryExpression':
+      collectExpressionFeatures(expr.argument, used)
+      break
+    case 'AssignmentExpression':
+      collectExpressionFeatures(expr.right, used)
+      break
+    default:
+      break
+  }
+}
+
+function collectStatementFeatures(stmt: Statement, used: Set<string>) {
+  switch (stmt.type) {
+    case 'ExpressionStatement':
+      collectExpressionFeatures(stmt.expression, used)
+      break
+    case 'VariableDeclaration':
+      used.add('let')
+      collectExpressionFeatures(stmt.value, used)
+      break
+    case 'BlockStatement':
+      for (const child of stmt.body) collectStatementFeatures(child, used)
+      break
+    case 'IfStatement':
+      used.add('if')
+      collectExpressionFeatures(stmt.condition, used)
+      collectStatementFeatures(stmt.consequent, used)
+      if (stmt.alternate) {
+        used.add('else')
+        collectStatementFeatures(stmt.alternate, used)
+      }
+      break
+    case 'WhileStatement':
+      used.add('while')
+      collectExpressionFeatures(stmt.condition, used)
+      collectStatementFeatures(stmt.body, used)
+      break
+    case 'ForStatement':
+      used.add('for')
+      if (stmt.init) {
+        if ((stmt.init as any).type === 'VariableDeclaration') {
+          collectStatementFeatures(stmt.init as Statement, used)
+        } else {
+          collectExpressionFeatures(stmt.init as Expression, used)
+        }
+      }
+      collectExpressionFeatures(stmt.condition, used)
+      collectExpressionFeatures(stmt.update, used)
+      collectStatementFeatures(stmt.body, used)
+      break
+    case 'FunctionDeclaration':
+      used.add('function')
+      collectStatementFeatures(stmt.body, used)
+      break
+    case 'ReturnStatement':
+      used.add('return')
+      collectExpressionFeatures(stmt.argument, used)
+      break
+    default:
+      break
+  }
+}
+
+function collectProgramFeatures(program: Program) {
+  const used = new Set<string>()
+  for (const stmt of program.body) collectStatementFeatures(stmt, used)
+  return used
+}
+
+function getMissingRequiredCommands(requiredCommands: string[] | undefined, usedCommands: Set<string>) {
+  return (requiredCommands ?? []).filter((cmd) => !usedCommands.has(cmd))
+}
+
+function buildRequirementError(missingCommands: string[]): ExecutionErrorInfo {
+  const formatted = formatRequirementList(missingCommands)
+  return {
+    title: 'Recurso obrigatorio',
+    reason: `Esta fase exige: ${formatted}.`,
+    suggestion: 'Inclua os recursos obrigatorios na solucao e execute novamente.',
+  }
+}
+
 function countExpressionCommands(expr?: Expression): number {
   if (!expr) return 0
 
@@ -233,9 +332,23 @@ function starterCode(levelId: number) {
     case 10:
       return 'grabKey();\nturnRight();\nmoveForward();\nmoveForward();\nattack();\nturnLeft();\nopenDoor();\nmoveForward();'
     case 11:
-      return 'let steps = 0;\n\nturnLeft();\nmoveForward();\nturnRight();\n\nwhile (steps < 3) {\n  moveForward();\n  steps++;\n}'
+      return 'if (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();'
     case 12:
-      return 'for (let i = 0; i < 2; i++) {\n  moveForward();\n}\nturnRight();\nfor (let i = 0; i < 3; i++) {\n  moveForward();\n}'
+      return 'if (look() == "WALL") {\n  turnRight();\n} else {\n  moveForward();\n}'
+    case 13:
+      return 'if (look() == "ENEMY") {\n  attack();\n} else if (look() == "WALL") {\n  turnRight();\n} else {\n  moveForward();\n}'
+    case 14:
+      return 'let steps = 0;\n\nwhile (steps < 6) {\n  moveForward();\n  steps++;\n}\n\nturnLeft();'
+    case 15:
+      return 'for (let i = 0; i < 4; i++) {\n  moveForward();\n}\n\nturnLeft();'
+    case 16:
+      return 'function step() {\n  moveForward();\n}\n\nturnLeft();\nstep();'
+    case 17:
+      return 'function step() {\n  moveForward();\n}\n\nstep();'
+    case 18:
+      return 'function clearAndStep() {\n  attack();\n  moveForward();\n}\n\nclearAndStep();'
+    case 19:
+      return 'function step() {\n  moveForward();\n}\n\nstep();'
     case 999:
       return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:
@@ -332,6 +445,7 @@ export default function GamePage() {
       if ((lvl.enemies ?? []).length > 0) tiles.add('ENEMY')
 
       const mechanics: string[] = []
+      if (lvl.hideWalls) mechanics.push('Mapa oculto: paredes nao aparecem no tabuleiro; use `look()` para ler o que esta a frente.')
       if (tiles.has('SPIKE')) mechanics.push('Espinhos: alternam entre ativos e recolhidos a cada 2 comandos; atravesse quando estiverem recolhidos.')
       if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
       if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')
@@ -370,6 +484,13 @@ export default function GamePage() {
         for (const cmd of lvl.availableCommands) {
           const desc = cmdDescriptions[cmd] ?? ''
           lines.push(`- ${formatAvailableCommand(cmd)}: ${desc}`)
+        }
+      }
+
+      if (lvl.requiredCommands && lvl.requiredCommands.length) {
+        lines.push('Obrigatorio para concluir:')
+        for (const cmd of lvl.requiredCommands) {
+          lines.push(`- ${formatAvailableCommand(cmd)}`)
         }
       }
 
@@ -413,6 +534,16 @@ export default function GamePage() {
       if (usesAdvanced) {
         // Usar novo parser e executor
         const program = parseAdvancedCode(code)
+        const usedCommands = collectProgramFeatures(program)
+        const missingCommands = getMissingRequiredCommands(selectedLevel.requiredCommands, usedCommands)
+        if (missingCommands.length) {
+          const errorInfo = buildRequirementError(missingCommands)
+          setErrorState({ open: true, ...errorInfo })
+          addLog(errorInfo.reason)
+          setRunning(false)
+          return
+        }
+
         const sourceCommandCount = countAdvancedCommands(program)
         let commandsExecuted = 0
 
@@ -462,6 +593,15 @@ export default function GamePage() {
           return
         }
         const commands = (parsed as any).commands as string[]
+        const usedCommands = new Set(commands)
+        const missingCommands = getMissingRequiredCommands(selectedLevel.requiredCommands, usedCommands)
+        if (missingCommands.length) {
+          const errorInfo = buildRequirementError(missingCommands)
+          setErrorState({ open: true, ...errorInfo })
+          addLog(errorInfo.reason)
+          setRunning(false)
+          return
+        }
 
         await executeCommands(
           commands,
@@ -613,6 +753,16 @@ export default function GamePage() {
                     </span>
                   ))}
                 </div>
+                {selectedLevel.requiredCommands?.length ? (
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <span className="pixel-eyebrow">Obrigatorio</span>
+                    {selectedLevel.requiredCommands.map((cmd: string) => (
+                      <span key={cmd} className="border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
+                        {formatAvailableCommand(cmd)}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </PixelPanel>
@@ -629,7 +779,7 @@ export default function GamePage() {
                   playerAnimationState={playerAnimationState}
                   enemies={enemies}
                   isRunning={running}
-                  hideWalls={false}
+                  hideWalls={selectedLevel.hideWalls ?? false}
                   spikesActive={spikesActive}
                 />
               </PixelFrame>

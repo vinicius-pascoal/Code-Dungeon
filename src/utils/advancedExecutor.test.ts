@@ -4,7 +4,7 @@ import { parseAdvancedCode } from './advancedParser'
 import { executeAdvancedCommands } from './advancedExecutor'
 import { executeCommands } from './commandExecutor'
 import { isSimpleCommandList } from './commandParser'
-import { levelEleven } from '../data/levels/level-11'
+import { levelFourteen } from '../data/levels/level-14'
 import type { Level, TileType } from '../types/game'
 
 function createLevel(availableCommands: string[], grid: TileType[][] = [['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR']]): Level {
@@ -31,7 +31,7 @@ test('simple command detection should reject advanced multiline programs', () =>
 
 test('while loop with counter variable should execute multiple iterations', async () => {
   const program = parseAdvancedCode('let steps = 0; while (steps < 3) { moveForward(); steps++; }')
-  const level = createLevel(['moveForward', 'while'])
+  const level = createLevel(['moveForward', 'while', 'let'])
 
   let executedCommands = 0
   await executeAdvancedCommands(
@@ -49,15 +49,37 @@ test('while loop with counter variable should execute multiple iterations', asyn
   assert.equal(executedCommands, 3)
 })
 
-test('level 11 starter loop should run every command until exit', async () => {
+test('unavailable advanced language feature should be rejected', async () => {
+  const program = parseAdvancedCode('let steps = 0; while (steps < 1) { moveForward(); steps++; }')
+  const level = createLevel(['moveForward', 'let'])
+  let errorMessage = ''
+
+  await executeAdvancedCommands(
+    program,
+    level,
+    () => undefined,
+    (message) => {
+      errorMessage = message
+    },
+    () => undefined
+  )
+
+  assert.match(errorMessage, /while/)
+})
+
+test('level 14 while loop should run every command until exit', async () => {
   const program = parseAdvancedCode(`
     let steps = 0;
 
-    turnLeft();
-    moveForward();
-    turnRight();
+    while (steps < 6) {
+      moveForward();
+      steps++;
+    }
 
-    while (steps < 3) {
+    turnLeft();
+    steps = 0;
+
+    while (steps < 2) {
       moveForward();
       steps++;
     }
@@ -66,7 +88,7 @@ test('level 11 starter loop should run every command until exit', async () => {
   const commands: string[] = []
   await executeAdvancedCommands(
     program,
-    levelEleven,
+    levelFourteen,
     ({ command }) => {
       commands.push(command)
     },
@@ -80,12 +102,22 @@ test('level 11 starter loop should run every command until exit', async () => {
   )
 
   assert.equal(completed, true)
-  assert.deepEqual(commands, ['turnLeft', 'moveForward', 'turnRight', 'moveForward', 'moveForward', 'moveForward'])
+  assert.deepEqual(commands, [
+    'moveForward',
+    'moveForward',
+    'moveForward',
+    'moveForward',
+    'moveForward',
+    'moveForward',
+    'turnLeft',
+    'moveForward',
+    'moveForward',
+  ])
 })
 
 test('for loop with let initializer should execute multiple iterations', async () => {
   const program = parseAdvancedCode('for (let i = 0; i < 3; i++) { moveForward(); }')
-  const level = createLevel(['moveForward', 'for'])
+  const level = createLevel(['moveForward', 'for', 'let'])
 
   let executedCommands = 0
   await executeAdvancedCommands(
