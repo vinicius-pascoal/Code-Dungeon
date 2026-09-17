@@ -36,11 +36,11 @@ export default function ErrorModal({ isOpen, title, commandLabel, reason, sugges
         </div>
 
         <div className="mt-6 flex flex-wrap justify-end gap-3">
-          <PixelButton type="button" icon="reset" variant="danger" onClick={onRetry}>
-            Tentar
-          </PixelButton>
           <PixelButton href="/levels" icon="list" variant="primary">
             Fases
+          </PixelButton>
+          <PixelButton type="button" icon="reset" variant="danger" onClick={onRetry}>
+            Tentar
           </PixelButton>
         </div>
       </PixelPanel>
