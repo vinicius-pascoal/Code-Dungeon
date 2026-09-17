@@ -16,7 +16,7 @@ export const levelFourteen: Level = {
   },
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'EXIT', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'DOOR', 'WALL'],
+    ['WALL', 'EXIT', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'DOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'CHEST', 'WALL'],
     ['WALL', 'FLOOR', 'KEY', 'SPIKE', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],

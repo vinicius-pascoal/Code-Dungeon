@@ -14,8 +14,8 @@ export const levelEight: Level = {
     openedChests: 0,
   },
   grid: [
-    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
+    ['VOID', 'VOID', 'VOID', 'WALL', 'WALL', 'WALL'],
+    ['WALL', 'WALL', 'WALL', 'WALL', 'EXIT', 'WALL'],
     ['WALL', 'FLOOR', 'CHEST', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
