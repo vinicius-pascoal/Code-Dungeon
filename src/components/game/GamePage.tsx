@@ -85,6 +85,15 @@ function parseErrorInfo(message: string): ExecutionErrorInfo {
     }
   }
 
+  if (message.includes('Celula vazia')) {
+    return {
+      title: 'Celula vazia',
+      reason: message,
+      suggestion: 'Esse espaco nao tem tile para caminhar. Use look() e escolha outra rota.',
+      commandLabel,
+    }
+  }
+
   if (message.includes('espinhos')) {
     return {
       title: 'Você pisou em espinhos',
@@ -346,7 +355,7 @@ function starterCode(levelId: number) {
     case 11:
       return 'if (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nmoveForward();\ngrabKey();\nopenChest();\nturnLeft();\nmoveForward();\nopenDoor();'
     case 12:
-      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
+      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();\nmoveForward();\nturnLeft();\nmoveForward();'
     case 13:
       return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\n\nif (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
     case 14:
@@ -453,7 +462,7 @@ export default function GamePage() {
       const tiles = new Set<string>()
       for (const row of lvl.grid) {
         for (const t of row) {
-          if (t !== 'FLOOR' && t !== 'WALL') tiles.add(t)
+          if (t !== 'VOID' && t !== 'FLOOR' && t !== 'WALL') tiles.add(t)
         }
       }
 
@@ -462,6 +471,7 @@ export default function GamePage() {
       const mechanics: string[] = []
       if (lvl.hideWalls) mechanics.push('Mapa oculto: paredes nao aparecem no tabuleiro; use `look()` para ler o que esta a frente.')
       if (lvl.hiddenCells?.length) mechanics.push('Celulas ocultas: alguns tiles so aparecem depois que voce chega neles. Use `if` com `look()` para decidir antes de avancar.')
+      if (lvl.grid.some((row: TileType[]) => row.includes('VOID'))) mechanics.push('Vazio: celulas sem tile nao podem ser atravessadas; `look()` retorna "VOID".')
       if (tiles.has('SPIKE')) mechanics.push('Espinhos: alternam entre ativos e recolhidos a cada 2 comandos; atravesse quando estiverem recolhidos.')
       if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
       if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')

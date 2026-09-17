@@ -44,6 +44,10 @@ function turnRight(dir: Direction): Direction {
   return order[(i + 1) % 4] as Direction
 }
 
+function isBlockingTile(tile: TileType | undefined) {
+  return tile === 'WALL' || tile === 'DOOR' || tile === 'VOID'
+}
+
 export async function executeCommands(
   commands: string[],
   level: Level,
@@ -95,6 +99,10 @@ export async function executeCommands(
         onError(`Porta fechada à frente no comando ${i + 1}: ${cmd}()`)
         return
       }
+      if (tile === 'VOID') {
+        onError(`Celula vazia a frente no comando ${i + 1}: ${cmd}()`)
+        return
+      }
       if (isSpikeDangerous(tile, state.spikesActive)) {
         onError(`Você pisou em espinhos no comando ${i + 1}: ${cmd}()`)
         return
@@ -131,7 +139,7 @@ export async function executeCommands(
         onError(`Nenhum inimigo à frente no comando ${i + 1}: ${cmd}()`)
         return
       }
-      if (tile === 'WALL' || tile === 'DOOR' || tile === 'CHEST') {
+      if (isBlockingTile(tile) || tile === 'CHEST') {
         onError(`Não foi possível atacar o objeto à frente no comando ${i + 1}: ${cmd}()`)
         return
       }

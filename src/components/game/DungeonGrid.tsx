@@ -46,6 +46,7 @@ function enemyAt(enemies: Enemy[], x: number, y: number) {
 }
 
 function getCellClassName(tile: TileType, hideWalls?: boolean) {
+  if (tile === 'VOID') return 'relative dungeon-cell bg-transparent'
   if (tile === 'WALL' && hideWalls) return 'relative dungeon-cell bg-transparent'
   return 'relative dungeon-cell'
 }
@@ -98,6 +99,7 @@ function renderObjectOverlay(tile: TileType, tileSize: number, spikesActive: boo
 }
 
 function getTileAriaLabel(tile: TileType) {
+  if (tile === 'VOID') return 'Vazio'
   if (tile === 'WALL') return 'Parede'
   if (tile === 'DOOR') return 'Porta fechada'
   if (tile === 'OPEN_DOOR') return 'Porta aberta'
@@ -410,6 +412,7 @@ export default function DungeonGrid({
             const key = `${x}-${y}`
             const isHidden = Boolean(hiddenCellKeys?.has(key)) && !revealedCells?.has(key) && !(x === playerX && y === playerY)
             const enemy = enemyAt(enemies, x, y)
+            const canShowObjects = !isHidden && tile !== 'VOID'
             const tileSprite = isHidden ? null : resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
             const enemySize = Math.max(18, Math.round(tileSize * 0.78))
             const tileStyle: React.CSSProperties = {
@@ -435,7 +438,7 @@ export default function DungeonGrid({
                   />
                 ) : null}
                 {isHidden ? renderHiddenCell(tileSize) : renderObjectOverlay(tile, tileSize, spikesActive)}
-                {!isHidden && enemy ? (
+                {canShowObjects && enemy ? (
                   <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
                     <BatSprite size={enemySize} x={x} y={y} />
                   </div>

@@ -33,7 +33,7 @@ function isStructuralTile(tile: TileType | undefined): boolean {
 }
 
 function isOpenTile(tile: TileType | undefined): boolean {
-  return tile !== undefined && !isStructuralTile(tile)
+  return tile !== undefined && tile !== 'VOID' && !isStructuralTile(tile)
 }
 
 function getSeedValue(seed: number | string | undefined): number {
@@ -151,6 +151,10 @@ export function resolveDoorSprite({
 }
 
 export function resolveTileSprite({ tile, map, x, y, hideWalls, levelId }: ResolveTileSpriteArgs): TileSprite | null {
+  if (tile === 'VOID') {
+    return null
+  }
+
   if (tile === 'WALL') {
     return hideWalls ? null : resolveWallSprite({ map, x, y })
   }

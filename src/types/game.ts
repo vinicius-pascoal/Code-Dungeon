@@ -1,4 +1,5 @@
 export type TileType =
+  | 'VOID'
   | 'FLOOR'
   | 'WALL'
   | 'SPIKE'

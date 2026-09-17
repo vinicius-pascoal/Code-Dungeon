@@ -200,3 +200,34 @@ test('active spikes block movement until two turns deactivate them', async () =>
   assert.deepEqual(spikeStates, [true, false, false])
   assert.equal(finalX, 1)
 })
+
+test('void tiles are readable but not walkable', async () => {
+  const level = createLevel(['moveForward', 'look'], [['FLOOR', 'VOID', 'FLOOR']])
+  let lookMessage = ''
+  let errorMessage = ''
+
+  await executeCommands(
+    ['look'],
+    level,
+    ({ message }) => {
+      if (message) lookMessage = message
+    },
+    (message) => {
+      throw new Error(message)
+    },
+    () => undefined
+  )
+
+  await executeCommands(
+    ['moveForward'],
+    level,
+    () => undefined,
+    (message) => {
+      errorMessage = message
+    },
+    () => undefined
+  )
+
+  assert.equal(lookMessage, 'VOID')
+  assert.match(errorMessage, /Celula vazia/)
+})
