@@ -231,3 +231,23 @@ test('void tiles are readable but not walkable', async () => {
   assert.equal(lookMessage, 'VOID')
   assert.match(errorMessage, /Celula vazia/)
 })
+
+test('custom functions should propagate victory when they step onto exit', async () => {
+  const program = parseAdvancedCode('function step() { moveForward(); } step();')
+  const level = createLevel(['moveForward', 'function'], [['FLOOR', 'EXIT']])
+  let won = false
+
+  await executeAdvancedCommands(
+    program,
+    level,
+    () => undefined,
+    (message) => {
+      throw new Error(message)
+    },
+    (result) => {
+      won = result.won
+    }
+  )
+
+  assert.equal(won, true)
+})

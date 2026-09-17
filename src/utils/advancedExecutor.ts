@@ -509,7 +509,8 @@ async function executeExpression(
         newContext.variables.set(func.params[i], args[i] ?? undefined)
       }
 
-      await executeStatement(func.body, state ?? { grid: [], player: {} as any, enemies: [], spikesActive: INITIAL_SPIKES_ACTIVE, spikeTurnCount: 0 }, newContext, executeCommand, onError, onStep, allowedCommands)
+      const functionResult = await executeStatement(func.body, state ?? { grid: [], player: {} as any, enemies: [], spikesActive: INITIAL_SPIKES_ACTIVE, spikeTurnCount: 0 }, newContext, executeCommand, onError, onStep, allowedCommands)
+      if (functionResult === 'exit') return 'exit'
 
       const result = newContext.returnValue
       return result ?? 0
