@@ -34,6 +34,11 @@ export type StarRules = {
   twoStars: number
 }
 
+export type GridPosition = {
+  x: number
+  y: number
+}
+
 export type Level = {
   id: number
   worldId?: number
@@ -48,6 +53,7 @@ export type Level = {
   concepts?: string[]
   requiredCommands?: string[]
   hideWalls?: boolean
+  hiddenCells?: GridPosition[]
   isPlayable?: boolean
 }
 

@@ -17,7 +17,7 @@ export const levelEleven: Level = {
   grid: [
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'DOOR', 'EXIT', 'WALL'],
-    ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'WALL', 'WALL'],
+    ['WALL', 'FLOOR', 'WALL', 'WALL', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'KEY', 'CHEST', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ],
@@ -26,5 +26,9 @@ export const levelEleven: Level = {
   concepts: ['conditionals', 'sensing', 'combat', 'keys', 'doors', 'chests'],
   requiredCommands: ['if', 'look', 'attack', 'grabKey', 'openDoor', 'openChest'],
   hideWalls: false,
+  hiddenCells: [
+    { x: 2, y: 3 },
+    { x: 3, y: 3 },
+  ],
   isPlayable: true,
 }

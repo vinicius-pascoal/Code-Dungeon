@@ -19,6 +19,8 @@ type Props = {
   enemies: Enemy[]
   isRunning?: boolean
   hideWalls?: boolean
+  hiddenCellKeys?: Set<string>
+  revealedCells?: Set<string>
   spikesActive?: boolean
 }
 
@@ -46,6 +48,16 @@ function enemyAt(enemies: Enemy[], x: number, y: number) {
 function getCellClassName(tile: TileType, hideWalls?: boolean) {
   if (tile === 'WALL' && hideWalls) return 'relative dungeon-cell bg-transparent'
   return 'relative dungeon-cell'
+}
+
+function renderHiddenCell(tileSize: number) {
+  return (
+    <div
+      className="dungeon-hidden-cell absolute inset-0 z-30"
+      style={{ width: `${tileSize}px`, height: `${tileSize}px` }}
+      aria-label="Celula oculta"
+    />
+  )
 }
 
 function renderObjectOverlay(tile: TileType, tileSize: number, spikesActive: boolean) {
@@ -138,6 +150,8 @@ export default function DungeonGrid({
   enemies,
   isRunning,
   hideWalls,
+  hiddenCellKeys,
+  revealedCells,
   spikesActive = true,
 }: Props) {
   const map = grid ?? level.grid
@@ -394,8 +408,9 @@ export default function DungeonGrid({
           {visibleRows.map(({ x, y }) => {
             const tile = map[y][x]
             const key = `${x}-${y}`
+            const isHidden = Boolean(hiddenCellKeys?.has(key)) && !revealedCells?.has(key) && !(x === playerX && y === playerY)
             const enemy = enemyAt(enemies, x, y)
-            const tileSprite = resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
+            const tileSprite = isHidden ? null : resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
             const enemySize = Math.max(18, Math.round(tileSize * 0.78))
             const tileStyle: React.CSSProperties = {
               position: 'absolute',
@@ -411,14 +426,16 @@ export default function DungeonGrid({
 
             return (
               <div key={key} style={tileStyle} className={getCellClassName(tile, hideWalls)}>
-                <SpriteTile
-                  sprite={tileSprite}
-                  size={tileSize}
-                  className="absolute inset-0"
-                  ariaLabel={getTileAriaLabel(tile)}
-                />
-                {renderObjectOverlay(tile, tileSize, spikesActive)}
-                {enemy ? (
+                {tileSprite ? (
+                  <SpriteTile
+                    sprite={tileSprite}
+                    size={tileSize}
+                    className="absolute inset-0"
+                    ariaLabel={getTileAriaLabel(tile)}
+                  />
+                ) : null}
+                {isHidden ? renderHiddenCell(tileSize) : renderObjectOverlay(tile, tileSize, spikesActive)}
+                {!isHidden && enemy ? (
                   <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
                     <BatSprite size={enemySize} x={x} y={y} />
                   </div>

@@ -27,6 +27,18 @@ function cloneEnemies(enemies: Enemy[]) {
   return enemies.map((enemy) => ({ ...enemy }))
 }
 
+function cellKey(x: number, y: number) {
+  return `${x}-${y}`
+}
+
+function createInitialRevealedCells(level: ReturnType<typeof getLevelById>) {
+  return new Set([cellKey(level.playerStart.x, level.playerStart.y)])
+}
+
+function createHiddenCellKeys(level: ReturnType<typeof getLevelById>) {
+  return new Set((level.hiddenCells ?? []).map(({ x, y }) => cellKey(x, y)))
+}
+
 type ExecutionErrorInfo = {
   title: string
   reason: string
@@ -363,6 +375,7 @@ export default function GamePage() {
     const parsedLevel = Number(rawLevel ?? 1)
     return getLevelById(Number.isFinite(parsedLevel) ? parsedLevel : 1)
   }, [router.query.level])
+  const hiddenCellKeys = useMemo(() => createHiddenCellKeys(selectedLevel), [selectedLevel])
   const levelIsPlayable = selectedLevel.isPlayable !== false
 
   const getInitialCode = () => {
@@ -381,6 +394,7 @@ export default function GamePage() {
   const [playerAnimationState, setPlayerAnimationState] = useState<PlayerAnimationState>('idle')
   const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
   const [enemies, setEnemies] = useState(() => cloneEnemies(selectedLevel.enemies))
+  const [revealedCells, setRevealedCells] = useState(() => createInitialRevealedCells(selectedLevel))
   const [spikesActive, setSpikesActive] = useState(INITIAL_SPIKES_ACTIVE)
   const [commandCount, setCommandCount] = useState(0)
   const [running, setRunning] = useState(false)
@@ -424,6 +438,7 @@ export default function GamePage() {
     setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setRevealedCells(createInitialRevealedCells(selectedLevel))
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setRunning(false)
@@ -446,6 +461,7 @@ export default function GamePage() {
 
       const mechanics: string[] = []
       if (lvl.hideWalls) mechanics.push('Mapa oculto: paredes nao aparecem no tabuleiro; use `look()` para ler o que esta a frente.')
+      if (lvl.hiddenCells?.length) mechanics.push('Celulas ocultas: alguns tiles so aparecem depois que voce chega neles. Use `if` com `look()` para decidir antes de avancar.')
       if (tiles.has('SPIKE')) mechanics.push('Espinhos: alternam entre ativos e recolhidos a cada 2 comandos; atravesse quando estiverem recolhidos.')
       if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
       if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')
@@ -522,6 +538,7 @@ export default function GamePage() {
     setCommandCount(0)
     setPlayerAnimationState('idle')
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
+    setRevealedCells(createInitialRevealedCells(selectedLevel))
 
     // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
     // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
@@ -557,6 +574,7 @@ export default function GamePage() {
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
+            setRevealedCells((current) => new Set(current).add(cellKey(p.x, p.y)))
             setSpikesActive(nextSpikesActive)
             commandsExecuted += 1
             setCommandCount(commandsExecuted)
@@ -613,6 +631,7 @@ export default function GamePage() {
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
             setEnemies(nextEnemies)
+            setRevealedCells((current) => new Set(current).add(cellKey(p.x, p.y)))
             setSpikesActive(nextSpikesActive)
             setCommandCount((current) => current + 1)
           },
@@ -652,6 +671,7 @@ export default function GamePage() {
     setPlayerAnimationState('idle')
     setGrid(cloneGrid(selectedLevel.grid))
     setEnemies(cloneEnemies(selectedLevel.enemies))
+    setRevealedCells(createInitialRevealedCells(selectedLevel))
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setLogs([])
@@ -780,6 +800,8 @@ export default function GamePage() {
                   enemies={enemies}
                   isRunning={running}
                   hideWalls={selectedLevel.hideWalls ?? false}
+                  hiddenCellKeys={hiddenCellKeys}
+                  revealedCells={revealedCells}
                   spikesActive={spikesActive}
                 />
               </PixelFrame>

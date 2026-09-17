@@ -29,5 +29,12 @@ export const levelThirteen: Level = {
   concepts: ['conditionals', 'else-if', 'sensing', 'combat', 'spikes', 'keys', 'doors', 'chests'],
   requiredCommands: ['if', 'else', 'look', 'attack', 'grabKey', 'openDoor', 'openChest'],
   hideWalls: false,
+  hiddenCells: [
+    { x: 2, y: 4 },
+    { x: 3, y: 4 },
+    { x: 4, y: 4 },
+    { x: 4, y: 3 },
+    { x: 5, y: 4 },
+  ],
   isPlayable: true,
 }
