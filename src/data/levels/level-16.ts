@@ -1,11 +1,12 @@
 import { Level } from '../../types/game'
+import { createGrid } from './grid'
 
 export const levelSixteen: Level = {
   id: 16,
   worldId: 5,
   name: 'Primeira Funcao',
-  description: 'Um corredor curto com espacos vazios nas bordas para focar no primeiro bloco reutilizavel.',
-  objective: 'Crie uma funcao de passo e reutilize ela para coletar a chave, abrir o bau, abrir a porta e chegar na saida.',
+  description: 'Um labirinto longo de 20x20 que exige funcoes reutilizaveis para manter a rota sob controle.',
+  objective: 'Crie funcoes para caminhar, virar e interagir enquanto coleta a chave, abre o bau, destrava a porta e cruza os espinhos ate a saida.',
   availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'grabKey', 'openDoor', 'openChest', 'function', 'return', 'print'],
   playerStart: {
     x: 1,
@@ -14,14 +15,31 @@ export const levelSixteen: Level = {
     keys: 0,
     openedChests: 0,
   },
-  grid: [
-    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'FLOOR', 'KEY', 'CHEST', 'DOOR', 'EXIT', 'WALL'],
-    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-  ],
+  grid: createGrid([
+    '####################',
+    '#K.................#',
+    '##################D#',
+    '#C.................#',
+    '#.##################',
+    '#..................#',
+    '##################.#',
+    '#^..^..^..^..^.....#',
+    '#.##################',
+    '#..................#',
+    '##################.#',
+    '#.....^..^..^......#',
+    '#.##################',
+    '#..................#',
+    '##################.#',
+    '#..^..^..^..^......#',
+    '#.##################',
+    '#..................#',
+    '#.................E#',
+    '####################',
+  ]),
   enemies: [],
-  starRules: { threeStars: 5, twoStars: 8 },
-  concepts: ['functions', 'reuse', 'void', 'keys', 'doors', 'chests'],
+  starRules: { threeStars: 12, twoStars: 18 },
+  concepts: ['functions', 'reuse', 'spikes', 'keys', 'doors', 'chests', 'large-map'],
   requiredCommands: ['function', 'grabKey', 'openDoor', 'openChest'],
   isPlayable: true,
 }

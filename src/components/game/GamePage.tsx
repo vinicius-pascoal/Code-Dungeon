@@ -363,13 +363,13 @@ function starterCode(levelId: number) {
     case 15:
       return 'moveForward();\ngrabKey();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nattack();\nmoveForward();\nturnLeft();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nturnLeft();\nfor (let i = 0; i < 3; i++) {\n  moveForward();\n}\n\nopenChest();\nturnRight();\nmoveForward();\nopenDoor();'
     case 16:
-      return 'function step() {\n  moveForward();\n}\n\nstep();\ngrabKey();\nopenChest();\nstep();\nopenDoor();\nstep();\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();\nstep();'
     case 17:
-      return 'function step() {\n  moveForward();\n}\n\nfunction turnUp() {\n  turnLeft();\n}\n\nstep();\ngrabKey();\nstep();\nstep();\nturnUp();\nopenChest();\nturnRight();\nopenDoor();\nstep();\nturnUp();\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\nfunction collect() {\n  grabKey();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\nstep();\nstep();\ncollect();'
     case 18:
-      return 'function step() {\n  moveForward();\n}\n\nfunction clearAndStep() {\n  attack();\n  moveForward();\n}\n\nstep();\ngrabKey();\nstep();\nclearAndStep();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();\nstep();\nturnLeft();\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\nfunction clearAndStep() {\n  attack();\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();'
     case 19:
-      return 'function walk(times) {\n  for (let i = 0; i < times; i++) {\n    moveForward();\n  }\n}\n\nfunction clearAndStep() {\n  if (look() == "ENEMY") {\n    attack();\n  } else {\n  }\n  moveForward();\n}\n\nwalk(1);\ngrabKey();\nwalk(1);\nclearAndStep();\nclearAndStep();\nturnLeft();\nwalk(1);\nclearAndStep();\nturnLeft();\nwalk(3);\nopenChest();\nturnRight();\nwalk(1);\nopenDoor();\nwalk(1);\nturnLeft();\nwalk(1);'
+      return 'function walk(times) {\n  for (let i = 0; i < times; i++) {\n    moveForward();\n  }\n}\n\nfunction clearAndStep() {\n  if (look() == "ENEMY") {\n    attack();\n  } else {\n    print(look());\n  }\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();'
     case 999:
       return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:
