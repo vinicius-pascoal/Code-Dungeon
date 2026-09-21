@@ -1,10 +1,134 @@
-import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import PixelButton from '../components/ui/PixelButton'
 import PixelIcon from '../components/ui/PixelIcon'
 import PixelPanel from '../components/ui/PixelPanel'
+import SpriteTile from '../components/game/SpriteTile'
+import SpikeSprite from '../components/game/SpikeSprite'
 import { getLevelById, worlds } from '../data/levels'
+import { BAT_SPRITE_CONFIG } from '../game/entities/batConfig'
+import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
+import { resolveDetailSprite } from '../game/tiles/detailResolver'
+import { resolveTileSprite } from '../game/tiles/tileResolver'
 import { UI_SPRITES } from '../game/ui/uiSprites'
+import type { Level } from '../types/game'
+
+function getFinalLevelForWorld(world: { levelIds: number[] }) {
+  return getLevelById(world.levelIds[world.levelIds.length - 1])
+}
+
+const worldCardOrderClasses: Record<number, string> = {
+  1: 'xl:order-1',
+  2: 'xl:order-2',
+  3: 'xl:order-3',
+  4: 'xl:order-6',
+  5: 'xl:order-5',
+  99: 'xl:order-4',
+}
+
+function MiniLevelMap({ level, label }: { level: Level; label: string }) {
+  const rows = level.grid.length
+  const cols = level.grid[0]?.length ?? 0
+  const fillsWidth = cols && rows ? cols / rows >= 4 / 3 : true
+  const enemyPositions = new Set(level.enemies.filter((enemy) => !enemy.defeated).map((enemy) => `${enemy.x}-${enemy.y}`))
+
+  return (
+    <div className="flex h-full w-full items-center justify-center bg-black p-2" aria-label={label}>
+      <div
+        className="grid max-h-full max-w-full border-2 border-border bg-black"
+        style={{
+          aspectRatio: cols && rows ? `${cols} / ${rows}` : '1 / 1',
+          gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+          height: fillsWidth ? 'auto' : '100%',
+          width: fillsWidth ? '100%' : 'auto',
+        }}
+      >
+        {level.grid.flatMap((row, y) =>
+          row.map((tile, x) => {
+            const isPlayer = level.playerStart.x === x && level.playerStart.y === y
+            const isEnemy = enemyPositions.has(`${x}-${y}`)
+            const tileSprite = resolveTileSprite({ tile, map: level.grid, x, y, hideWalls: level.hideWalls, levelId: level.id })
+            const detailSprite = resolveDetailSprite(tile)
+
+            return (
+              <span
+                key={`${x}-${y}`}
+                className={`relative block aspect-square ${isPlayer ? 'overflow-visible' : 'overflow-hidden'} ${tile === 'VOID' ? 'bg-black/70' : 'bg-black'}`}
+                aria-hidden="true"
+              >
+                {tileSprite ? (
+                  <SpriteTile
+                    sprite={tileSprite}
+                    size={20}
+                    fill
+                    className="absolute inset-0"
+                  />
+                ) : null}
+                {tile === 'SPIKE' ? (
+                  <SpikeSprite
+                    active
+                    size={20}
+                    fill
+                    className="absolute inset-0 z-10 pointer-events-none"
+                  />
+                ) : null}
+                {detailSprite ? (
+                  <SpriteTile
+                    sprite={detailSprite}
+                    atlas={DETAILS_TILESET_CONFIG}
+                    size={20}
+                    fill
+                    className="absolute inset-0 z-10 pointer-events-none"
+                  />
+                ) : null}
+                {isEnemy ? (
+                  <span
+                    className="absolute inset-[8%] z-20 bg-contain bg-center bg-no-repeat"
+                    style={{
+                      backgroundImage: `url("${BAT_SPRITE_CONFIG.src}")`,
+                      backgroundSize: `${BAT_SPRITE_CONFIG.frameCount * 100}% 100%`,
+                      backgroundPosition: '0% 0%',
+                    }}
+                  />
+                ) : null}
+                {isPlayer ? (
+                  <img
+                    src="/assets/personagem/Ghost.png"
+                    alt=""
+                    draggable={false}
+                    className="absolute left-1/2 top-1/2 z-30 h-[200%] w-[200%] max-h-none max-w-none -translate-x-1/2 -translate-y-1/2 object-contain"
+                  />
+                ) : null}
+              </span>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}
+
+function WorldPath() {
+  return (
+    <svg className="pointer-events-none absolute inset-0 hidden h-full w-full xl:block" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path
+        d="M 16.6 24 C 28 24, 38 24, 50 24 S 72 24, 83.4 24 C 91 24, 91 76, 83.4 76 S 62 76, 50 76 S 28 76, 16.6 76"
+        fill="none"
+        stroke="#ebede9"
+        strokeDasharray="1.2 1.6"
+        strokeLinecap="square"
+        strokeWidth="0.55"
+      />
+      {[{ x: 16.6, y: 24 }, { x: 50, y: 24 }, { x: 83.4, y: 24 }, { x: 83.4, y: 76 }, { x: 50, y: 76 }, { x: 16.6, y: 76 }].map((point, index) => (
+        <g key={`${point.x}-${point.y}`}>
+          <circle cx={point.x} cy={point.y} r="1.05" fill="#090a14" stroke="#ebede9" strokeWidth="0.35" />
+          <text x={point.x} y={point.y + 0.45} textAnchor="middle" fontSize="1.7" fill="#ebede9">
+            {index + 1}
+          </text>
+        </g>
+      ))}
+    </svg>
+  )
+}
 
 export default function Levels() {
   const [activeWorldId, setActiveWorldId] = useState<number | null>(null)
@@ -46,42 +170,8 @@ export default function Levels() {
     99: true,
   }
 
-  const worldAssets: Record<number, string> = {
-    1: '/assets/mundos/mundo1.png',
-    2: '/assets/mundos/mundo2.png',
-    3: '/assets/mundos/mundo3.png',
-    4: '/assets/mundos/mundo4.png',
-    5: '/assets/mundos/mundo5.png',
-    99: '/assets/mundos/mundo6.png',
-  }
-
-  const worldPlacements: Record<number, string> = {
-    1: 'xl:left-[2%] xl:top-[8%] xl:-rotate-6',
-    2: 'xl:left-[35%] xl:top-[2%] xl:rotate-2',
-    3: 'xl:right-[2%] xl:top-[14%] xl:rotate-6',
-    4: 'xl:left-[8%] xl:bottom-[12%] xl:rotate-1',
-    5: 'xl:left-1/2 xl:bottom-[8%] xl:-rotate-4',
-    99: 'xl:right-[2%] xl:bottom-[-1%] xl:-translate-x-1/2 xl:rotate-1',
-  }
-
-  const worldPoints: Record<number, { x: number; y: number }> = {
-    1: { x: 10, y: 16 },
-    2: { x: 44, y: 10 },
-    3: { x: 88, y: 22 },
-    4: { x: 18, y: 76 },
-    5: { x: 52, y: 84 },
-    99: { x: 86, y: 96 },
-  }
-
-  const journeyLinks = [
-    [1, 2],
-    [2, 3],
-    [3, 4],
-    [4, 5],
-    [5, 99],
-  ] as const
-
   const activeWorldPlayableCount = selectedLevels.filter((level) => level.isPlayable !== false).length
+  const selectedWorldFinalLevel = selectedWorld ? getFinalLevelForWorld(selectedWorld) : null
 
   return (
     <div className="pixel-app min-h-screen overflow-auto">
@@ -111,95 +201,58 @@ export default function Levels() {
 
         <PixelPanel
           variant="default"
-          className="overflow-hidden xl:min-h-[calc(100vh-10rem)]"
-          bodyClassName="relative p-3 sm:p-5 lg:p-6 xl:min-h-[calc(100vh-14.5rem)]"
+          className="overflow-hidden"
+          bodyClassName="relative p-3 sm:p-5 lg:p-6"
         >
           <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:linear-gradient(rgba(235,237,233,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(235,237,233,0.08)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute inset-4 border-2 border-border/60 bg-black/20" />
-          <div className="pointer-events-none absolute inset-x-[10%] top-[18%] hidden h-px bg-border xl:block" />
-          <div className="pointer-events-none absolute inset-x-[12%] top-[63%] hidden h-px bg-border xl:block" />
-          <div className="pointer-events-none absolute left-[22%] top-[10%] hidden h-[58%] w-px bg-border xl:block" />
-          <div className="pointer-events-none absolute right-[18%] top-[8%] hidden h-[64%] w-px bg-border xl:block" />
 
-          <div className="pointer-events-none absolute inset-0 hidden xl:block">
-            <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <marker id="journeyArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto" markerUnits="strokeWidth">
-                  <path d="M0,0 L6,3 L0,6 Z" fill="#ebede9" />
-                </marker>
-              </defs>
-
-              {journeyLinks.map(([fromId, toId]) => {
-                const from = worldPoints[fromId]
-                const to = worldPoints[toId]
-                const controlX1 = from.x + (to.x - from.x) * 0.35
-                const controlY1 = from.y
-                const controlX2 = from.x + (to.x - from.x) * 0.65
-                const controlY2 = to.y
-                const path = `M ${from.x} ${from.y} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${to.x} ${to.y}`
-
-                return (
-                  <g key={`${fromId}-${toId}`}>
-                    <path d={path} fill="none" stroke="#ebede9" strokeWidth="0.55" strokeLinecap="square" strokeDasharray="1 1.4" markerEnd="url(#journeyArrow)" />
-                    <circle cx={from.x} cy={from.y} r="0.9" fill="#090a14" stroke="#ebede9" strokeWidth="0.35" />
-                  </g>
-                )
-              })}
-              <circle cx={worldPoints[99].x} cy={worldPoints[99].y} r="1.2" fill="#ebede9" />
-            </svg>
-          </div>
-
-          <div className="relative grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:block xl:min-h-[inherit]">
+          <div className="relative mx-auto grid w-full max-w-6xl gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-x-16 xl:gap-y-12">
+            <WorldPath />
             {worlds.map((world) => {
               const worldLevels = world.levelIds.map((levelId) => getLevelById(levelId))
               const isAvailable = worldAvailability[world.id] !== false
-              const worldClasses = worldPlacements[world.id] ?? 'xl:left-[50%] xl:top-[50%] xl:-translate-x-1/2 xl:-translate-y-1/2'
               const isFinalChallenge = world.id === 99
               const playableCount = worldLevels.filter((level) => level.isPlayable !== false).length
+              const finalLevel = getFinalLevelForWorld(world)
+              const worldOrder = worlds.findIndex((item) => item.id === world.id) + 1
+              const orderClass = worldCardOrderClasses[world.id] ?? ''
 
               return (
                 <button
                   key={world.id}
                   type="button"
                   onClick={() => isAvailable && setActiveWorldId(world.id)}
-                  className={`group relative w-full border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood xl:absolute xl:w-[230px] ${worldClasses} ${isAvailable
-                    ? isFinalChallenge
-                      ? 'xl:w-[200px] xl:scale-[0.92]'
-                      : ''
+                  className={`group relative z-10 mx-auto flex min-h-[250px] w-full max-w-[260px] flex-col border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood ${orderClass} ${isAvailable
+                    ? ''
                     : 'cursor-not-allowed grayscale opacity-50'
                     }`}
                   aria-disabled={!isAvailable}
                   aria-label={world.name}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-border bg-black">
-                    {worldAssets[world.id] ? (
-                      <Image
-                        src={worldAssets[world.id]}
-                        alt={`Asset do ${world.name}`}
-                        fill
-                        sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 230px"
-                        className={`object-cover [image-rendering:pixelated] transition duration-100 group-hover:scale-[1.03] ${isAvailable ? '' : 'grayscale opacity-60'}`}
-                        priority={world.id === 1}
-                      />
-                    ) : (
-                      <div className="flex h-full items-center justify-center bg-black p-4">
-                        <PixelIcon sprite={UI_SPRITES.icons.target} scale={2} />
-                      </div>
-                    )}
-                    <div className="absolute right-2 top-2 border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
+                    <MiniLevelMap level={finalLevel} label={`Mapa da fase final de ${world.name}`} />
+                    <div className="absolute left-1.5 top-1.5 border border-primaryText bg-black px-1.5 py-1 font-mono text-[9px] font-black uppercase text-primaryText">
+                      {isFinalChallenge ? 'Labirinto' : `Final ${finalLevel.id}`}
+                    </div>
+                    <div className="absolute right-1.5 top-1.5 border border-primaryText bg-black px-1.5 py-1 font-mono text-[9px] font-black uppercase text-primaryText">
                       {isFinalChallenge ? 'Extra' : `${playableCount}/${worldLevels.length}`}
                     </div>
                   </div>
 
-                  <div className="p-3">
+                  <div className="flex flex-1 flex-col p-2.5">
                     <div className="flex items-start gap-2">
                       <PixelIcon sprite={isFinalChallenge ? UI_SPRITES.icons.target : UI_SPRITES.icons.play} scale={1} />
                       <div className="min-w-0">
-                        <h2 className="pixel-type text-sm font-black leading-5 text-primaryText">
+                        <p className="pixel-eyebrow">Mundo {String(worldOrder).padStart(2, '0')}</p>
+                        <h2 className="pixel-type text-xs font-black leading-5 text-primaryText">
                           {world.name}
                         </h2>
-                        <p className="mt-1 text-xs leading-5 text-secondaryText">
+                        <p className="mt-1 text-[10px] leading-4 text-secondaryText">
                           {world.theme}
+                        </p>
+                        <p className="mt-2 text-[10px] leading-4 text-secondaryText">
+                          {world.description}
                         </p>
                       </div>
                     </div>
@@ -237,19 +290,21 @@ export default function Levels() {
               <aside className="min-w-0">
                 <div className="border-2 border-primaryText bg-black">
                   <div className="relative aspect-[4/3] border-b-2 border-border bg-black">
-                    {worldAssets[selectedWorld.id] ? (
-                      <Image
-                        src={worldAssets[selectedWorld.id]}
-                        alt={`Asset do ${selectedWorld.name}`}
-                        fill
-                        sizes="280px"
-                        className="object-cover [image-rendering:pixelated]"
+                    {selectedWorldFinalLevel ? (
+                      <MiniLevelMap
+                        level={selectedWorldFinalLevel}
+                        label={`Mapa da fase final de ${selectedWorld.name}`}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
                         <PixelIcon sprite={UI_SPRITES.icons.target} scale={2} />
                       </div>
                     )}
+                    {selectedWorldFinalLevel ? (
+                      <div className="absolute left-2 top-2 border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
+                        Final {selectedWorldFinalLevel.id}
+                      </div>
+                    ) : null}
                   </div>
 
                   <div className="p-3">
@@ -280,7 +335,11 @@ export default function Levels() {
 
                     return (
                       <article key={level.id} className="border-2 border-border bg-black p-3">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="grid gap-4 md:grid-cols-[132px_minmax(0,1fr)_auto] md:items-start">
+                          <div className="relative aspect-[4/3] overflow-hidden border-2 border-border bg-black">
+                            <MiniLevelMap level={level} label={`Mapa da ${level.name}`} />
+                          </div>
+
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="pixel-command-chip">
@@ -310,7 +369,7 @@ export default function Levels() {
                             </div>
                           </div>
 
-                          <div className="shrink-0">
+                          <div className="shrink-0 md:justify-self-end">
                             {isPlayable ? (
                               <PixelButton href={`/game?level=${level.id}`} icon="play" variant="primary">
                                 Jogar
