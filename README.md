@@ -1,8 +1,8 @@
 # Code Dungeon
 
-Code Dungeon é um jogo educativo de lógica e programação em que o jogador resolve fases de masmorra escrevendo comandos em uma linguagem inspirada em JavaScript/TypeScript. Cada script controla um personagem em uma grade, permitindo visualizar a execução passo a passo, testar estratégias e aprender conceitos de programação de forma prática.
+Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolve fases de masmorra escrevendo comandos em uma linguagem inspirada em JavaScript/TypeScript. Cada programa controla um personagem em uma grade, permitindo visualizar a execucao passo a passo, testar estrategias e aprender conceitos de programacao de forma pratica.
 
-## Sumário
+## Sumario
 
 - [Resumo do projeto](#resumo-do-projeto)
 - [Objetivos](#objetivos)
@@ -10,40 +10,46 @@ Code Dungeon é um jogo educativo de lógica e programação em que o jogador re
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
 - [Fontes dos assets](#fontes-dos-assets)
 - [Como executar](#como-executar)
-- [Scripts disponíveis](#scripts-disponíveis)
-- [Rotas da aplicação](#rotas-da-aplicação)
+- [Scripts disponiveis](#scripts-disponiveis)
+- [Rotas da aplicacao](#rotas-da-aplicacao)
 - [Comandos do jogo](#comandos-do-jogo)
 - [Conceitos trabalhados](#conceitos-trabalhados)
 - [Estrutura do projeto](#estrutura-do-projeto)
-- [Testes](#testes)
+- [Validacao e testes](#validacao-e-testes)
 - [Deploy](#deploy)
-- [Contribuição](#contribuição)
+- [Contribuicao](#contribuicao)
 
 ## Resumo do projeto
 
-O projeto combina uma interface de jogo com um editor de código. O jogador lê o objetivo da fase, escreve uma sequência de comandos e executa o programa para mover o personagem até a saída. Ao longo das fases, novos recursos são liberados gradualmente, como movimentação, interação com chaves, portas, inimigos e baús, além de estruturas de programação como variáveis, condicionais, loops e funções.
+O projeto combina uma interface de jogo com um editor de codigo. O jogador le o objetivo da fase, escreve comandos e executa o programa para mover o personagem ate a saida. Ao longo da progressao, novos recursos sao liberados gradualmente: movimento, curvas, espinhos, chaves, portas, inimigos, baus, leitura do ambiente, variaveis, condicionais, loops e funcoes.
 
-A aplicação possui 19 fases guiadas, organizadas em mundos temáticos, e um modo extra de labirinto procedural. O progresso do código de cada fase é salvo localmente no navegador, facilitando tentativas, ajustes e experimentação.
+A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem do modo extra de labirinto procedural pela fase `999`. O progresso do codigo de cada fase e salvo no `localStorage`, facilitando tentativa, erro e refinamento.
 
 ## Objetivos
 
-- Ensinar lógica de programação com feedback visual imediato.
-- Transformar conceitos abstratos em desafios de movimentação e decisão.
-- Incentivar leitura de problemas, depuração e melhoria gradual das soluções.
-- Oferecer uma base extensível para novas fases, comandos e mecânicas.
+- Ensinar logica de programacao com feedback visual imediato.
+- Transformar conceitos abstratos em desafios de movimentacao, leitura e decisao.
+- Incentivar planejamento, depuracao e melhoria gradual de solucoes.
+- Oferecer uma base extensivel para novas fases, comandos, assets e mecanicas.
 
 ## Funcionalidades
 
-- Editor de código integrado à tela do jogo.
-- Execução passo a passo dos comandos escritos pelo jogador.
-- Sistema de fases com objetivos, comandos disponíveis e regras de estrelas.
-- Mundos organizados por tema: fundamentos, interações, condicionais, loops e funções.
-- Labirinto procedural disponível pela fase `999`.
+- Editor de codigo integrado a tela do jogo.
+- Execucao passo a passo dos comandos escritos pelo jogador.
+- Sistema de fases com objetivo, comandos disponiveis, comandos obrigatorios e regras de estrelas.
+- Cinco mundos guiados: fundamentos, interacoes, condicionais, loops e funcoes.
+- Modo extra de labirinto procedural em `/game?level=999`.
+- Fases finais de funcoes com mapas grandes `20x20`, rotas longas e mecanicas combinadas.
+- Tela `/levels` com cards de mundos, trilha pontilhada de progressao e previews reais dos mapas usando os assets do jogo.
+- Modal de mundo com preview de cada fase e acesso direto ao botao de jogar.
+- Modal inicial de fase focado apenas na novidade daquela fase.
+- Botao `Ajuda` no jogo com documentacao filtrada pelos comandos disponiveis na fase atual.
+- Modal "Como jogar" na pagina inicial com guia rapido, exemplos e comandos basicos.
 - Parser simples para listas diretas de comandos.
-- Parser e executor avançados para variáveis, expressões, condicionais, loops e funções.
-- Salvamento automático do código no `localStorage`.
-- Modais de ajuda, introdução da fase, vitória e erro.
-- Assets visuais para personagem, pisos, paredes, espinhos, mundos e portal.
+- Parser e executor avancados para variaveis, expressoes, condicionais, loops e funcoes.
+- Salvamento automatico do codigo no navegador.
+- Modais de vitoria, erro, ajuda e introducao de fase.
+- Assets visuais para personagem, pisos, paredes, espinhos, detalhes, inimigos, UI e previews.
 
 ## Tecnologias utilizadas
 
@@ -65,12 +71,12 @@ Os assets visuais utilizados no projeto vieram das seguintes fontes:
 
 ## Como executar
 
-### Pré-requisitos
+### Pre-requisitos
 
 - Node.js 18 ou superior
 - npm
 
-### Instalação
+### Instalacao
 
 ```bash
 git clone https://github.com/vinicius-pascoal/Code-Dungeon.git
@@ -90,137 +96,175 @@ Depois acesse:
 http://localhost:3000
 ```
 
-### Produção
+Se a porta `3000` estiver ocupada, rode o Next em outra porta:
+
+```bash
+npx next dev -p 3001
+```
+
+### Producao
 
 ```bash
 npm run build
 npm run start
 ```
 
-## Scripts disponíveis
+## Scripts disponiveis
 
-| Script | Descrição |
+| Script | Descricao |
 | --- | --- |
 | `npm run dev` | Inicia o servidor de desenvolvimento na porta `3000`. |
-| `npm run build` | Gera a versão de produção da aplicação. |
-| `npm run start` | Executa a aplicação em modo produção na porta `3000`. |
+| `npm run build` | Gera a versao de producao da aplicacao. |
+| `npm run start` | Executa a aplicacao em modo producao na porta `3000`. |
 
-## Rotas da aplicação
+## Rotas da aplicacao
 
-| Rota | Descrição |
+| Rota | Descricao |
 | --- | --- |
-| `/` | Página inicial com apresentação do jogo e links principais. |
-| `/levels` | Lista de fases e mundos disponíveis. |
-| `/game` | Tela principal do jogo, iniciando pela fase padrão. |
-| `/game?level=1` | Abre uma fase específica pelo ID. |
+| `/` | Pagina inicial com apresentacao do jogo, preview e modal "Como jogar". |
+| `/levels` | Selecao de mundos e fases, com previews dos mapas e trilha de progressao. |
+| `/game` | Tela principal do jogo, iniciando pela fase padrao. |
+| `/game?level=1` | Abre uma fase especifica pelo ID. |
 | `/game?level=999` | Abre o modo de labirinto procedural. |
 
-Não há rotas de API em `pages/api` neste repositório.
+Nao ha rotas de API em `pages/api` neste repositorio.
 
 ## Comandos do jogo
 
-| Comando | Função |
+| Comando | Funcao |
 | --- | --- |
-| `moveForward()` | Move o personagem uma célula à frente. |
+| `moveForward()` | Move o personagem uma celula a frente. |
 | `turnLeft()` | Gira o personagem 90 graus para a esquerda. |
 | `turnRight()` | Gira o personagem 90 graus para a direita. |
-| `attack()` | Ataca um inimigo na célula à frente. |
-| `grabKey()` | Coleta uma chave na célula atual. |
-| `openDoor()` | Abre uma porta à frente quando o jogador possui chave. |
-| `openChest()` | Abre um baú à frente. |
-| `look()` | Inspeciona a célula à frente e retorna valores como `WALL`, `FLOOR`, `ENEMY` ou `OUT_OF_BOUNDS`. |
-| `print(value)` | Envia valores e expressões para o console do jogo. |
+| `attack()` | Ataca um inimigo na celula a frente. |
+| `grabKey()` | Coleta uma chave na celula atual. |
+| `openDoor()` | Abre uma porta a frente quando o jogador possui chave. |
+| `openChest()` | Abre um bau a frente. |
+| `look()` | Inspeciona a celula a frente e retorna valores como `WALL`, `FLOOR`, `ENEMY`, `KEY`, `SPIKE`, `DOOR`, `CHEST`, `EXIT`, `VOID` ou `OUT_OF_BOUNDS`. |
+| `print(value)` | Envia valores e expressoes para o console do jogo. |
 
 Exemplo simples:
 
 ```js
 moveForward();
-moveForward();
 turnRight();
 moveForward();
 ```
 
-Exemplo com repetição:
+Exemplo com condicional:
+
+```js
+if (look() == "ENEMY") {
+  attack();
+}
+moveForward();
+```
+
+Exemplo com repeticao:
 
 ```js
 for (let i = 0; i < 3; i++) {
   moveForward();
 }
-turnRight();
-moveForward();
+```
+
+Exemplo com funcao:
+
+```js
+function walk(times) {
+  for (let i = 0; i < times; i++) {
+    moveForward();
+  }
+}
+
+walk(4);
 ```
 
 ## Conceitos trabalhados
 
-- Sequência de instruções
-- Direção e movimentação em grade
+- Sequencia de instrucoes
+- Direcao e movimentacao em grade
 - Leitura de objetivo e planejamento de rota
-- Variáveis com `let`, `const` e `var`
-- Operadores aritméticos, lógicos e de comparação
+- Espinhos e rotas seguras
+- Chaves, portas, baus e inimigos
+- Variaveis com `let`, `const` e `var`
+- Operadores aritmeticos, logicos e de comparacao
 - Condicionais com `if`, `else if` e `else`
-- Repetição com `while` e `for`
-- Funções e reutilização de código
-- Depuração com `look()` e `print()`
+- Leitura do ambiente com `look()`
+- Repeticao com `while` e `for`
+- Funcoes e reutilizacao de codigo
+- Depuracao com `print()`
 
 ## Estrutura do projeto
 
 ```text
 .
-├── public/
-│   └── assets/                 # Sprites, tiles, mundos e imagens do jogo
-├── src/
-│   ├── components/game/         # Componentes da interface do jogo
-│   ├── data/levels/             # Definições das fases e mundos
-│   ├── pages/                   # Rotas Next.js
-│   ├── styles/                  # Estilos globais
-│   ├── types/                   # Tipos compartilhados
-│   └── utils/                   # Parser, executor e geração de labirinto
-├── package.json
-├── tailwind.config.js
-└── tsconfig.json
+|-- public/
+|   `-- assets/                 # Sprites, tilesets, UI, personagem e imagens do jogo
+|-- src/
+|   |-- components/game/         # Componentes da interface do jogo
+|   |-- components/ui/           # Componentes visuais reutilizaveis
+|   |-- data/levels/             # Definicoes das fases, mundos e helper de grid
+|   |-- game/                    # Configuracoes de sprites, tiles e entidades
+|   |-- pages/                   # Rotas Next.js
+|   |-- styles/                  # Estilos globais
+|   |-- types/                   # Tipos compartilhados
+|   `-- utils/                   # Parser, executor e geracao de labirinto
+|-- package.json
+|-- tailwind.config.js
+`-- tsconfig.json
 ```
 
 Arquivos importantes:
 
-- `src/pages/index.tsx`: página inicial.
-- `src/pages/levels.tsx`: tela de seleção de fases.
+- `src/pages/index.tsx`: pagina inicial e modal "Como jogar".
+- `src/pages/levels.tsx`: tela de selecao de mundos, fases, previews e trilha de progressao.
 - `src/pages/game.tsx`: rota da tela do jogo.
-- `src/components/game/GamePage.tsx`: orquestra estado, execução, progresso e interface principal.
-- `src/components/game/DungeonGrid.tsx`: renderiza o mapa da fase.
+- `src/components/game/GamePage.tsx`: orquestra estado, execucao, progresso, modais e interface principal.
+- `src/components/game/DungeonGrid.tsx`: renderiza o mapa jogavel da fase.
+- `src/components/game/DocumentationModal.tsx`: ajuda contextual filtrada pelos comandos da fase.
 - `src/components/game/CodeEditor.tsx`: editor usado pelo jogador.
 - `src/utils/commandParser.ts`: parser para comandos simples.
 - `src/utils/commandExecutor.ts`: executor dos comandos simples.
-- `src/utils/advancedParser.ts`: parser para recursos avançados da linguagem.
-- `src/utils/advancedExecutor.ts`: executor do programa avançado.
-- `src/utils/mazeGenerator.ts`: geração do labirinto procedural.
+- `src/utils/advancedParser.ts`: parser para recursos avancados da linguagem.
+- `src/utils/advancedExecutor.ts`: executor do programa avancado.
+- `src/utils/mazeGenerator.ts`: geracao do labirinto procedural.
 - `src/data/levels/index.ts`: registro de fases, mundos e fase procedural.
+- `src/data/levels/grid.ts`: helper para declarar mapas de fase por caracteres.
 
-## Testes
+## Validacao e testes
 
-O repositório possui testes para partes do parser e executor avançados em:
+O repositorio possui testes para partes do parser e executor avancados em:
 
 ```text
 src/utils/advancedExecutor.test.ts
 ```
 
-Atualmente não há um script `test` definido no `package.json`.
+Atualmente nao ha um script `test` definido no `package.json`.
+
+Validacoes usadas durante desenvolvimento:
+
+```bash
+npx tsc --noEmit
+npm run build
+```
 
 ## Deploy
 
-A aplicação publicada pode ser acessada em:
+A aplicacao publicada pode ser acessada em:
 
 [https://code-dungeons.vercel.app](https://code-dungeons.vercel.app)
 
-## Contribuição
+## Contribuicao
 
-Contribuições são bem-vindas. Para colaborar:
+Contribuicoes sao bem-vindas. Para colaborar:
 
 1. Abra uma issue ou descreva claramente a melhoria desejada.
-2. Crie uma branch para a alteração.
-3. Faça commits pequenos e objetivos.
-4. Adicione testes quando a mudança envolver parser, executor ou regras de jogo.
-5. Abra um pull request explicando o problema resolvido e como validar a alteração.
+2. Crie uma branch para a alteracao.
+3. Faca commits pequenos e objetivos.
+4. Adicione testes quando a mudanca envolver parser, executor ou regras de jogo.
+5. Abra um pull request explicando o problema resolvido e como validar a alteracao.
 
-## Licença
+## Licenca
 
-Este repositório não informa uma licença no momento.
+Este repositorio nao informa uma licenca no momento.
