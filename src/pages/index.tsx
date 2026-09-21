@@ -71,6 +71,50 @@ const steps = [
   { title: 'Venca a fase', text: 'Chegue ao portal com menos comandos.' },
 ]
 
+const howToPlaySteps = [
+  'Observe o mapa e leia o objetivo da fase.',
+  'Escreva poucos comandos no editor.',
+  'Execute para ver o personagem agir passo a passo.',
+  'Use o erro ou o console para corrigir a rota.',
+]
+
+const basicCommands = [
+  {
+    command: 'moveForward();',
+    title: 'Andar',
+    text: 'Move uma casa na direcao atual.',
+  },
+  {
+    command: 'turnRight();',
+    title: 'Virar',
+    text: 'Muda a direcao sem sair do lugar.',
+  },
+  {
+    command: 'grabKey();',
+    title: 'Interagir',
+    text: 'Pega uma chave quando voce esta em cima dela.',
+  },
+  {
+    command: 'openDoor();',
+    title: 'Abrir caminho',
+    text: 'Abre a porta que esta na frente, se houver chave.',
+  },
+]
+
+const learningMoments = [
+  { title: 'Sequencia', text: 'O codigo roda de cima para baixo.' },
+  { title: 'Decisao', text: 'Depois voce usa if e look() para reagir ao mapa.' },
+  { title: 'Repeticao', text: 'Loops evitam escrever o mesmo comando muitas vezes.' },
+]
+
+function HomeCodeBlock({ lines }: { lines: string[] }) {
+  return (
+    <pre className="mt-3 overflow-auto border border-border/70 bg-bg p-3 font-mono text-xs leading-5 text-primaryText">
+      <code>{lines.join('\n')}</code>
+    </pre>
+  )
+}
+
 export default function Home() {
   const [showHow, setShowHow] = useState(false)
 
@@ -197,11 +241,11 @@ export default function Home() {
       </main>
 
       {showHow && (
-        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <PixelPanel
             variant="modal"
-            className="w-full max-w-2xl"
-            eyebrow="Ajuda"
+            className="max-h-[92vh] w-full max-w-5xl overflow-hidden"
+            eyebrow="Guia rapido"
             title="Como jogar"
             icon="help"
             headerAction={
@@ -209,19 +253,59 @@ export default function Home() {
                 Fechar
               </PixelButton>
             }
+            bodyClassName="max-h-[calc(92vh-5rem)] overflow-auto p-3 sm:p-4"
           >
-            <div className="grid gap-3 sm:grid-cols-3">
-              {['moveForward();', 'turnRight();', 'grabKey();'].map((command) => (
-                <div key={command} className="pixel-command-chip font-mono">
-                  {command}
+            <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+              <section className="border-2 border-border bg-black p-3">
+                <h3 className="pixel-type text-sm font-black text-primaryText">Primeira ideia</h3>
+                <div className="mt-3 grid gap-2">
+                  {howToPlaySteps.map((step, index) => (
+                    <div key={step} className="flex gap-3 border border-border/70 bg-bg p-2 text-sm leading-6 text-secondaryText">
+                      <span className="pixel-type text-primaryText">{index + 1}</span>
+                      <span>{step}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </section>
+
+              <section className="border-2 border-border bg-black p-3">
+                <h3 className="pixel-type text-sm font-black text-primaryText">Exemplo pequeno</h3>
+                <p className="mt-2 text-sm leading-6 text-secondaryText">
+                  Cada linha e uma instrucao. O personagem executa na mesma ordem em que voce escreveu.
+                </p>
+                <HomeCodeBlock lines={['moveForward();', 'turnRight();', 'moveForward();']} />
+              </section>
             </div>
 
-            <p className="mt-5 text-xs leading-6 text-secondaryText">
-              Os comandos rodam em sequencia. Se bater em parede, cair em espinhos ou usar um comando fora de hora,
-              o console mostra o problema para voce corrigir a estrategia.
-            </p>
+            <section className="mt-4">
+              <h3 className="pixel-type text-sm font-black text-primaryText">Comandos iniciais</h3>
+              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {basicCommands.map((item) => (
+                  <article key={item.command} className="border-2 border-border bg-black p-3">
+                    <span className="pixel-command-chip font-mono">{item.command}</span>
+                    <h4 className="pixel-type mt-3 text-xs font-black text-primaryText">{item.title}</h4>
+                    <p className="mt-2 text-sm leading-6 text-secondaryText">{item.text}</p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-4">
+              <h3 className="pixel-type text-sm font-black text-primaryText">O que voce aprende</h3>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                {learningMoments.map((item) => (
+                  <div key={item.title} className="border-2 border-border bg-black p-3">
+                    <p className="pixel-type text-xs text-primaryText">{item.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-secondaryText">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="mt-4 border-2 border-border bg-black p-3 text-sm leading-6 text-secondaryText">
+              Se bater em parede, pisar em espinhos ou usar um comando fora de hora, o jogo mostra o problema.
+              Corrija uma parte por vez e execute novamente.
+            </div>
           </PixelPanel>
         </div>
       )}
