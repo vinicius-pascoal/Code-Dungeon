@@ -455,6 +455,34 @@ export default function GamePage() {
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
     // Construir texto introdutório para o nível atual
     const buildIntro = (lvl: any) => {
+      const introByLevel: Record<number, string[]> = {
+        1: ['Novidade: seu codigo roda de cima para baixo.', 'Use moveForward() para avancar ate a saida.'],
+        2: ['Novidade: virar muda a direcao do personagem.', 'Combine turnRight() com moveForward() para fazer curvas.'],
+        3: ['Novidade: existem rotas que exigem virar para o outro lado.', 'Planeje a ordem dos movimentos antes de executar.'],
+        4: ['Novidade: a rota mistura varias curvas.', 'Pense em cada linha como uma instrucao pequena da solucao.'],
+        5: ['Novidade: espinhos bloqueiam o caminho seguro.', 'Nao pise em SPIKE: contorne o perigo usando curvas.', 'Dica: execute devagar e observe onde o caminho seguro passa.'],
+        6: ['Novidade: inimigos bloqueiam o caminho.', 'Use attack() antes de tentar andar para a casa do inimigo.'],
+        7: ['Novidade: portas precisam de chave.', 'Pegue a chave com grabKey() e abra a porta com openDoor().'],
+        8: ['Novidade: baus podem fazer parte do objetivo.', 'Fique de frente para o bau e use openChest().'],
+        9: ['Novidade: a fase pede mais planejamento espacial.', 'Divida a rota em pequenos trechos.'],
+        10: ['Novidade: chave, porta e inimigo aparecem juntos.', 'Resolva uma interacao por vez antes de seguir.'],
+        11: ['Novidade: if executa um bloco somente se a condicao for verdadeira.', 'Use look() para perguntar o que esta a frente antes de agir.', 'Exemplo:', 'if (look() == "ENEMY") {', '  attack();', '}'],
+        12: ['Novidade: else e o plano B do if.', 'Se a condicao do if for falsa, o codigo dentro do else sera executado.', 'Exemplo:', 'if (look() == "KEY") {', '  moveForward();', '} else {', '  turnRight();', '}'],
+        13: ['Novidade: decisoes e interacoes aparecem na mesma rota.', 'Use if com look() para evitar chutes.'],
+        14: ['Novidade: while repete comandos enquanto uma condicao for verdadeira.', 'Use uma variavel para contar os passos repetidos.', 'Exemplo:', 'let passos = 0;', 'while (passos < 3) {', '  moveForward();', '  passos++;', '}'],
+        15: ['Novidade: for repete um bloco por uma quantidade definida.', 'Use for quando voce ja sabe quantas vezes quer andar.', 'Exemplo:', 'for (let i = 0; i < 3; i++) {', '  moveForward();', '}'],
+        16: ['Novidade: funcoes agrupam comandos reutilizaveis.', 'Crie um comando novo para uma sequencia que voce vai repetir.', 'Exemplo:', 'function step() {', '  moveForward();', '}', 'step();'],
+        17: ['Novidade: funcoes ajudam em mapas maiores.', 'Reaproveite blocos para reduzir repeticao e erro.'],
+        18: ['Novidade: uma funcao pode combinar ataque e movimento.', 'Crie um bloco para limpar inimigos e avancar com seguranca.'],
+        19: ['Novidade: desafio final com funcoes, loops, if e look().', 'Use funcoes pequenas e leia o mapa antes de avancar em areas ocultas.'],
+        999: ['Novidade: o labirinto e procedural.', 'Explore com look(), condicionais e loops para adaptar sua rota.'],
+      }
+
+      return [
+        ...(introByLevel[lvl.id] ?? [lvl.description ?? 'Nova fase disponivel.', 'Observe o mapa e resolva um passo por vez.']),
+        'Para ver todos os comandos disponiveis nesta fase, abra Ajuda.',
+      ]
+
       const lines: string[] = []
       if (lvl.description) lines.push(lvl.description)
       if (lvl.objective) lines.push(`Objetivo: ${lvl.objective}`)
@@ -716,7 +744,11 @@ export default function GamePage() {
         onRetry={onRetryFromModal}
       />
 
-      <DocumentationModal isOpen={docOpen} onClose={() => setDocOpen(false)} />
+      <DocumentationModal
+        isOpen={docOpen}
+        onClose={() => setDocOpen(false)}
+        availableCommands={selectedLevel.availableCommands}
+      />
 
       {introOpen && (
         <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
@@ -739,9 +771,27 @@ export default function GamePage() {
             }
           >
             <div className="space-y-2 text-xs leading-6 text-secondaryText max-h-80 overflow-y-auto">
-              {introLines.map((line, i) => (
-                <p key={i} className={line.startsWith('- ') ? 'ml-3 font-mono text-[10px] text-primaryText' : ''}>{line}</p>
-              ))}
+              {introLines.map((line, i) => {
+                const isCodeLine = line.includes(';') || line.endsWith('{') || line === '}' || line.startsWith('  ')
+                const isExampleLabel = line === 'Exemplo:'
+
+                return (
+                  <p
+                    key={i}
+                    className={
+                      isCodeLine
+                        ? 'whitespace-pre-wrap border border-border/70 bg-bg px-2 py-1 font-mono text-[10px] leading-5 text-primaryText'
+                        : isExampleLabel
+                          ? 'pixel-type pt-2 text-[10px] text-primaryText'
+                          : line.startsWith('- ')
+                            ? 'ml-3 font-mono text-[10px] text-primaryText'
+                            : ''
+                    }
+                  >
+                    {line}
+                  </p>
+                )
+              })}
             </div>
 
             <div className="mt-5 flex justify-end">
