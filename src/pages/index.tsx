@@ -166,10 +166,8 @@ export default function Home() {
       <main className="mx-auto grid min-h-screen max-w-6xl gap-5 px-4 py-5 lg:grid-cols-[minmax(0,1fr)_minmax(360px,0.82fr)] lg:items-center">
         <section className="min-w-0">
           <PixelPanel variant="default" className="overflow-hidden" bodyClassName="p-5 sm:p-7">
-            <div className="mb-5 flex justify-center sm:justify-start">
+            <div className="mb-5 flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:justify-between">
               <PixelIcon sprite={UI_SPRITES.decor.swordShield} scale={2} />
-            </div>
-            <div className="mb-5 flex justify-center sm:justify-start">
               <LanguageSelect />
             </div>
 

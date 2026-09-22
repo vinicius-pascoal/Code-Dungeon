@@ -8,7 +8,6 @@ import CodeEditor from './CodeEditor'
 import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
 import PixelIcon from '../ui/PixelIcon'
-import LanguageSelect from '../ui/LanguageSelect'
 import PixelPanel from '../ui/PixelPanel'
 import { UI_SPRITES } from '../../game/ui/uiSprites'
 import { getLevelById, levels } from '../../data/levels'
@@ -856,7 +855,6 @@ export default function GamePage() {
               <PixelButton href="/levels" icon="list">
                 {t('common.levels')}
               </PixelButton>
-              <LanguageSelect />
             </div>
 
             <PixelPanel variant="console" title={t('game.console')} className="min-h-0 overflow-hidden" bodyClassName="max-h-24 min-h-0 overflow-y-auto p-2 sm:p-3">

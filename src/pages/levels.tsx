@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import PixelButton from '../components/ui/PixelButton'
 import PixelIcon from '../components/ui/PixelIcon'
-import LanguageSelect from '../components/ui/LanguageSelect'
 import PixelPanel from '../components/ui/PixelPanel'
 import SpriteTile from '../components/game/SpriteTile'
 import SpikeSprite from '../components/game/SpikeSprite'
@@ -202,7 +201,6 @@ export default function Levels() {
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <LanguageSelect />
               <PixelButton href="/" icon="left">
                 {t('common.back')}
               </PixelButton>
