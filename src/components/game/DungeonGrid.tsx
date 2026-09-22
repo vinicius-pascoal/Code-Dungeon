@@ -8,6 +8,7 @@ import PixelButton from '../ui/PixelButton'
 import BatSprite from './entities/BatSprite'
 import PlayerSprite from './entities/PlayerSprite'
 import SpikeSprite from './SpikeSprite'
+import { useI18n } from '../../i18n'
 
 type Props = {
   level: Level
@@ -156,6 +157,7 @@ export default function DungeonGrid({
   revealedCells,
   spikesActive = true,
 }: Props) {
+  const { t } = useI18n()
   const map = grid ?? level.grid
   const cols = map[0]?.length || 0
   const rows = map.length
@@ -337,7 +339,7 @@ export default function DungeonGrid({
             type="button"
             onClick={handleZoomOut}
             size="sm"
-            title="Diminuir zoom"
+            title={t('game.zoomOut')}
           >
             −
           </PixelButton>
@@ -346,7 +348,7 @@ export default function DungeonGrid({
             type="button"
             onClick={handleZoomIn}
             size="sm"
-            title="Aumentar zoom"
+            title={t('game.zoomIn')}
           >
             +
           </PixelButton>
@@ -355,30 +357,30 @@ export default function DungeonGrid({
           type="button"
           onClick={handleResetZoom}
           size="sm"
-          title="Resetar zoom"
+          title={t('game.resetZoom')}
         >
-          Resetar
+          {t('common.reset')}
         </PixelButton>
         <PixelButton
           type="button"
           onClick={handleFitToScreen}
           size="sm"
-          title="Visualizar tabuleiro completo"
+          title={t('game.fitBoard')}
         >
-          Tudo
+          {t('game.fitAll')}
         </PixelButton>
         {cols > 30 && (
           <PixelButton
             type="button"
             onClick={centerOnPlayer}
             size="sm"
-            title="Centralizar no jogador"
+            title={t('game.centerPlayer')}
           >
-            Jogador
+            {t('game.player')}
           </PixelButton>
         )}
         <div className="pixel-type ml-auto flex items-center gap-3 text-xs text-secondaryText">
-          <span>Clique + arraste</span>
+          <span>{t('game.dragHint')}</span>
           <span>{cols} x {rows}</span>
         </div>
       </div>

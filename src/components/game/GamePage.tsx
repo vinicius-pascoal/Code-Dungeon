@@ -8,9 +8,11 @@ import CodeEditor from './CodeEditor'
 import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
 import PixelIcon from '../ui/PixelIcon'
+import LanguageSelect from '../ui/LanguageSelect'
 import PixelPanel from '../ui/PixelPanel'
 import { UI_SPRITES } from '../../game/ui/uiSprites'
 import { getLevelById, levels } from '../../data/levels'
+import { getIntroLines, localizeLevel, useI18n } from '../../i18n'
 import { isSimpleCommandList, parseCommands } from '../../utils/commandParser'
 import { executeCommands } from '../../utils/commandExecutor'
 import { parseAdvancedCode } from '../../utils/advancedParser'
@@ -143,6 +145,47 @@ function parseErrorInfo(message: string): ExecutionErrorInfo {
     title: 'Erro na execução',
     reason: message,
     suggestion: 'Revise a sequência de comandos e tente novamente.',
+    commandLabel,
+  }
+}
+
+function parseLocalizedErrorInfo(message: string, t: (key: string, params?: Record<string, string | number>) => string): ExecutionErrorInfo {
+  const commandMatch = message.match(/comando\s+(\d+):\s*([a-zA-Z0-9_]+\(\))/i)
+  const commandLabel = commandMatch ? t('error.commandLabel', { index: commandMatch[1], command: commandMatch[2] }) : undefined
+  const normalized = message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+
+  const build = (key: string): ExecutionErrorInfo => ({
+    title: t(`error.${key}.title`),
+    reason: t(`error.${key}.reason`),
+    suggestion: t(`error.${key}.suggestion`),
+    commandLabel,
+  })
+
+  if (normalized.includes('nenhum comando detectado')) {
+    return {
+      title: t('error.empty.title'),
+      reason: t('error.empty.reason'),
+      suggestion: t('error.empty.suggestion'),
+    }
+  }
+
+  if (normalized.includes('comando inv')) return build('invalid')
+  if (normalized.includes('fora do mapa') || normalized.includes('out_of_bounds')) return build('outOfBounds')
+  if (normalized.includes('parede') || normalized.includes('wall')) return build('wall')
+  if (normalized.includes('celula vazia') || normalized.includes('void')) return build('void')
+  if (normalized.includes('espinhos') || normalized.includes('spike')) return build('spike')
+  if (normalized.includes('inimigo') || normalized.includes('enemy')) return build('enemy')
+  if (normalized.includes('chave') || normalized.includes('key')) return build('key')
+  if (normalized.includes('porta') || normalized.includes('door')) return build('door')
+  if (normalized.includes('bau') || normalized.includes('chest')) return build('chest')
+
+  return {
+    title: t('error.generic.title'),
+    reason: message,
+    suggestion: t('error.generic.suggestion'),
     commandLabel,
   }
 }
@@ -280,6 +323,18 @@ function buildRequirementError(missingCommands: string[]): ExecutionErrorInfo {
   }
 }
 
+function buildLocalizedRequirementError(
+  missingCommands: string[],
+  t: (key: string, params?: Record<string, string | number>) => string
+): ExecutionErrorInfo {
+  const formatted = formatRequirementList(missingCommands)
+  return {
+    title: t('game.requirementTitle'),
+    reason: t('game.requirementReason', { items: formatted }),
+    suggestion: t('game.requirementSuggestion'),
+  }
+}
+
 function countExpressionCommands(expr?: Expression): number {
   if (!expr) return 0
 
@@ -379,31 +434,33 @@ function starterCode(levelId: number) {
 
 export default function GamePage() {
   const router = useRouter()
-  const selectedLevel = useMemo(() => {
+  const { locale, t } = useI18n()
+  const selectedBaseLevel = useMemo(() => {
     const rawLevel = Array.isArray(router.query.level) ? router.query.level[0] : router.query.level
     const parsedLevel = Number(rawLevel ?? 1)
     return getLevelById(Number.isFinite(parsedLevel) ? parsedLevel : 1)
   }, [router.query.level])
-  const hiddenCellKeys = useMemo(() => createHiddenCellKeys(selectedLevel), [selectedLevel])
-  const levelIsPlayable = selectedLevel.isPlayable !== false
+  const selectedLevel = useMemo(() => localizeLevel(selectedBaseLevel, locale), [locale, selectedBaseLevel])
+  const hiddenCellKeys = useMemo(() => createHiddenCellKeys(selectedBaseLevel), [selectedBaseLevel])
+  const levelIsPlayable = selectedBaseLevel.isPlayable !== false
 
   const getInitialCode = () => {
     if (typeof window !== 'undefined') {
-      const savedCode = localStorage.getItem(`code-dungeon-level-${selectedLevel.id}`)
+      const savedCode = localStorage.getItem(`code-dungeon-level-${selectedBaseLevel.id}`)
       if (savedCode) {
         return savedCode
       }
     }
-    return starterCode(selectedLevel.id)
+    return starterCode(selectedBaseLevel.id)
   }
 
   const [code, setCode] = useState(getInitialCode())
   const [logs, setLogs] = useState<string[]>([])
-  const [player, setPlayer] = useState(selectedLevel.playerStart)
+  const [player, setPlayer] = useState(selectedBaseLevel.playerStart)
   const [playerAnimationState, setPlayerAnimationState] = useState<PlayerAnimationState>('idle')
-  const [grid, setGrid] = useState(() => cloneGrid(selectedLevel.grid))
-  const [enemies, setEnemies] = useState(() => cloneEnemies(selectedLevel.enemies))
-  const [revealedCells, setRevealedCells] = useState(() => createInitialRevealedCells(selectedLevel))
+  const [grid, setGrid] = useState(() => cloneGrid(selectedBaseLevel.grid))
+  const [enemies, setEnemies] = useState(() => cloneEnemies(selectedBaseLevel.enemies))
+  const [revealedCells, setRevealedCells] = useState(() => createInitialRevealedCells(selectedBaseLevel))
   const [spikesActive, setSpikesActive] = useState(INITIAL_SPIKES_ACTIVE)
   const [commandCount, setCommandCount] = useState(0)
   const [running, setRunning] = useState(false)
@@ -430,130 +487,32 @@ export default function GamePage() {
   // Salvar código quando muda
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem(`code-dungeon-level-${selectedLevel.id}`, code)
+      localStorage.setItem(`code-dungeon-level-${selectedBaseLevel.id}`, code)
     }
-  }, [code, selectedLevel.id])
+  }, [code, selectedBaseLevel.id])
 
   // Resetar apenas o estado do jogo quando muda de nível
   useEffect(() => {
-    const savedCode = typeof window !== 'undefined' ? localStorage.getItem(`code-dungeon-level-${selectedLevel.id}`) : null
+    const savedCode = typeof window !== 'undefined' ? localStorage.getItem(`code-dungeon-level-${selectedBaseLevel.id}`) : null
     if (savedCode) {
       setCode(savedCode)
     } else {
-      setCode(starterCode(selectedLevel.id))
+      setCode(starterCode(selectedBaseLevel.id))
     }
     setLogs([])
-    setPlayer(selectedLevel.playerStart)
+    setPlayer(selectedBaseLevel.playerStart)
     setPlayerAnimationState('idle')
-    setGrid(cloneGrid(selectedLevel.grid))
-    setEnemies(cloneEnemies(selectedLevel.enemies))
-    setRevealedCells(createInitialRevealedCells(selectedLevel))
+    setGrid(cloneGrid(selectedBaseLevel.grid))
+    setEnemies(cloneEnemies(selectedBaseLevel.enemies))
+    setRevealedCells(createInitialRevealedCells(selectedBaseLevel))
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setRunning(false)
     setVictoryState({ open: false, stars: 0 })
     setErrorState({ open: false, title: '', reason: '', suggestion: '' })
-    // Construir texto introdutório para o nível atual
-    const buildIntro = (lvl: any) => {
-      const introByLevel: Record<number, string[]> = {
-        1: ['Novidade: seu codigo roda de cima para baixo.', 'Use moveForward() para avancar ate a saida.'],
-        2: ['Novidade: virar muda a direcao do personagem.', 'Combine turnRight() com moveForward() para fazer curvas.'],
-        3: ['Novidade: existem rotas que exigem virar para o outro lado.', 'Planeje a ordem dos movimentos antes de executar.'],
-        4: ['Novidade: a rota mistura varias curvas.', 'Pense em cada linha como uma instrucao pequena da solucao.'],
-        5: ['Novidade: espinhos bloqueiam o caminho seguro.', 'Nao pise em SPIKE: contorne o perigo usando curvas.', 'Dica: execute devagar e observe onde o caminho seguro passa.'],
-        6: ['Novidade: inimigos bloqueiam o caminho.', 'Use attack() antes de tentar andar para a casa do inimigo.'],
-        7: ['Novidade: portas precisam de chave.', 'Pegue a chave com grabKey() e abra a porta com openDoor().'],
-        8: ['Novidade: baus podem fazer parte do objetivo.', 'Fique de frente para o bau e use openChest().'],
-        9: ['Novidade: a fase pede mais planejamento espacial.', 'Divida a rota em pequenos trechos.'],
-        10: ['Novidade: chave, porta e inimigo aparecem juntos.', 'Resolva uma interacao por vez antes de seguir.'],
-        11: ['Novidade: if executa um bloco somente se a condicao for verdadeira.', 'Use look() para perguntar o que esta a frente antes de agir.', 'Exemplo:', 'if (look() == "ENEMY") {', '  attack();', '}'],
-        12: ['Novidade: else e o plano B do if.', 'Se a condicao do if for falsa, o codigo dentro do else sera executado.', 'Exemplo:', 'if (look() == "KEY") {', '  moveForward();', '} else {', '  turnRight();', '}'],
-        13: ['Novidade: decisoes e interacoes aparecem na mesma rota.', 'Use if com look() para evitar chutes.'],
-        14: ['Novidade: while repete comandos enquanto uma condicao for verdadeira.', 'Use uma variavel para contar os passos repetidos.', 'Exemplo:', 'let passos = 0;', 'while (passos < 3) {', '  moveForward();', '  passos++;', '}'],
-        15: ['Novidade: for repete um bloco por uma quantidade definida.', 'Use for quando voce ja sabe quantas vezes quer andar.', 'Exemplo:', 'for (let i = 0; i < 3; i++) {', '  moveForward();', '}'],
-        16: ['Novidade: funcoes agrupam comandos reutilizaveis.', 'Crie um comando novo para uma sequencia que voce vai repetir.', 'Exemplo:', 'function step() {', '  moveForward();', '}', 'step();'],
-        17: ['Novidade: funcoes ajudam em mapas maiores.', 'Reaproveite blocos para reduzir repeticao e erro.'],
-        18: ['Novidade: uma funcao pode combinar ataque e movimento.', 'Crie um bloco para limpar inimigos e avancar com seguranca.'],
-        19: ['Novidade: desafio final com funcoes, loops, if e look().', 'Use funcoes pequenas e leia o mapa antes de avancar em areas ocultas.'],
-        999: ['Novidade: o labirinto e procedural.', 'Explore com look(), condicionais e loops para adaptar sua rota.'],
-      }
-
-      return [
-        ...(introByLevel[lvl.id] ?? [lvl.description ?? 'Nova fase disponivel.', 'Observe o mapa e resolva um passo por vez.']),
-        'Para ver todos os comandos disponiveis nesta fase, abra Ajuda.',
-      ]
-
-      const lines: string[] = []
-      if (lvl.description) lines.push(lvl.description)
-      if (lvl.objective) lines.push(`Objetivo: ${lvl.objective}`)
-
-      const tiles = new Set<string>()
-      for (const row of lvl.grid) {
-        for (const t of row) {
-          if (t !== 'VOID' && t !== 'FLOOR' && t !== 'WALL') tiles.add(t)
-        }
-      }
-
-      if ((lvl.enemies ?? []).length > 0) tiles.add('ENEMY')
-
-      const mechanics: string[] = []
-      if (lvl.hideWalls) mechanics.push('Mapa oculto: paredes nao aparecem no tabuleiro; use `look()` para ler o que esta a frente.')
-      if (lvl.hiddenCells?.length) mechanics.push('Celulas ocultas: alguns tiles so aparecem depois que voce chega neles. Use `if` com `look()` para decidir antes de avancar.')
-      if (lvl.grid.some((row: TileType[]) => row.includes('VOID'))) mechanics.push('Vazio: celulas sem tile nao podem ser atravessadas; `look()` retorna "VOID".')
-      if (tiles.has('SPIKE')) mechanics.push('Espinhos: alternam entre ativos e recolhidos a cada 2 comandos; atravesse quando estiverem recolhidos.')
-      if (tiles.has('KEY') || tiles.has('DOOR')) mechanics.push('Chaves e portas: use `grabKey()` e `openDoor()` para desbloquear caminhos.')
-      if (tiles.has('CHEST')) mechanics.push('Baús: abra com `openChest()` para obter itens.')
-      if (tiles.has('ENEMY')) mechanics.push('Inimigos: use `attack()` para derrotá-los antes de avançar.')
-      if (lvl.availableCommands?.includes('look')) mechanics.push('Comando `look()`: permite ler o tile à frente e tomar decisões.')
-
-      if (mechanics.length) {
-        lines.push('Mecânicas nesta fase:')
-        for (const m of mechanics) lines.push(`- ${m}`)
-      }
-
-      // Descrições curtas para cada comando disponível
-      const cmdDescriptions: Record<string, string> = {
-        moveForward: 'Avança uma casa à frente (moveForward()).',
-        turnLeft: 'Gira 90° à esquerda (turnLeft()).',
-        turnRight: 'Gira 90° à direita (turnRight()).',
-        attack: 'Ataca o inimigo na célula à frente (attack()).',
-        grabKey: 'Coleta uma chave na célula atual (grabKey()).',
-        openDoor: 'Abre a porta à frente se você tiver chave (openDoor()).',
-        openChest: 'Abre o baú à frente (openChest()).',
-        look: 'Retorna o tipo do tile à frente (look()).',
-        print: 'Imprime valores no console para depuração (print(x)).',
-        while: 'Repete um bloco enquanto a condicao for verdadeira.',
-        for: 'Repete um bloco com contador de inicio, condicao e atualizacao.',
-        if: 'Executa um bloco quando a condicao for verdadeira.',
-        else: 'Define o caminho alternativo de um if.',
-        function: 'Agrupa comandos reutilizaveis.',
-        var: 'Declara uma variavel.',
-        let: 'Declara uma variavel de controle.',
-        const: 'Declara um valor constante.',
-        return: 'Retorna um valor de uma funcao.',
-      }
-
-      if (lvl.availableCommands && lvl.availableCommands.length) {
-        lines.push('Recursos disponiveis:')
-        for (const cmd of lvl.availableCommands) {
-          const desc = cmdDescriptions[cmd] ?? ''
-          lines.push(`- ${formatAvailableCommand(cmd)}: ${desc}`)
-        }
-      }
-
-      if (lvl.requiredCommands && lvl.requiredCommands.length) {
-        lines.push('Obrigatorio para concluir:')
-        for (const cmd of lvl.requiredCommands) {
-          lines.push(`- ${formatAvailableCommand(cmd)}`)
-        }
-      }
-
-      return lines
-    }
-
-    setIntroLines(buildIntro(selectedLevel))
+    setIntroLines(getIntroLines(selectedLevel, locale, t))
     setIntroOpen(true)
-  }, [selectedLevel])
+  }, [locale, selectedBaseLevel, selectedLevel, t])
 
   function addLog(line: string) {
     setLogs((s) => [...s, line])
@@ -563,9 +522,9 @@ export default function GamePage() {
     if (!levelIsPlayable) {
       setErrorState({
         open: true,
-        title: 'Fase em desenvolvimento',
-        reason: 'Este nível faz parte de um mundo futuro e ainda não está jogável.',
-        suggestion: 'Escolha uma fase marcada como Jogável na tela de mundos.',
+        title: t('game.devTitle'),
+        reason: t('game.devReason'),
+        suggestion: t('game.devSuggestion'),
       })
       return
     }
@@ -576,7 +535,7 @@ export default function GamePage() {
     setCommandCount(0)
     setPlayerAnimationState('idle')
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
-    setRevealedCells(createInitialRevealedCells(selectedLevel))
+    setRevealedCells(createInitialRevealedCells(selectedBaseLevel))
 
     // Detectar se o código é apenas uma lista de comandos simples do tipo `cmd();`.
     // Se não for, usar o parser/executor avançado (cobre expressões, print(args), comparações, etc.).
@@ -590,9 +549,9 @@ export default function GamePage() {
         // Usar novo parser e executor
         const program = parseAdvancedCode(code)
         const usedCommands = collectProgramFeatures(program)
-        const missingCommands = getMissingRequiredCommands(selectedLevel.requiredCommands, usedCommands)
+        const missingCommands = getMissingRequiredCommands(selectedBaseLevel.requiredCommands, usedCommands)
         if (missingCommands.length) {
-          const errorInfo = buildRequirementError(missingCommands)
+          const errorInfo = buildLocalizedRequirementError(missingCommands, t)
           setErrorState({ open: true, ...errorInfo })
           addLog(errorInfo.reason)
           setRunning(false)
@@ -604,10 +563,10 @@ export default function GamePage() {
 
         await executeAdvancedCommands(
           program,
-          selectedLevel,
+          selectedBaseLevel,
           ({ command, player: p, grid: nextGrid, enemies: nextEnemies, spikesActive: nextSpikesActive, message }) => {
             if (message) addLog(String(message))
-            addLog(`${command} executado`)
+            addLog(t('game.commandExecuted', { command }))
             setPlayer({ ...p })
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
@@ -618,7 +577,7 @@ export default function GamePage() {
             setCommandCount(commandsExecuted)
           },
           (err) => {
-            const errorInfo = parseErrorInfo(err)
+            const errorInfo = parseLocalizedErrorInfo(err, t)
             setErrorState({ open: true, ...errorInfo })
             addLog(errorInfo.reason)
             setPlayerAnimationState('idle')
@@ -630,19 +589,19 @@ export default function GamePage() {
             setRunning(false)
             if (won) {
               setCommandCount(sourceCommandCount)
-              const stars = calculateStars(sourceCommandCount, selectedLevel.id)
+              const stars = calculateStars(sourceCommandCount, selectedBaseLevel.id)
               setVictoryState({ open: true, stars })
-              addLog('Fase concluída com sucesso')
+              addLog(t('game.completedLog'))
               return
             }
-            addLog('Execução finalizada')
+            addLog(t('game.finishedLog'))
           }
         )
       } else {
         // Usar parser simples original
-        const parsed = parseCommands(code, selectedLevel.availableCommands)
+        const parsed = parseCommands(code, selectedBaseLevel.availableCommands)
         if ((parsed as any).error) {
-          const errorInfo = parseErrorInfo((parsed as any).error)
+          const errorInfo = parseLocalizedErrorInfo((parsed as any).error, t)
           setErrorState({ open: true, ...errorInfo })
           addLog(errorInfo.reason)
           setRunning(false)
@@ -650,9 +609,9 @@ export default function GamePage() {
         }
         const commands = (parsed as any).commands as string[]
         const usedCommands = new Set(commands)
-        const missingCommands = getMissingRequiredCommands(selectedLevel.requiredCommands, usedCommands)
+        const missingCommands = getMissingRequiredCommands(selectedBaseLevel.requiredCommands, usedCommands)
         if (missingCommands.length) {
-          const errorInfo = buildRequirementError(missingCommands)
+          const errorInfo = buildLocalizedRequirementError(missingCommands, t)
           setErrorState({ open: true, ...errorInfo })
           addLog(errorInfo.reason)
           setRunning(false)
@@ -661,10 +620,10 @@ export default function GamePage() {
 
         await executeCommands(
           commands,
-          selectedLevel,
+          selectedBaseLevel,
           ({ command, player: p, grid: nextGrid, enemies: nextEnemies, spikesActive: nextSpikesActive, message }) => {
             if (message) addLog(String(message))
-            addLog(`${command} executado`)
+            addLog(t('game.commandExecuted', { command }))
             setPlayer({ ...p })
             setPlayerAnimationState(command === 'moveForward' ? 'walk' : 'idle')
             setGrid(nextGrid)
@@ -674,7 +633,7 @@ export default function GamePage() {
             setCommandCount((current) => current + 1)
           },
           (err) => {
-            const errorInfo = parseErrorInfo(err)
+            const errorInfo = parseLocalizedErrorInfo(err, t)
             setErrorState({ open: true, ...errorInfo })
             addLog(errorInfo.reason)
             setPlayerAnimationState('idle')
@@ -685,18 +644,18 @@ export default function GamePage() {
             setPlayerAnimationState('idle')
             setRunning(false)
             if (won) {
-              const stars = calculateStars(commands.length, selectedLevel.id)
+              const stars = calculateStars(commands.length, selectedBaseLevel.id)
               setVictoryState({ open: true, stars })
-              addLog('Fase concluída com sucesso')
+              addLog(t('game.completedLog'))
               return
             }
 
-            addLog('Execução finalizada')
+            addLog(t('game.finishedLog'))
           }
         )
       }
     } catch (error) {
-      const errorInfo = parseErrorInfo(error instanceof Error ? error.message : String(error))
+      const errorInfo = parseLocalizedErrorInfo(error instanceof Error ? error.message : String(error), t)
       setErrorState({ open: true, ...errorInfo })
       addLog(errorInfo.reason)
       setPlayerAnimationState('idle')
@@ -705,11 +664,11 @@ export default function GamePage() {
   }
 
   function onReset() {
-    setPlayer(selectedLevel.playerStart)
+    setPlayer(selectedBaseLevel.playerStart)
     setPlayerAnimationState('idle')
-    setGrid(cloneGrid(selectedLevel.grid))
-    setEnemies(cloneEnemies(selectedLevel.enemies))
-    setRevealedCells(createInitialRevealedCells(selectedLevel))
+    setGrid(cloneGrid(selectedBaseLevel.grid))
+    setEnemies(cloneEnemies(selectedBaseLevel.enemies))
+    setRevealedCells(createInitialRevealedCells(selectedBaseLevel))
     setSpikesActive(INITIAL_SPIKES_ACTIVE)
     setCommandCount(0)
     setLogs([])
@@ -722,7 +681,7 @@ export default function GamePage() {
     onReset()
   }
 
-  const nextLevel = levels.find((level) => level.id === selectedLevel.id + 1)
+  const nextLevel = levels.find((level) => level.id === selectedBaseLevel.id + 1)
 
   return (
     <div className="pixel-app flex min-h-screen flex-col overflow-hidden">
@@ -747,7 +706,7 @@ export default function GamePage() {
       <DocumentationModal
         isOpen={docOpen}
         onClose={() => setDocOpen(false)}
-        availableCommands={selectedLevel.availableCommands}
+        availableCommands={selectedBaseLevel.availableCommands}
       />
 
       {introOpen && (
@@ -755,7 +714,7 @@ export default function GamePage() {
           <PixelPanel
             variant="modal"
             className="relative w-full max-w-2xl"
-            eyebrow="Novidades da fase"
+            eyebrow={t('game.introEyebrow')}
             title={selectedLevel.name}
             headerAction={
               <PixelButton
@@ -764,16 +723,16 @@ export default function GamePage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setIntroOpen(false)}
-                aria-label="Fechar modal"
+                aria-label={t('common.close')}
               >
-                Fechar
+                {t('common.close')}
               </PixelButton>
             }
           >
             <div className="space-y-2 text-xs leading-6 text-secondaryText max-h-80 overflow-y-auto">
               {introLines.map((line, i) => {
                 const isCodeLine = line.includes(';') || line.endsWith('{') || line === '}' || line.startsWith('  ')
-                const isExampleLabel = line === 'Exemplo:'
+                const isExampleLabel = line === t('game.example')
 
                 return (
                   <p
@@ -796,7 +755,7 @@ export default function GamePage() {
 
             <div className="mt-5 flex justify-end">
               <PixelButton type="button" icon="play" variant="primary" onClick={() => setIntroOpen(false)}>
-                Entendi
+                {t('common.understood')}
               </PixelButton>
             </div>
           </PixelPanel>
@@ -805,8 +764,7 @@ export default function GamePage() {
 
       {!levelIsPlayable ? (
         <div className="border-b-2 border-border bg-black px-4 py-3 text-xs leading-6 text-secondaryText">
-          Esta fase e um preview do proximo mundo. Ela ja aparece na lista para organizar a progressao,
-          mas ainda esta bloqueada enquanto os recursos de loops, if e funcoes sao ampliados.
+          {t('game.previewBanner')}
         </div>
       ) : null}
 
@@ -819,24 +777,24 @@ export default function GamePage() {
                   <PixelIcon sprite={UI_SPRITES.icons.target} scale={1} />
                 </div>
                 <div className="min-w-0">
-                  <p className="pixel-eyebrow">Objetivo da fase</p>
+                  <p className="pixel-eyebrow">{t('game.phaseGoal')}</p>
                   <p className="text-xs leading-6 text-secondaryText">{selectedLevel.objective}</p>
                 </div>
               </div>
 
               <div className="min-w-0">
-                <p className="pixel-eyebrow">Recursos disponiveis</p>
+                <p className="pixel-eyebrow">{t('game.availableFeatures')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {selectedLevel.availableCommands.map((cmd: string) => (
+                  {selectedBaseLevel.availableCommands.map((cmd: string) => (
                     <span key={cmd} className="pixel-command-chip">
                       {formatAvailableCommand(cmd)}
                     </span>
                   ))}
                 </div>
-                {selectedLevel.requiredCommands?.length ? (
+                {selectedBaseLevel.requiredCommands?.length ? (
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="pixel-eyebrow">Obrigatorio</span>
-                    {selectedLevel.requiredCommands.map((cmd: string) => (
+                    <span className="pixel-eyebrow">{t('game.required')}</span>
+                    {selectedBaseLevel.requiredCommands.map((cmd: string) => (
                       <span key={cmd} className="border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
                         {formatAvailableCommand(cmd)}
                       </span>
@@ -848,10 +806,10 @@ export default function GamePage() {
           </PixelPanel>
 
           <div className="grid min-h-0 grid-rows-[minmax(0,0.72fr)_minmax(0,1.28fr)] gap-2 sm:gap-3 lg:grid-cols-[minmax(280px,0.82fr)_minmax(360px,1.18fr)] lg:grid-rows-none">
-            <PixelPanel variant="default" title="Dungeon" eyebrow="Mapa da fase" className="min-h-0 overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
+            <PixelPanel variant="default" title={t('game.dungeon')} eyebrow={t('game.mapEyebrow')} className="min-h-0 overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
               <PixelFrame className="min-h-0 compact">
                 <DungeonGrid
-                  level={selectedLevel}
+                  level={selectedBaseLevel}
                   grid={grid}
                   playerX={player.x}
                   playerY={player.y}
@@ -859,7 +817,7 @@ export default function GamePage() {
                   playerAnimationState={playerAnimationState}
                   enemies={enemies}
                   isRunning={running}
-                  hideWalls={selectedLevel.hideWalls ?? false}
+                  hideWalls={selectedBaseLevel.hideWalls ?? false}
                   hiddenCellKeys={hiddenCellKeys}
                   revealedCells={revealedCells}
                   spikesActive={spikesActive}
@@ -869,14 +827,14 @@ export default function GamePage() {
 
             <PixelPanel
               variant="editor"
-              title="Editor"
-              eyebrow="Area de codigo"
+              title={t('game.editor')}
+              eyebrow={t('game.codeArea')}
               className="flex h-full min-h-0 max-h-full flex-col overflow-hidden"
               bodyClassName="flex min-h-0 max-h-full flex-1 overflow-hidden p-2 sm:p-3"
               headerAction={
                 <div className="pixel-type flex items-center gap-2 text-[10px] text-secondaryText">
                   <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
-                  Salvo
+                  {t('common.saved')}
                 </div>
               }
             >
@@ -887,20 +845,21 @@ export default function GamePage() {
           <div className="grid min-h-0 gap-2 sm:gap-3 xl:grid-cols-[auto_minmax(0,1fr)]">
             <div className="flex min-h-0 flex-wrap content-start gap-2">
               <PixelButton type="button" icon="play" variant="primary" onClick={onRun} disabled={running}>
-                {running ? 'Executando' : 'Executar'}
+                {running ? t('common.running') : t('common.run')}
               </PixelButton>
               <PixelButton type="button" icon="reset" variant="danger" onClick={onReset}>
-                Resetar
+                {t('common.reset')}
               </PixelButton>
               <PixelButton type="button" icon="help" onClick={() => setDocOpen(true)}>
-                Ajuda
+                {t('common.help')}
               </PixelButton>
               <PixelButton href="/levels" icon="list">
-                Fases
+                {t('common.levels')}
               </PixelButton>
+              <LanguageSelect />
             </div>
 
-            <PixelPanel variant="console" title="Console" className="min-h-0 overflow-hidden" bodyClassName="max-h-24 min-h-0 overflow-y-auto p-2 sm:p-3">
+            <PixelPanel variant="console" title={t('game.console')} className="min-h-0 overflow-hidden" bodyClassName="max-h-24 min-h-0 overflow-y-auto p-2 sm:p-3">
               <div className="font-mono text-[10px] leading-5 text-secondaryText">
                 {logs.length ? (
                   logs.map((line, index) => (
@@ -909,7 +868,7 @@ export default function GamePage() {
                     </div>
                   ))
                 ) : (
-                  <div><span className="text-primaryText">&gt;</span> aguardando execucao</div>
+                  <div><span className="text-primaryText">&gt;</span> {t('game.waiting')}</div>
                 )}
               </div>
             </PixelPanel>

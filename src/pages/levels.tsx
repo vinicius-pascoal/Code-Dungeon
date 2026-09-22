@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import PixelButton from '../components/ui/PixelButton'
 import PixelIcon from '../components/ui/PixelIcon'
+import LanguageSelect from '../components/ui/LanguageSelect'
 import PixelPanel from '../components/ui/PixelPanel'
 import SpriteTile from '../components/game/SpriteTile'
 import SpikeSprite from '../components/game/SpikeSprite'
@@ -10,6 +11,7 @@ import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../game/tiles/detailResolver'
 import { resolveTileSprite } from '../game/tiles/tileResolver'
 import { UI_SPRITES } from '../game/ui/uiSprites'
+import { localizeLevel, localizeWorld, useI18n } from '../i18n'
 import type { Level } from '../types/game'
 
 function getFinalLevelForWorld(world: { levelIds: number[] }) {
@@ -132,15 +134,21 @@ function WorldPath() {
 
 export default function Levels() {
   const [activeWorldId, setActiveWorldId] = useState<number | null>(null)
+  const { locale, t } = useI18n()
 
   const selectedWorld = useMemo(
     () => worlds.find((world) => world.id === activeWorldId) ?? null,
     [activeWorldId]
   )
 
+  const selectedLocalizedWorld = useMemo(
+    () => selectedWorld ? localizeWorld(selectedWorld, locale) : null,
+    [locale, selectedWorld]
+  )
+
   const selectedLevels = useMemo(
-    () => (selectedWorld?.levelIds ?? []).map((levelId) => getLevelById(levelId)),
-    [selectedWorld]
+    () => (selectedWorld?.levelIds ?? []).map((levelId) => localizeLevel(getLevelById(levelId), locale)),
+    [locale, selectedWorld]
   )
 
   useEffect(() => {
@@ -171,7 +179,7 @@ export default function Levels() {
   }
 
   const activeWorldPlayableCount = selectedLevels.filter((level) => level.isPlayable !== false).length
-  const selectedWorldFinalLevel = selectedWorld ? getFinalLevelForWorld(selectedWorld) : null
+  const selectedWorldFinalLevel = selectedWorld ? localizeLevel(getFinalLevelForWorld(selectedWorld), locale) : null
 
   return (
     <div className="pixel-app min-h-screen overflow-auto">
@@ -183,19 +191,22 @@ export default function Levels() {
                 <PixelIcon sprite={UI_SPRITES.icons.list} scale={1} />
               </div>
               <div className="min-w-0">
-                <p className="pixel-eyebrow">Selecao de mundo</p>
+                <p className="pixel-eyebrow">{t('levels.eyebrow')}</p>
                 <h1 className="pixel-type text-2xl font-black leading-tight text-primaryText sm:text-4xl">
-                  Fases
+                  {t('levels.title')}
                 </h1>
                 <p className="mt-2 max-w-3xl text-sm leading-6 text-secondaryText">
-                  Escolha um mundo no mapa para abrir as fases disponiveis e continuar sua jornada.
+                  {t('levels.subtitle')}
                 </p>
               </div>
             </div>
 
-            <PixelButton href="/" icon="left">
-              Voltar
-            </PixelButton>
+            <div className="flex flex-wrap items-center gap-3">
+              <LanguageSelect />
+              <PixelButton href="/" icon="left">
+                {t('common.back')}
+              </PixelButton>
+            </div>
           </div>
         </PixelPanel>
 
@@ -210,11 +221,12 @@ export default function Levels() {
           <div className="relative mx-auto grid w-full max-w-6xl gap-6 sm:grid-cols-2 xl:grid-cols-3 xl:gap-x-16 xl:gap-y-12">
             <WorldPath />
             {worlds.map((world) => {
-              const worldLevels = world.levelIds.map((levelId) => getLevelById(levelId))
+              const localizedWorld = localizeWorld(world, locale)
+              const worldLevels = world.levelIds.map((levelId) => localizeLevel(getLevelById(levelId), locale))
               const isAvailable = worldAvailability[world.id] !== false
               const isFinalChallenge = world.id === 99
               const playableCount = worldLevels.filter((level) => level.isPlayable !== false).length
-              const finalLevel = getFinalLevelForWorld(world)
+              const finalLevel = localizeLevel(getFinalLevelForWorld(world), locale)
               const worldOrder = worlds.findIndex((item) => item.id === world.id) + 1
               const orderClass = worldCardOrderClasses[world.id] ?? ''
 
@@ -226,17 +238,17 @@ export default function Levels() {
                   className={`group relative z-10 mx-auto flex min-h-[250px] w-full max-w-[260px] flex-col border-2 border-primaryText bg-black text-left shadow-[inset_0_0_0_2px_#090a14] transition duration-100 hover:bg-wall focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-wood ${orderClass} ${isAvailable
                     ? ''
                     : 'cursor-not-allowed grayscale opacity-50'
-                    }`}
+                  }`}
                   aria-disabled={!isAvailable}
-                  aria-label={world.name}
+                  aria-label={localizedWorld.name}
                 >
                   <div className="relative aspect-[4/3] overflow-hidden border-b-2 border-border bg-black">
-                    <MiniLevelMap level={finalLevel} label={`Mapa da fase final de ${world.name}`} />
+                    <MiniLevelMap level={finalLevel} label={t('levels.finalMap', { name: localizedWorld.name })} />
                     <div className="absolute left-1.5 top-1.5 border border-primaryText bg-black px-1.5 py-1 font-mono text-[9px] font-black uppercase text-primaryText">
-                      {isFinalChallenge ? 'Labirinto' : `Final ${finalLevel.id}`}
+                      {isFinalChallenge ? t('common.maze') : `${t('common.final')} ${finalLevel.id}`}
                     </div>
                     <div className="absolute right-1.5 top-1.5 border border-primaryText bg-black px-1.5 py-1 font-mono text-[9px] font-black uppercase text-primaryText">
-                      {isFinalChallenge ? 'Extra' : `${playableCount}/${worldLevels.length}`}
+                      {isFinalChallenge ? t('common.extra') : `${playableCount}/${worldLevels.length}`}
                     </div>
                   </div>
 
@@ -244,15 +256,15 @@ export default function Levels() {
                     <div className="flex items-start gap-2">
                       <PixelIcon sprite={isFinalChallenge ? UI_SPRITES.icons.target : UI_SPRITES.icons.play} scale={1} />
                       <div className="min-w-0">
-                        <p className="pixel-eyebrow">Mundo {String(worldOrder).padStart(2, '0')}</p>
+                        <p className="pixel-eyebrow">{t('common.world')} {String(worldOrder).padStart(2, '0')}</p>
                         <h2 className="pixel-type text-xs font-black leading-5 text-primaryText">
-                          {world.name}
+                          {localizedWorld.name}
                         </h2>
                         <p className="mt-1 text-[10px] leading-4 text-secondaryText">
-                          {world.theme}
+                          {localizedWorld.theme}
                         </p>
                         <p className="mt-2 text-[10px] leading-4 text-secondaryText">
-                          {world.description}
+                          {localizedWorld.description}
                         </p>
                       </div>
                     </div>
@@ -269,8 +281,8 @@ export default function Levels() {
           <PixelPanel
             variant="modal"
             className="max-h-[92vh] w-full max-w-5xl overflow-hidden"
-            eyebrow="Selecionar fase"
-            title={selectedWorld.name}
+            eyebrow={t('levels.selectPhase')}
+            title={selectedLocalizedWorld?.name ?? selectedWorld.name}
             icon="list"
             headerAction={
               <PixelButton
@@ -279,9 +291,9 @@ export default function Levels() {
                 size="sm"
                 variant="ghost"
                 onClick={() => setActiveWorldId(null)}
-                aria-label="Fechar modal"
+                aria-label={t('common.close')}
               >
-                Fechar
+                {t('common.close')}
               </PixelButton>
             }
             bodyClassName="max-h-[calc(92vh-5rem)] overflow-y-auto p-4 sm:p-5"
@@ -293,7 +305,7 @@ export default function Levels() {
                     {selectedWorldFinalLevel ? (
                       <MiniLevelMap
                         level={selectedWorldFinalLevel}
-                        label={`Mapa da fase final de ${selectedWorld.name}`}
+                        label={t('levels.finalMap', { name: selectedLocalizedWorld?.name ?? selectedWorld.name })}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center">
@@ -302,25 +314,25 @@ export default function Levels() {
                     )}
                     {selectedWorldFinalLevel ? (
                       <div className="absolute left-2 top-2 border border-primaryText bg-black px-2 py-1 font-mono text-[10px] font-black uppercase text-primaryText">
-                        Final {selectedWorldFinalLevel.id}
+                        {t('common.final')} {selectedWorldFinalLevel.id}
                       </div>
                     ) : null}
                   </div>
 
                   <div className="p-3">
-                    <p className="text-sm leading-6 text-secondaryText">{selectedWorld.description}</p>
+                    <p className="text-sm leading-6 text-secondaryText">{selectedLocalizedWorld?.description ?? selectedWorld.description}</p>
 
                     <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                       <div className="border-2 border-border bg-bg p-2">
-                        <div className="pixel-eyebrow">Tema</div>
-                        <div className="truncate font-mono text-xs font-black text-primaryText">{selectedWorld.theme}</div>
+                        <div className="pixel-eyebrow">{t('common.theme')}</div>
+                        <div className="truncate font-mono text-xs font-black text-primaryText">{selectedLocalizedWorld?.theme ?? selectedWorld.theme}</div>
                       </div>
                       <div className="border-2 border-border bg-bg p-2">
-                        <div className="pixel-eyebrow">Fases</div>
+                        <div className="pixel-eyebrow">{t('common.levels')}</div>
                         <div className="font-mono text-lg font-black text-primaryText">{selectedLevels.length}</div>
                       </div>
                       <div className="border-2 border-border bg-bg p-2">
-                        <div className="pixel-eyebrow">Abertas</div>
+                        <div className="pixel-eyebrow">{t('common.open')}</div>
                         <div className="font-mono text-lg font-black text-primaryText">{activeWorldPlayableCount}</div>
                       </div>
                     </div>
@@ -337,16 +349,16 @@ export default function Levels() {
                       <article key={level.id} className="border-2 border-border bg-black p-3">
                         <div className="grid gap-4 md:grid-cols-[132px_minmax(0,1fr)_auto] md:items-start">
                           <div className="relative aspect-[4/3] overflow-hidden border-2 border-border bg-black">
-                            <MiniLevelMap level={level} label={`Mapa da ${level.name}`} />
+                            <MiniLevelMap level={level} label={t('levels.mapOf', { name: level.name })} />
                           </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="pixel-command-chip">
-                                Fase {String(index + 1).padStart(2, '0')}
+                                {t('common.level')} {String(index + 1).padStart(2, '0')}
                               </span>
                               <span className={`border px-2 py-1 font-mono text-[10px] font-black uppercase ${isPlayable ? 'border-primaryText text-primaryText' : 'border-border text-secondaryText'}`}>
-                                {isPlayable ? 'Jogavel' : 'Em breve'}
+                                {isPlayable ? t('common.playable') : t('common.soon')}
                               </span>
                             </div>
 
@@ -356,7 +368,7 @@ export default function Levels() {
                             <p className="mt-2 text-sm leading-6 text-secondaryText">{level.description}</p>
 
                             <div className="mt-3 border-l-2 border-border pl-3 text-sm leading-6 text-secondaryText">
-                              <span className="font-mono font-black text-primaryText">Objetivo: </span>
+                              <span className="font-mono font-black text-primaryText">{t('common.objective')}: </span>
                               {level.objective}
                             </div>
 
@@ -372,12 +384,12 @@ export default function Levels() {
                           <div className="shrink-0 md:justify-self-end">
                             {isPlayable ? (
                               <PixelButton href={`/game?level=${level.id}`} icon="play" variant="primary">
-                                Jogar
+                                {t('common.play')}
                               </PixelButton>
                             ) : (
                               <span className="pixel-button pixel-button--secondary pixel-button--md" aria-disabled="true">
                                 <PixelIcon sprite={UI_SPRITES.icons.reset} scale={1} />
-                                <span>Bloqueado</span>
+                                <span>{t('common.locked')}</span>
                               </span>
                             )}
                           </div>

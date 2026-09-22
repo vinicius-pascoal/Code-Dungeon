@@ -2,6 +2,7 @@ import { useState } from 'react'
 import PixelButton from '../components/ui/PixelButton'
 import PixelFrame from '../components/ui/PixelFrame'
 import PixelIcon from '../components/ui/PixelIcon'
+import LanguageSelect from '../components/ui/LanguageSelect'
 import PixelPanel from '../components/ui/PixelPanel'
 import SpriteTile from '../components/game/SpriteTile'
 import SpikeSprite from '../components/game/SpikeSprite'
@@ -9,6 +10,7 @@ import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../game/tiles/detailResolver'
 import { resolveTileSprite } from '../game/tiles/tileResolver'
 import { UI_SPRITES } from '../game/ui/uiSprites'
+import { useI18n } from '../i18n'
 import type { TileType } from '../types/game'
 
 const previewTiles: TileType[][] = [
@@ -22,7 +24,7 @@ const previewTiles: TileType[][] = [
 
 const HOME_PLAYER_SPRITE_SCALE = 2
 
-function renderTileOverlay(tile: TileType, tileSize: number) {
+function renderTileOverlay(tile: TileType, tileSize: number, labels: Record<string, string>) {
   if (tile === 'SPIKE') {
     return (
       <SpikeSprite
@@ -30,7 +32,7 @@ function renderTileOverlay(tile: TileType, tileSize: number) {
         size={tileSize}
         fill
         className="absolute inset-0 z-10 pointer-events-none"
-        ariaLabel="Espinhos ativos"
+        ariaLabel={labels.SPIKE}
       />
     )
   }
@@ -40,12 +42,12 @@ function renderTileOverlay(tile: TileType, tileSize: number) {
 
   const ariaLabel =
     tile === 'EXIT'
-      ? 'Saida'
+      ? labels.EXIT
       : tile === 'KEY'
-          ? 'Chave'
+          ? labels.KEY
           : tile === 'OPEN_CHEST'
-            ? 'Bau aberto'
-            : 'Bau fechado'
+            ? labels.OPEN_CHEST
+            : labels.CHEST
 
   return (
     <SpriteTile
@@ -117,6 +119,47 @@ function HomeCodeBlock({ lines }: { lines: string[] }) {
 
 export default function Home() {
   const [showHow, setShowHow] = useState(false)
+  const { t } = useI18n()
+
+  const tileLabels = {
+    SPIKE: t('error.spike.title'),
+    EXIT: t('common.objective'),
+    KEY: 'KEY',
+    OPEN_CHEST: 'OPEN_CHEST',
+    CHEST: 'CHEST',
+  }
+
+  const localizedStats = [
+    { value: '19', label: t('home.stat.guided') },
+    { value: '5', label: t('home.stat.worlds') },
+    { value: '999', label: t('home.stat.extra') },
+  ]
+
+  const localizedSteps = [
+    { title: t('home.step.write.title'), text: t('home.step.write.text') },
+    { title: t('home.step.run.title'), text: t('home.step.run.text') },
+    { title: t('home.step.win.title'), text: t('home.step.win.text') },
+  ]
+
+  const localizedHowToPlaySteps = [
+    t('home.step.write.text'),
+    t('home.guide.exampleText'),
+    t('home.step.run.text'),
+    t('home.guide.tip'),
+  ]
+
+  const localizedBasicCommands = [
+    { command: 'moveForward();', title: t('home.command.walk.title'), text: t('home.command.walk.text') },
+    { command: 'turnRight();', title: t('home.command.turn.title'), text: t('home.command.turn.text') },
+    { command: 'grabKey();', title: t('home.command.interact.title'), text: t('home.command.interact.text') },
+    { command: 'openDoor();', title: t('home.command.open.title'), text: t('home.command.open.text') },
+  ]
+
+  const localizedLearningMoments = [
+    { title: t('home.learn.sequence.title'), text: t('home.learn.sequence.text') },
+    { title: t('home.learn.condition.title'), text: t('home.learn.condition.text') },
+    { title: t('home.learn.loop.title'), text: t('home.learn.loop.text') },
+  ]
 
   return (
     <div className="pixel-app min-h-screen overflow-auto">
@@ -126,30 +169,33 @@ export default function Home() {
             <div className="mb-5 flex justify-center sm:justify-start">
               <PixelIcon sprite={UI_SPRITES.decor.swordShield} scale={2} />
             </div>
+            <div className="mb-5 flex justify-center sm:justify-start">
+              <LanguageSelect />
+            </div>
 
             <div className="pixel-type max-w-3xl text-center sm:text-left">
               <h1 className="text-2xl font-black leading-relaxed text-primaryText sm:text-4xl">
                 Code Dungeon
               </h1>
               <p className="mt-5 text-xs leading-7 text-secondaryText sm:text-sm">
-                Aprenda programacao resolvendo dungeons. Escreva comandos, execute a rota e encontre o portal.
+                {t('home.subtitle')}
               </p>
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <PixelButton href="/game" icon="play" size="lg" variant="primary">
-                Comecar
+                {t('home.start')}
               </PixelButton>
               <PixelButton href="/levels" icon="list" size="lg">
-                Ver fases
+                {t('home.viewLevels')}
               </PixelButton>
               <PixelButton type="button" icon="help" size="lg" onClick={() => setShowHow(true)}>
-                Como jogar
+                {t('home.howToPlay')}
               </PixelButton>
             </div>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
-              {stats.map((item) => (
+              {localizedStats.map((item) => (
                 <div key={item.label} className="border-2 border-border bg-black p-4">
                   <div className="font-mono text-lg font-black text-primaryText">{item.value}</div>
                   <div className="mt-2 text-[10px] leading-5 text-secondaryText">{item.label}</div>
@@ -159,7 +205,7 @@ export default function Home() {
           </PixelPanel>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            {steps.map((step) => (
+            {localizedSteps.map((step) => (
               <PixelPanel key={step.title} variant="hud" bodyClassName="p-4">
                 <h2 className="pixel-type text-[11px] font-black leading-5 text-primaryText">{step.title}</h2>
                 <p className="mt-2 text-[10px] leading-5 text-secondaryText">{step.text}</p>
@@ -171,11 +217,11 @@ export default function Home() {
         <aside className="min-w-0">
           <PixelPanel
             variant="default"
-            title="Fase 01"
-            eyebrow="Mover, virar, executar"
+            title={t('home.preview.title')}
+            eyebrow={t('home.preview.eyebrow')}
             headerAction={
               <PixelButton href="/game?level=999" icon="play" size="sm" variant="ghost">
-                Extra
+                {t('common.extra')}
               </PixelButton>
             }
             bodyClassName="p-3"
@@ -207,11 +253,11 @@ export default function Home() {
                         }}
                       >
                         {sprite ? <SpriteTile sprite={sprite} size={48} fill className="absolute inset-0" /> : null}
-                        {renderTileOverlay(tile, 48)}
+                        {renderTileOverlay(tile, 48, tileLabels)}
                         {isPlayer ? (
                           <img
                             src="/assets/personagem/Idle/Ghost_idle_side_1.png"
-                            alt="Personagem"
+                            alt="Player"
                             className="absolute left-1/2 top-1/2 z-20 object-contain dungeon-entity-sprite"
                             style={{
                               width: `${HOME_PLAYER_SPRITE_SCALE * 100}%`,
@@ -245,21 +291,21 @@ export default function Home() {
           <PixelPanel
             variant="modal"
             className="max-h-[92vh] w-full max-w-5xl overflow-hidden"
-            eyebrow="Guia rapido"
-            title="Como jogar"
+            eyebrow={t('home.guide.eyebrow')}
+            title={t('home.guide.title')}
             icon="help"
             headerAction={
-              <PixelButton type="button" icon="reset" size="sm" variant="ghost" onClick={() => setShowHow(false)} aria-label="Fechar ajuda">
-                Fechar
+              <PixelButton type="button" icon="reset" size="sm" variant="ghost" onClick={() => setShowHow(false)} aria-label={t('common.close')}>
+                {t('common.close')}
               </PixelButton>
             }
             bodyClassName="max-h-[calc(92vh-5rem)] overflow-auto p-3 sm:p-4"
           >
             <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
               <section className="border-2 border-border bg-black p-3">
-                <h3 className="pixel-type text-sm font-black text-primaryText">Primeira ideia</h3>
+                <h3 className="pixel-type text-sm font-black text-primaryText">{t('home.guide.firstIdea')}</h3>
                 <div className="mt-3 grid gap-2">
-                  {howToPlaySteps.map((step, index) => (
+                  {localizedHowToPlaySteps.map((step, index) => (
                     <div key={step} className="flex gap-3 border border-border/70 bg-bg p-2 text-sm leading-6 text-secondaryText">
                       <span className="pixel-type text-primaryText">{index + 1}</span>
                       <span>{step}</span>
@@ -269,18 +315,18 @@ export default function Home() {
               </section>
 
               <section className="border-2 border-border bg-black p-3">
-                <h3 className="pixel-type text-sm font-black text-primaryText">Exemplo pequeno</h3>
+                <h3 className="pixel-type text-sm font-black text-primaryText">{t('home.guide.smallExample')}</h3>
                 <p className="mt-2 text-sm leading-6 text-secondaryText">
-                  Cada linha e uma instrucao. O personagem executa na mesma ordem em que voce escreveu.
+                  {t('home.guide.exampleText')}
                 </p>
                 <HomeCodeBlock lines={['moveForward();', 'turnRight();', 'moveForward();']} />
               </section>
             </div>
 
             <section className="mt-4">
-              <h3 className="pixel-type text-sm font-black text-primaryText">Comandos iniciais</h3>
+              <h3 className="pixel-type text-sm font-black text-primaryText">{t('home.guide.initialCommands')}</h3>
               <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                {basicCommands.map((item) => (
+                {localizedBasicCommands.map((item) => (
                   <article key={item.command} className="border-2 border-border bg-black p-3">
                     <span className="pixel-command-chip font-mono">{item.command}</span>
                     <h4 className="pixel-type mt-3 text-xs font-black text-primaryText">{item.title}</h4>
@@ -291,9 +337,9 @@ export default function Home() {
             </section>
 
             <section className="mt-4">
-              <h3 className="pixel-type text-sm font-black text-primaryText">O que voce aprende</h3>
+              <h3 className="pixel-type text-sm font-black text-primaryText">{t('home.guide.learning')}</h3>
               <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                {learningMoments.map((item) => (
+                {localizedLearningMoments.map((item) => (
                   <div key={item.title} className="border-2 border-border bg-black p-3">
                     <p className="pixel-type text-xs text-primaryText">{item.title}</p>
                     <p className="mt-2 text-sm leading-6 text-secondaryText">{item.text}</p>
@@ -303,8 +349,7 @@ export default function Home() {
             </section>
 
             <div className="mt-4 border-2 border-border bg-black p-3 text-sm leading-6 text-secondaryText">
-              Se bater em parede, pisar em espinhos ou usar um comando fora de hora, o jogo mostra o problema.
-              Corrija uma parte por vez e execute novamente.
+              {t('home.guide.tip')}
             </div>
           </PixelPanel>
         </div>
