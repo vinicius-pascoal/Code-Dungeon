@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
 import DungeonGrid from './DungeonGrid'
 import VictoryModal from './VictoryModal'
@@ -386,44 +386,48 @@ function countAdvancedCommands(program: Program) {
   return program.body.reduce((sum, stmt) => sum + countStatementCommands(stmt), 0)
 }
 
+const STARTER_CODE_VERSION = 'concept-demo-v2'
+
 function starterCode(levelId: number) {
   switch (levelId) {
     case 1:
-      return 'moveForward();\nmoveForward();'
+      return 'moveForward();'
     case 2:
-      return 'moveForward();\nmoveForward();\nturnRight();\nmoveForward();\nmoveForward();'
+      return 'moveForward();\nturnRight();'
     case 3:
-      return 'moveForward();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();'
+      return 'moveForward();\nturnLeft();'
+    case 4:
+      return '// Planeje cada trecho da rota antes de avancar.\nmoveForward();\n// Adicione a proxima decisao aqui.'
     case 5:
-      return 'moveForward();\nturnRight();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();'
+      return '// Observe o caminho e avance apenas quando for seguro.\nmoveForward();'
     case 6:
-      return 'attack();\nmoveForward();\nmoveForward();\nmoveForward();'
+      return 'attack();\n// Depois de atacar, continue sua rota.'
     case 7:
-      return 'grabKey();\nopenDoor();\nmoveForward();\nmoveForward();'
+      return 'grabKey();\n// A porta so pode ser aberta depois de coletar a chave.'
     case 8:
-      return 'openChest();\nmoveForward();\nmoveForward();\nmoveForward();'
+      return 'openChest();\n// Interagir com objetos tambem faz parte da rota.'
     case 9:
-      return 'moveForward();\nmoveForward();\nturnRight();\nmoveForward();\nturnLeft();\nmoveForward();\nmoveForward();'
+      return '// Divida o caminho longo em pequenos trechos.\nmoveForward();\nturnRight();'
     case 10:
-      return 'grabKey();\nturnRight();\nmoveForward();\nmoveForward();\nattack();\nturnLeft();\nopenDoor();\nmoveForward();'
+      return '// Combine as interacoes na ordem certa.\ngrabKey();\nattack();'
     case 11:
-      return 'if (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nmoveForward();\ngrabKey();\nopenChest();\nturnLeft();\nmoveForward();\nopenDoor();'
+      return 'if (look() == "ENEMY") {\n  attack();\n}\n// Complete a rota depois da decisao.'
     case 12:
-      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();\nmoveForward();\nturnLeft();\nmoveForward();'
+      return 'if (look() == "KEY") {\n  grabKey();\n} else {\n  turnRight();\n}\n// Reaja ao proximo bloco do caminho.'
     case 13:
-      return 'if (look() == "KEY") {\n  moveForward();\n} else {\n  turnRight();\n}\n\ngrabKey();\nmoveForward();\n\nif (look() == "ENEMY") {\n  attack();\n}\n\nmoveForward();\nturnLeft();\nopenChest();\nturnRight();\nopenDoor();'
+      return 'if (look() == "ENEMY") {\n  attack();\n} else if (look() == "KEY") {\n  grabKey();\n}\n// Use mais decisoes para atravessar a patrulha.'
     case 14:
-      return 'moveForward();\ngrabKey();\n\nlet steps = 0;\nwhile (steps < 2) {\n  moveForward();\n  steps++;\n}\n\nattack();\nmoveForward();\n\nsteps = 0;\nwhile (steps < 2) {\n  moveForward();\n  steps++;\n}\n\nturnLeft();\nopenChest();\nmoveForward();\nopenDoor();'
+      return 'let steps = 0;\nwhile (steps < 2) {\n  moveForward();\n  steps++;\n}\n// Reaproveite o contador em outro trecho.'
     case 15:
-      return 'moveForward();\ngrabKey();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nattack();\nmoveForward();\nturnLeft();\n\nfor (let i = 0; i < 2; i++) {\n  moveForward();\n}\n\nturnLeft();\nfor (let i = 0; i < 3; i++) {\n  moveForward();\n}\n\nopenChest();\nturnRight();\nmoveForward();\nopenDoor();'
+      return 'for (let i = 0; i < 3; i++) {\n  moveForward();\n}\n// Um unico loop pode substituir varios comandos iguais.'
     case 16:
-      return 'function step() {\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();\nstep();'
+      return 'function step() {\n  moveForward();\n}\n\n// Chame step() quando quiser reutilizar esse comportamento.'
     case 17:
-      return 'function step() {\n  moveForward();\n}\n\nfunction collect() {\n  grabKey();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\nstep();\nstep();\ncollect();'
+      return 'function collectKey() {\n  grabKey();\n}\n\nfunction step() {\n  moveForward();\n}\n\n// Organize outras acoes em funcoes pequenas.'
     case 18:
-      return 'function step() {\n  moveForward();\n}\n\nfunction clearAndStep() {\n  attack();\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();'
+      return 'function clearAndStep() {\n  attack();\n  moveForward();\n}\n\n// Planeje quando usar cada funcao antes de montar a rota.'
     case 19:
-      return 'function walk(times) {\n  for (let i = 0; i < times; i++) {\n    moveForward();\n  }\n}\n\nfunction clearAndStep() {\n  if (look() == "ENEMY") {\n    attack();\n  } else {\n    print(look());\n  }\n  moveForward();\n}\n\nfunction loot() {\n  openChest();\n}\n\nfunction unlock() {\n  openDoor();\n}\n\ngrabKey();'
+      return 'function explore(times) {\n  for (let i = 0; i < times; i++) {\n    if (look() == "ENEMY") {\n      attack();\n    } else {\n      moveForward();\n    }\n  }\n}\n\n// Combine funcoes, repeticao e leitura do ambiente.'
     case 999:
       return '// 🌀 Labirinto Procedural\n// Explore e encontre a saída!\n// Todas as funcionalidades estão disponíveis.\n\nfor (let i = 0; i < 5; i++) {\n  moveForward();\n}'
     default:
@@ -445,7 +449,7 @@ export default function GamePage() {
 
   const getInitialCode = () => {
     if (typeof window !== 'undefined') {
-      const savedCode = localStorage.getItem(`code-dungeon-level-${selectedBaseLevel.id}`)
+      const savedCode = localStorage.getItem(`code-dungeon-${STARTER_CODE_VERSION}-level-${selectedBaseLevel.id}`)
       if (savedCode) {
         return savedCode
       }
@@ -454,6 +458,7 @@ export default function GamePage() {
   }
 
   const [code, setCode] = useState(getInitialCode())
+  const loadedCodeLevelId = useRef<number | null>(null)
   const [logs, setLogs] = useState<string[]>([])
   const [player, setPlayer] = useState(selectedBaseLevel.playerStart)
   const [playerAnimationState, setPlayerAnimationState] = useState<PlayerAnimationState>('idle')
@@ -485,19 +490,22 @@ export default function GamePage() {
 
   // Salvar código quando muda
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(`code-dungeon-level-${selectedBaseLevel.id}`, code)
+    if (typeof window !== 'undefined' && loadedCodeLevelId.current === selectedBaseLevel.id) {
+      localStorage.setItem(`code-dungeon-${STARTER_CODE_VERSION}-level-${selectedBaseLevel.id}`, code)
     }
   }, [code, selectedBaseLevel.id])
 
   // Resetar apenas o estado do jogo quando muda de nível
   useEffect(() => {
-    const savedCode = typeof window !== 'undefined' ? localStorage.getItem(`code-dungeon-level-${selectedBaseLevel.id}`) : null
+    const savedCode = typeof window !== 'undefined'
+      ? localStorage.getItem(`code-dungeon-${STARTER_CODE_VERSION}-level-${selectedBaseLevel.id}`)
+      : null
     if (savedCode) {
       setCode(savedCode)
     } else {
       setCode(starterCode(selectedBaseLevel.id))
     }
+    loadedCodeLevelId.current = selectedBaseLevel.id
     setLogs([])
     setPlayer(selectedBaseLevel.playerStart)
     setPlayerAnimationState('idle')
