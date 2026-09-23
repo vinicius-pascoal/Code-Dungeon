@@ -10,17 +10,12 @@ import { DETAILS_TILESET_CONFIG } from '../game/tiles/detailConfig'
 import { resolveDetailSprite } from '../game/tiles/detailResolver'
 import { resolveTileSprite } from '../game/tiles/tileResolver'
 import { UI_SPRITES } from '../game/ui/uiSprites'
+import { levelFifteen } from '../data/levels/level-15'
 import { useI18n } from '../i18n'
 import type { TileType } from '../types/game'
 
-const previewTiles: TileType[][] = [
-  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-  ['WALL', 'FLOOR', 'FLOOR', 'SPIKE', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
-  ['WALL', 'FLOOR', 'WALL', 'WALL', 'FLOOR', 'WALL', 'FLOOR', 'WALL'],
-  ['WALL', 'FLOOR', 'FLOOR', 'KEY', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
-  ['WALL', 'FLOOR', 'WALL', 'FLOOR', 'CHEST', 'WALL', 'FLOOR', 'WALL'],
-  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-]
+const previewLevel = levelFifteen
+const previewTiles: TileType[][] = previewLevel.grid
 
 const HOME_PLAYER_SPRITE_SCALE = 2
 
@@ -44,10 +39,10 @@ function renderTileOverlay(tile: TileType, tileSize: number, labels: Record<stri
     tile === 'EXIT'
       ? labels.EXIT
       : tile === 'KEY'
-          ? labels.KEY
-          : tile === 'OPEN_CHEST'
-            ? labels.OPEN_CHEST
-            : labels.CHEST
+        ? labels.KEY
+        : tile === 'OPEN_CHEST'
+          ? labels.OPEN_CHEST
+          : labels.CHEST
 
   return (
     <SpriteTile
@@ -181,7 +176,7 @@ export default function Home() {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <PixelButton href="/game" icon="play" size="lg" variant="primary">
+              <PixelButton href="/game?level=15" icon="play" size="lg" variant="primary">
                 {t('home.start')}
               </PixelButton>
               <PixelButton href="/levels" icon="list" size="lg">
@@ -224,11 +219,11 @@ export default function Home() {
             }
             bodyClassName="p-3"
           >
-            <PixelFrame className="aspect-[8/6] min-h-0">
+            <PixelFrame className="aspect-[9/7] min-h-0">
               <div
                 className="grid h-full overflow-hidden bg-black"
                 style={{
-                  gridTemplateColumns: 'repeat(8, minmax(0, 1fr))',
+                  gridTemplateColumns: `repeat(${previewTiles[0]?.length ?? 0}, minmax(0, 1fr))`,
                   gap: 0,
                   lineHeight: 0,
                   fontSize: 0,
@@ -237,7 +232,7 @@ export default function Home() {
                 {previewTiles.flatMap((row, y) =>
                   row.map((tile, x) => {
                     const sprite = resolveTileSprite({ tile, map: previewTiles, x, y })
-                    const isPlayer = x === 1 && y === 3
+                    const isPlayer = x === previewLevel.playerStart.x && y === previewLevel.playerStart.y
 
                     return (
                       <div
@@ -274,11 +269,10 @@ export default function Home() {
             </PixelFrame>
 
             <div className="mt-3 border-2 border-border bg-black p-3 font-mono text-[10px] leading-5 text-primaryText">
-              <div>moveForward();</div>
-              <div>turnRight();</div>
-              <div>moveForward();</div>
-              <div>grabKey();</div>
-              <div>openDoor();</div>
+              <div>for (let i = 0; i &lt; 3; i++) {'{'}</div>
+              <div>&nbsp;&nbsp;moveForward();</div>
+              <div>{'}'}</div>
+              <div>// Um loop reduz comandos repetidos.</div>
             </div>
           </PixelPanel>
         </aside>
