@@ -176,7 +176,7 @@ export default function Home() {
             </div>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <PixelButton href="/game?level=15" icon="play" size="lg" variant="primary">
+              <PixelButton href="/game?level=1" icon="play" size="lg" variant="primary">
                 {t('home.start')}
               </PixelButton>
               <PixelButton href="/levels" icon="list" size="lg">
