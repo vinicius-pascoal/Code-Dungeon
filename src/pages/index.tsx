@@ -212,11 +212,6 @@ export default function Home() {
             variant="default"
             title={t('home.preview.title')}
             eyebrow={t('home.preview.eyebrow')}
-            headerAction={
-              <PixelButton href="/game?level=999" icon="play" size="sm" variant="ghost">
-                {t('common.extra')}
-              </PixelButton>
-            }
             bodyClassName="p-3"
           >
             <PixelFrame className="aspect-[9/7] min-h-0">
