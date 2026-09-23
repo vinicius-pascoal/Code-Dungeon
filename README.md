@@ -16,8 +16,6 @@ Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolv
 - [Conceitos trabalhados](#conceitos-trabalhados)
 - [Estrutura do projeto](#estrutura-do-projeto)
 - [Validacao e testes](#validacao-e-testes)
-- [Deploy](#deploy)
-- [Contribuicao](#contribuicao)
 
 ## Resumo do projeto
 
@@ -254,17 +252,3 @@ npm run build
 A aplicacao publicada pode ser acessada em:
 
 [https://code-dungeons.vercel.app](https://code-dungeons.vercel.app)
-
-## Contribuicao
-
-Contribuicoes sao bem-vindas. Para colaborar:
-
-1. Abra uma issue ou descreva claramente a melhoria desejada.
-2. Crie uma branch para a alteracao.
-3. Faca commits pequenos e objetivos.
-4. Adicione testes quando a mudanca envolver parser, executor ou regras de jogo.
-5. Abra um pull request explicando o problema resolvido e como validar a alteracao.
-
-## Licenca
-
-Este repositorio nao informa uma licenca no momento.
