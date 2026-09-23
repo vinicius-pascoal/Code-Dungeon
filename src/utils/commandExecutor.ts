@@ -10,6 +10,9 @@ type StepCallback = (info: {
   message?: string
 }) => void
 
+const COMMAND_STEP_DELAY_MS = 300
+const PROCEDURAL_COMMAND_STEP_DELAY_MS = 50
+
 function cloneGrid(grid: TileType[][]) {
   return grid.map((row) => [...row])
 }
@@ -55,6 +58,7 @@ export async function executeCommands(
   onError: (msg: string) => void,
   onComplete: (result: { player: PlayerState; won: boolean }) => void
 ) {
+  const commandStepDelayMs = level.id === 999 ? PROCEDURAL_COMMAND_STEP_DELAY_MS : COMMAND_STEP_DELAY_MS
   const state: GameState = {
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
@@ -203,7 +207,7 @@ export async function executeCommands(
     }
 
     // Pequena espera para animação
-    await new Promise((r) => setTimeout(r, 300))
+    await new Promise((r) => setTimeout(r, commandStepDelayMs))
   }
 
   onComplete({ player: state.player, won: false })

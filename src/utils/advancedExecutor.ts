@@ -42,6 +42,7 @@ type Context = {
 const GAME_COMMANDS = ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look']
 const MAX_LOOP_ITERATIONS = 1000
 const COMMAND_STEP_DELAY_MS = 300
+const PROCEDURAL_COMMAND_STEP_DELAY_MS = 50
 
 class ExecutionHalted extends Error {
   constructor() {
@@ -118,6 +119,7 @@ export async function executeAdvancedCommands(
   onComplete: (result: { player: PlayerState; won: boolean }) => void
 ) {
   const allowedCommands = new Set(level.availableCommands ?? [])
+  const commandStepDelayMs = level.id === 999 ? PROCEDURAL_COMMAND_STEP_DELAY_MS : COMMAND_STEP_DELAY_MS
   const state: GameState = {
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
@@ -275,7 +277,7 @@ export async function executeAdvancedCommands(
       message: commandMessage,
     })
 
-    await new Promise((r) => setTimeout(r, COMMAND_STEP_DELAY_MS))
+    await new Promise((r) => setTimeout(r, commandStepDelayMs))
 
     if (state.grid[state.player.y] && state.grid[state.player.y][state.player.x] === 'EXIT') {
       return 'exit'
