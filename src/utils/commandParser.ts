@@ -31,7 +31,10 @@ export function parseCommands(code: string, allowedCommands?: string[]) {
   const allowedSet = allowedCommands ? new Set(allowedCommands) : DEFAULT_ALLOWED
   for (const c of cmds) {
     if (!allowedSet.has(c)) {
-      return { error: `Comando inválido: ${c}()` }
+      const commandIndex = cmds.indexOf(c)
+      const commandStart = code.search(new RegExp(`\\b${c}\\s*\\(`))
+      const line = commandStart >= 0 ? code.slice(0, commandStart).split('\n').length : commandIndex + 1
+      return { error: `Comando inválido: ${c}() na linha ${line}` }
     }
   }
 

@@ -521,7 +521,7 @@ class Parser {
   private parseAssignment(): Expression {
     const expr = this.parsePrimary()
     if (this.peek().type === '=' || this.peek().type === '+=' || this.peek().type === '-=' || this.peek().type === '*=' || this.peek().type === '/=') {
-      if (expr.type !== 'Identifier') throw new Error('Invalid assignment target')
+      if (expr.type !== 'Identifier') throw new Error(`Invalid assignment target at line ${this.peek().line}`)
       const op = this.advance().value as any
       const right = this.parseExpression()
       return { type: 'AssignmentExpression', left: expr, operator: op, right }
@@ -576,7 +576,7 @@ class Parser {
       return expr
     }
 
-    throw new Error(`Unexpected token: ${token.type}`)
+    throw new Error(`Unexpected token: ${token.type} at line ${token.line}`)
   }
 
   private peek(): Token {

@@ -45,6 +45,7 @@ type ExecutionErrorInfo = {
   reason: string
   suggestion: string
   commandLabel?: string
+  line?: number
 }
 
 function parseErrorInfo(message: string): ExecutionErrorInfo {
@@ -151,6 +152,8 @@ function parseErrorInfo(message: string): ExecutionErrorInfo {
 function parseLocalizedErrorInfo(message: string, t: (key: string, params?: Record<string, string | number>) => string): ExecutionErrorInfo {
   const commandMatch = message.match(/comando\s+(\d+):\s*([a-zA-Z0-9_]+\(\))/i)
   const commandLabel = commandMatch ? t('error.commandLabel', { index: commandMatch[1], command: commandMatch[2] }) : undefined
+  const lineMatch = message.match(/(?:at line|na linha)\s+(\d+)/i)
+  const line = lineMatch ? Number(lineMatch[1]) : undefined
   const normalized = message
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -161,6 +164,7 @@ function parseLocalizedErrorInfo(message: string, t: (key: string, params?: Reco
     reason: t(`error.${key}.reason`),
     suggestion: t(`error.${key}.suggestion`),
     commandLabel,
+    line,
   })
 
   if (normalized.includes('nenhum comando detectado')) {
@@ -186,6 +190,7 @@ function parseLocalizedErrorInfo(message: string, t: (key: string, params?: Reco
     reason: message,
     suggestion: t('error.generic.suggestion'),
     commandLabel,
+    line,
   }
 }
 
@@ -478,6 +483,7 @@ export default function GamePage() {
     reason: string
     suggestion: string
     commandLabel?: string
+    line?: number
   }>({
     open: false,
     title: '',
@@ -705,6 +711,7 @@ export default function GamePage() {
         isOpen={errorState.open}
         title={errorState.title}
         commandLabel={errorState.commandLabel}
+        line={errorState.line}
         reason={errorState.reason}
         suggestion={errorState.suggestion}
         onRetry={onRetryFromModal}

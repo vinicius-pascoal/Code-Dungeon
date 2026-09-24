@@ -6,12 +6,13 @@ type Props = {
   isOpen: boolean
   title: string
   commandLabel?: string
+  line?: number
   reason: string
   suggestion: string
   onRetry: () => void
 }
 
-export default function ErrorModal({ isOpen, title, commandLabel, reason, suggestion, onRetry }: Props) {
+export default function ErrorModal({ isOpen, title, commandLabel, line, reason, suggestion, onRetry }: Props) {
   const { t } = useI18n()
 
   if (!isOpen) {
@@ -25,6 +26,13 @@ export default function ErrorModal({ isOpen, title, commandLabel, reason, sugges
           <div className="border-2 border-border bg-black p-3 text-sm">
             <div className="pixel-eyebrow">{t('modal.affectedCommand')}</div>
             <div className="mt-1 font-mono text-primaryText">{commandLabel}</div>
+          </div>
+        ) : null}
+
+        {line ? (
+          <div className="mt-4 border-2 border-border bg-black p-3 text-sm">
+            <div className="pixel-eyebrow">Linha com erro</div>
+            <div className="mt-1 font-mono text-primaryText">Linha {line}</div>
           </div>
         ) : null}
 
