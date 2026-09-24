@@ -21,7 +21,7 @@ Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolv
 
 O projeto combina uma interface de jogo com um editor de codigo. O jogador le o objetivo da fase, escreve comandos e executa o programa para mover o personagem ate a saida. Ao longo da progressao, novos recursos sao liberados gradualmente: movimento, curvas, espinhos, chaves, portas, inimigos, baus, leitura do ambiente, variaveis, condicionais, loops e funcoes.
 
-A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem do modo extra de labirinto procedural pela fase `999`. O progresso do codigo de cada fase e salvo no `localStorage`, facilitando tentativa, erro e refinamento.
+A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem de dois desafios procedurais: o labirinto amplo da fase `999` e o desafio final menor da fase `1000`, com inimigos, chaves, portas, baus e espinhos. O progresso do codigo de cada fase e salvo no `localStorage`, facilitando tentativa, erro e refinamento.
 
 ## Objetivos
 
@@ -37,6 +37,7 @@ A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem do mod
 - Sistema de fases com objetivo, comandos disponiveis, comandos obrigatorios e regras de estrelas.
 - Cinco mundos guiados: fundamentos, interacoes, condicionais, loops e funcoes.
 - Modo extra de labirinto procedural em `/game?level=999`.
+- Desafio procedural final em `/game?level=1000`, com mapa menor e varias mecanicas combinadas.
 - Fases finais de funcoes com mapas grandes `20x20`, rotas longas e mecanicas combinadas.
 - Tela `/levels` com cards de mundos, trilha pontilhada de progressao e previews reais dos mapas usando os assets do jogo.
 - Modal de mundo com preview de cada fase e acesso direto ao botao de jogar.
@@ -45,6 +46,9 @@ A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem do mod
 - Modal "Como jogar" na pagina inicial com guia rapido, exemplos e comandos basicos.
 - Parser simples para listas diretas de comandos.
 - Parser e executor avancados para variaveis, expressoes, condicionais, loops e funcoes.
+- Suporte a condicionais encadeadas com `elif`.
+- Comando `await()` para consumir uma rodada e aguardar mudancas temporizadas, como espinhos abaixarem.
+- Indicacao da linha com erro no aviso de execucao e nos erros de sintaxe.
 - Salvamento automatico do codigo no navegador.
 - Modais de vitoria, erro, ajuda e introducao de fase.
 - Assets visuais para personagem, pisos, paredes, espinhos, detalhes, inimigos, UI e previews.
@@ -124,6 +128,7 @@ npm run start
 | `/game` | Tela principal do jogo, iniciando pela fase padrao. |
 | `/game?level=1` | Abre uma fase especifica pelo ID. |
 | `/game?level=999` | Abre o modo de labirinto procedural. |
+| `/game?level=1000` | Abre o desafio procedural final com inimigos, chaves, portas, baus e espinhos. |
 
 Nao ha rotas de API em `pages/api` neste repositorio.
 
@@ -138,8 +143,9 @@ Nao ha rotas de API em `pages/api` neste repositorio.
 | `grabKey()` | Coleta uma chave na celula atual. |
 | `openDoor()` | Abre uma porta a frente quando o jogador possui chave. |
 | `openChest()` | Abre um bau a frente. |
-| `look()` | Inspeciona a celula a frente e retorna valores como `WALL`, `FLOOR`, `ENEMY`, `KEY`, `SPIKE`, `DOOR`, `CHEST`, `EXIT`, `VOID` ou `OUT_OF_BOUNDS`. |
+| `look()` | Inspeciona a celula a frente e retorna valores como `WALL`, `FLOOR`, `ENEMY`, `KEY`, `SPIKE_UP`, `SPIKE_DOWN`, `DOOR`, `CHEST`, `EXIT`, `VOID` ou `OUT_OF_BOUNDS`. |
 | `print(value)` | Envia valores e expressoes para o console do jogo. |
+| `await()` | Consome uma rodada sem mover o personagem, permitindo que espinhos e outros elementos temporizados mudem de estado. |
 
 Exemplo simples:
 
@@ -156,6 +162,18 @@ if (look() == "ENEMY") {
   attack();
 }
 moveForward();
+```
+
+Exemplo com `elif` e leitura de espinhos:
+
+```js
+if (look() == "ENEMY") {
+  attack();
+} elif (look() == "SPIKE_UP") {
+  await();
+} else {
+  moveForward();
+}
 ```
 
 Exemplo com repeticao:
@@ -188,7 +206,9 @@ walk(4);
 - Variaveis com `let`, `const` e `var`
 - Operadores aritmeticos, logicos e de comparacao
 - Condicionais com `if`, `else if` e `else`
-- Leitura do ambiente com `look()`
+- Condicionais encadeadas com `elif`
+- Leitura do ambiente com `look()`, incluindo `SPIKE_UP` e `SPIKE_DOWN`
+- Controle de turnos com `await()`
 - Repeticao com `while` e `for`
 - Funcoes e reutilizacao de codigo
 - Depuracao com `print()`
@@ -227,7 +247,9 @@ Arquivos importantes:
 - `src/utils/advancedParser.ts`: parser para recursos avancados da linguagem.
 - `src/utils/advancedExecutor.ts`: executor do programa avancado.
 - `src/utils/mazeGenerator.ts`: geracao do labirinto procedural.
-- `src/data/levels/index.ts`: registro de fases, mundos e fase procedural.
+- `src/data/levels/index.ts`: registro de fases, mundos e fases procedurais.
+- `src/data/levels/level-procedural.ts`: geracao do labirinto procedural 999.
+- `src/data/levels/level-procedural-final.ts`: geracao do desafio procedural final 1000.
 - `src/data/levels/grid.ts`: helper para declarar mapas de fase por caracteres.
 
 ## Validacao e testes
