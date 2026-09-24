@@ -117,6 +117,8 @@ export async function executeCommands(
       state.player.direction = turnLeft(state.player.direction)
     } else if (cmd === 'turnRight') {
       state.player.direction = turnRight(state.player.direction)
+    } else if (cmd === 'await') {
+      // Aguarda uma rodada para permitir que elementos temporizados mudem de estado.
     } else if (cmd === 'look' || cmd === 'print') {
       const { dx, dy } = deltaFor(state.player.direction)
       const nx = state.player.x + dx

@@ -31,6 +31,7 @@ export function generateProceduralMazeLevel(): Level {
       'jump',
       'if',
       'else',
+      'elif',
       'while',
       'for',
       'function',
@@ -38,6 +39,7 @@ export function generateProceduralMazeLevel(): Level {
       'let',
       'const',
       'return',
+      'await',
     ],
     playerStart: {
       x: startPos.x,

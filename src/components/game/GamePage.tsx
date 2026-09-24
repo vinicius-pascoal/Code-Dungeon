@@ -268,7 +268,7 @@ function collectStatementFeatures(stmt: Statement, used: Set<string>) {
       collectExpressionFeatures(stmt.condition, used)
       collectStatementFeatures(stmt.consequent, used)
       if (stmt.alternate) {
-        used.add('else')
+        used.add(stmt.alternate.type === 'IfStatement' && stmt.alternate.isElif ? 'elif' : 'else')
         collectStatementFeatures(stmt.alternate, used)
       }
       break

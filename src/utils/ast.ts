@@ -36,6 +36,7 @@ export type IfStatement = {
   condition: Expression
   consequent: BlockStatement
   alternate?: BlockStatement | IfStatement
+  isElif?: boolean
 }
 
 export type WhileStatement = {

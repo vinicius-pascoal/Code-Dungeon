@@ -39,7 +39,7 @@ type Context = {
   shouldContinue: boolean
 }
 
-const GAME_COMMANDS = ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look']
+const GAME_COMMANDS = ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'await']
 const MAX_LOOP_ITERATIONS = 1000
 const COMMAND_STEP_DELAY_MS = 300
 const PROCEDURAL_COMMAND_STEP_DELAY_MS = 50
@@ -203,6 +203,8 @@ export async function executeAdvancedCommands(
         commandMessage = commandResult
         break
       }
+      case 'await':
+        break
       case 'turnLeft':
         state.player.direction = turnLeft(state.player.direction)
         break
@@ -364,7 +366,11 @@ async function executeStatement(
         stopExecution(onError, 'Comando inválido: if')
       }
       const ifStmt = stmt as IfStatement
-      if (ifStmt.alternate && !allowedCommands.has('else')) {
+      const alternateIsElif = ifStmt.alternate?.type === 'IfStatement' && ifStmt.alternate.isElif
+      if (ifStmt.isElif && !allowedCommands.has('elif')) {
+        stopExecution(onError, 'Comando inválido: elif')
+      }
+      if (ifStmt.alternate && !alternateIsElif && !allowedCommands.has('else')) {
         stopExecution(onError, 'Comando inválido: else')
       }
       const condition = await evaluateExpression(ifStmt.condition, context, executeCommand, onError, state, onStep, allowedCommands)

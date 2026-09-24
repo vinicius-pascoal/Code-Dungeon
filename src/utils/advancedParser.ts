@@ -267,7 +267,7 @@ class Tokenizer {
   }
 
   private isKeyword(word: string): boolean {
-    return ['if', 'else', 'while', 'for', 'function', 'return', 'var', 'let', 'const', 'true', 'false'].includes(word)
+    return ['if', 'else', 'elif', 'while', 'for', 'function', 'return', 'var', 'let', 'const', 'true', 'false'].includes(word)
   }
 
   private advance() {
@@ -318,8 +318,8 @@ class Parser {
     return { type: 'ExpressionStatement', expression: expr } as ExpressionStatement
   }
 
-  private parseIfStatement(): IfStatement {
-    this.consume('IF', "Expected 'if'")
+  private parseIfStatement(isElif = false): IfStatement {
+    this.consume(isElif ? 'ELIF' : 'IF', isElif ? "Expected 'elif'" : "Expected 'if'")
     this.consume('(', "Expected '(' after 'if'")
     const condition = this.parseExpression()
     this.consume(')', "Expected ')' after condition")
@@ -330,12 +330,18 @@ class Parser {
       this.advance()
       if (this.peek().type === 'IF') {
         alternate = this.parseIfStatement()
+      } else if (this.peek().type === 'ELIF') {
+        alternate = this.parseIfStatement(true)
       } else {
         alternate = this.parseBlockStatement()
       }
     }
 
-    return { type: 'IfStatement', condition, consequent, alternate }
+    if (this.peek().type === 'ELIF') {
+      alternate = this.parseIfStatement(true)
+    }
+
+    return { type: 'IfStatement', condition, consequent, alternate, isElif }
   }
 
   private parseWhileStatement(): WhileStatement {

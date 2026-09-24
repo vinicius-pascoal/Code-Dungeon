@@ -7,7 +7,7 @@ type Props = {
   disabled?: boolean
 }
 
-const KEYWORDS = ['if', 'else', 'while', 'for', 'function', 'var', 'let', 'const', 'return', 'true', 'false']
+const KEYWORDS = ['if', 'else', 'elif', 'while', 'for', 'function', 'var', 'let', 'const', 'return', 'true', 'false', 'await']
 const ALL_COMPLETIONS = [...RESERVED_COMMANDS, ...KEYWORDS]
 
 export default function CodeEditor({ value, onChange, disabled }: Props) {
@@ -85,11 +85,13 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   const normalizeCompletion = (command: string) => {
     if (command === 'if') return 'if (condition) {\n  \n}'
     if (command === 'else') return 'else {\n  \n}'
+    if (command === 'elif') return 'elif (condition) {\n  \n}'
     if (command === 'while') return 'while (condition) {\n  \n}'
     if (command === 'for') return 'for (let i = 0; i < 10; i++) {\n  \n}'
     if (command === 'function') return 'function name() {\n  \n}'
     if (command === 'var' || command === 'let' || command === 'const') return `${command} name = 0;`
     if (command === 'return') return 'return 0;'
+    if (command === 'await') return 'await();'
     if (RESERVED_COMMANDS.includes(command)) return `${command}();`
     return command
   }
@@ -181,7 +183,9 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   }
 
   const suggestionSuffix = suggestion && suggestion.startsWith(cursorState.prefix)
-    ? `${suggestion.slice(cursorState.prefix.length)}();`
+    ? suggestion === 'if' || suggestion === 'elif' || suggestion === 'else' || suggestion === 'while' || suggestion === 'for' || suggestion === 'function'
+      ? suggestion.slice(cursorState.prefix.length)
+      : `${suggestion.slice(cursorState.prefix.length)}();`
     : ''
 
   const lines = value.split('\n')

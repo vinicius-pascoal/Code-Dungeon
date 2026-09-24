@@ -5,6 +5,7 @@ import { executeAdvancedCommands } from './advancedExecutor'
 import { executeCommands } from './commandExecutor'
 import { isSimpleCommandList } from './commandParser'
 import { levelFourteen } from '../data/levels/level-14'
+import { levelFive } from '../data/levels/level-05'
 import type { Level, TileType } from '../types/game'
 
 function createLevel(availableCommands: string[], grid: TileType[][] = [['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR']]): Level {
@@ -27,6 +28,58 @@ function createLevel(availableCommands: string[], grid: TileType[][] = [['FLOOR'
 test('simple command detection should reject advanced multiline programs', () => {
   assert.equal(isSimpleCommandList('moveForward();\nturnRight();\nmoveForward();'), true)
   assert.equal(isSimpleCommandList('let steps = 0;\nmoveForward();\nwhile (steps < 3) {\n  moveForward();\n  steps++;\n}'), false)
+})
+
+test('elif should execute the first matching branch', async () => {
+  const program = parseAdvancedCode('if (false) { moveForward(); } elif (true) { moveForward(); }')
+  const level = createLevel(['moveForward', 'if', 'elif'], [['FLOOR', 'EXIT']])
+  let won = false
+
+  await executeAdvancedCommands(
+    program,
+    level,
+    () => undefined,
+    (message) => {
+      throw new Error(message)
+    },
+    (result) => {
+      won = result.won
+    }
+  )
+
+  assert.equal(won, true)
+})
+
+test('level 5 requires await turns to lower the spike', async () => {
+  let errorMessage = ''
+
+  await executeCommands(
+    ['moveForward', 'moveForward', 'await', 'moveForward'],
+    levelFive,
+    () => undefined,
+    (message) => {
+      errorMessage = message
+    },
+    () => undefined
+  )
+
+  assert.match(errorMessage, /espinhos/)
+
+  const commands = ['moveForward', 'moveForward', 'await', 'await', 'moveForward', 'moveForward', 'moveForward']
+  let won = false
+  await executeCommands(
+    commands,
+    levelFive,
+    () => undefined,
+    (message) => {
+      throw new Error(message)
+    },
+    (result) => {
+      won = result.won
+    }
+  )
+
+  assert.equal(won, true)
 })
 
 test('while loop with counter variable should execute multiple iterations', async () => {
