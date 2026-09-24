@@ -18,6 +18,7 @@ import { levelSeventeen } from './level-17'
 import { levelEighteen } from './level-18'
 import { levelNineteen } from './level-19'
 import { generateProceduralMazeLevel } from './level-procedural'
+import { generateProceduralFinalLevel } from './level-procedural-final'
 import { World } from '../../types/game'
 
 export const levels = [
@@ -43,6 +44,7 @@ export const levels = [
 ]
 
 export const proceduralMazeLevel = generateProceduralMazeLevel()
+export const proceduralFinalLevel = generateProceduralFinalLevel()
 
 export const worlds: World[] = [
   {
@@ -85,12 +87,13 @@ export const worlds: World[] = [
     name: 'Modo Labirinto',
     description: 'Um labirinto procedural gerado infinitamente. Todas as funcionalidades desbloqueadas!',
     theme: 'Desafio',
-    levelIds: [999],
+    levelIds: [999, 1000],
   },
 ]
 
 export function getLevelById(levelId: number) {
   if (levelId === 999) return proceduralMazeLevel
+  if (levelId === 1000) return proceduralFinalLevel
 
   const levelsById = [...levels].sort((a, b) => a.id - b.id)
   const cumulativeMap = new Map<number, string[]>()
@@ -113,7 +116,7 @@ export function getLevelById(levelId: number) {
 }
 
 export function getWorldByLevelId(levelId: number) {
-  if (levelId === 999) {
+  if (levelId === 999 || levelId === 1000) {
     return worlds.find((world) => world.id === 99) ?? worlds[0]
   }
   return worlds.find((world) => world.levelIds.includes(levelId)) ?? worlds[0]
