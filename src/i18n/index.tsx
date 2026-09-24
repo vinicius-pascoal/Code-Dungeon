@@ -771,7 +771,7 @@ export function getDocumentation(locale: Locale) {
         { key: 'moveForward', command: 'moveForward()', title: 'Andar', text: 'Avanca uma casa na direcao atual.', example: 'moveForward();' },
         { key: 'turnLeft', command: 'turnLeft()', title: 'Virar para esquerda', text: 'Muda apenas a direcao do personagem.', example: 'turnLeft();' },
         { key: 'turnRight', command: 'turnRight()', title: 'Virar para direita', text: 'Muda apenas a direcao do personagem.', example: 'turnRight();' },
-        { key: 'look', command: 'look()', title: 'Olhar a frente', text: 'Retorna o que existe na proxima casa: WALL, ENEMY, KEY, SPIKE, DOOR, CHEST, EXIT, VOID ou FLOOR.', example: 'if (look() == "ENEMY") {\n  attack();\n}' },
+        { key: 'look', command: 'look()', title: 'Olhar a frente', text: 'Retorna o que existe na proxima casa. Espinhos informam SPIKE_UP quando estao para cima e SPIKE_DOWN quando estao abaixados.', example: 'if (look() == "SPIKE_DOWN") {\n  moveForward();\n}' },
       ],
       interaction: [
         { key: 'grabKey', command: 'grabKey()', title: 'Pegar chave', text: 'Coleta uma chave quando o personagem esta em cima dela.', example: 'grabKey();' },
@@ -793,7 +793,7 @@ export function getDocumentation(locale: Locale) {
         { key: 'moveForward', command: 'moveForward()', title: 'Walk', text: 'Moves one tile in the current direction.', example: 'moveForward();' },
         { key: 'turnLeft', command: 'turnLeft()', title: 'Turn left', text: 'Changes only the character direction.', example: 'turnLeft();' },
         { key: 'turnRight', command: 'turnRight()', title: 'Turn right', text: 'Changes only the character direction.', example: 'turnRight();' },
-        { key: 'look', command: 'look()', title: 'Look ahead', text: 'Returns what exists on the next tile: WALL, ENEMY, KEY, SPIKE, DOOR, CHEST, EXIT, VOID, or FLOOR.', example: 'if (look() == "ENEMY") {\n  attack();\n}' },
+        { key: 'look', command: 'look()', title: 'Look ahead', text: 'Returns what exists on the next tile. Spikes return SPIKE_UP when raised and SPIKE_DOWN when lowered.', example: 'if (look() == "SPIKE_DOWN") {\n  moveForward();\n}' },
       ],
       interaction: [
         { key: 'grabKey', command: 'grabKey()', title: 'Grab key', text: 'Collects a key when the character is standing on it.', example: 'grabKey();' },
@@ -815,7 +815,7 @@ export function getDocumentation(locale: Locale) {
         { key: 'moveForward', command: 'moveForward()', title: 'Caminar', text: 'Avanza una casilla en la direccion actual.', example: 'moveForward();' },
         { key: 'turnLeft', command: 'turnLeft()', title: 'Girar a la izquierda', text: 'Cambia solo la direccion del personaje.', example: 'turnLeft();' },
         { key: 'turnRight', command: 'turnRight()', title: 'Girar a la derecha', text: 'Cambia solo la direccion del personaje.', example: 'turnRight();' },
-        { key: 'look', command: 'look()', title: 'Mirar adelante', text: 'Devuelve lo que existe en la proxima casilla: WALL, ENEMY, KEY, SPIKE, DOOR, CHEST, EXIT, VOID o FLOOR.', example: 'if (look() == "ENEMY") {\n  attack();\n}' },
+        { key: 'look', command: 'look()', title: 'Mirar adelante', text: 'Devuelve lo que existe en la proxima casilla. Los pinchos devuelven SPIKE_UP cuando estan arriba y SPIKE_DOWN cuando estan abajo.', example: 'if (look() == "SPIKE_DOWN") {\n  moveForward();\n}' },
       ],
       interaction: [
         { key: 'grabKey', command: 'grabKey()', title: 'Tomar llave', text: 'Recoge una llave cuando el personaje esta encima de ella.', example: 'grabKey();' },

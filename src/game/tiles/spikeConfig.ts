@@ -24,3 +24,8 @@ export function advanceSpikeTurn(spikesActive: boolean, spikeTurnCount: number) 
 export function isSpikeDangerous(tile: TileType | undefined, spikesActive: boolean) {
   return tile === 'SPIKE' && spikesActive
 }
+
+export function getSpikeLookValue(tile: TileType | undefined, spikesActive: boolean) {
+  if (tile !== 'SPIKE') return undefined
+  return spikesActive ? 'SPIKE_UP' : 'SPIKE_DOWN'
+}

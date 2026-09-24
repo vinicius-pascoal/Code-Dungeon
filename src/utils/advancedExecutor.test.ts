@@ -285,6 +285,25 @@ test('void tiles are readable but not walkable', async () => {
   assert.match(errorMessage, /Celula vazia/)
 })
 
+test('look should identify whether a spike is raised or lowered', async () => {
+  const level = createLevel(['look'], [['FLOOR', 'SPIKE']])
+  const lookResults: string[] = []
+
+  await executeCommands(
+    ['look', 'look', 'look'],
+    level,
+    ({ message }) => {
+      if (message) lookResults.push(message)
+    },
+    (message) => {
+      throw new Error(message)
+    },
+    () => undefined
+  )
+
+  assert.deepEqual(lookResults, ['SPIKE_UP', 'SPIKE_UP', 'SPIKE_DOWN'])
+})
+
 test('custom functions should propagate victory when they step onto exit', async () => {
   const program = parseAdvancedCode('function step() { moveForward(); } step();')
   const level = createLevel(['moveForward', 'function'], [['FLOOR', 'EXIT']])

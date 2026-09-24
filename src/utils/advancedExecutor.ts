@@ -19,7 +19,7 @@ import {
   LogicalExpression,
 } from './ast'
 import { Direction, Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
-import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, isSpikeDangerous } from '../game/tiles/spikeConfig'
+import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, getSpikeLookValue, isSpikeDangerous } from '../game/tiles/spikeConfig'
 
 type StepCallback = (info: {
   command: string
@@ -199,7 +199,7 @@ export async function executeAdvancedCommands(
         }
         const tile = row[nx]
         // Normalizar retorno como string maiúscula sem espaços
-        commandResult = (String(tile ?? 'UNKNOWN')).trim().toUpperCase()
+        commandResult = getSpikeLookValue(tile, state.spikesActive) ?? (String(tile ?? 'UNKNOWN')).trim().toUpperCase()
         commandMessage = commandResult
         break
       }

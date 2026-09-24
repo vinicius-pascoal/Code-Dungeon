@@ -1,5 +1,5 @@
 import { Direction, Enemy, GameState, Level, PlayerState, TileType } from '../types/game'
-import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, isSpikeDangerous } from '../game/tiles/spikeConfig'
+import { INITIAL_SPIKES_ACTIVE, advanceSpikeTurn, getSpikeLookValue, isSpikeDangerous } from '../game/tiles/spikeConfig'
 
 type StepCallback = (info: {
   command: string
@@ -132,7 +132,7 @@ export async function executeCommands(
           lookMessage = 'ENEMY'
         } else {
           // Normalizar para facilitar comparações no código do usuário
-          lookMessage = String(row[nx]).trim().toUpperCase()
+          lookMessage = getSpikeLookValue(row[nx], state.spikesActive) ?? String(row[nx]).trim().toUpperCase()
         }
       }
     } else if (cmd === 'attack') {
