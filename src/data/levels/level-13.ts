@@ -6,7 +6,7 @@ export const levelThirteen: Level = {
   name: 'Patrulha no Escuro',
   description: 'Atravesse uma rota unica com combate, chave, espinhos, bau e porta em pontos diferentes do caminho.',
   objective: 'Use if/else e look() para reagir a cada bloqueio, derrotar o inimigo, abrir o bau e destrancar a saida.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'if', 'else', 'look', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'if', 'else', 'elif', 'look', 'print'],
   playerStart: {
     x: 1,
     y: 4,

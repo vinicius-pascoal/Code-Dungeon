@@ -7,7 +7,7 @@ export const levelNineteen: Level = {
   name: 'Funcoes e Desafio Final',
   description: 'O desafio final agora ocupa uma masmorra 20x20 com rotas longas, vazios, celulas ocultas, inimigos e varias travas.',
   objective: 'Combine funcoes, for e if com look() para lidar com tiles ocultos, espinhos, inimigos, baus, chaves, portas e vazios ate a saida.',
-  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'if', 'else', 'for', 'let', 'function', 'return', 'print'],
+  availableCommands: ['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'if', 'else', 'elif', 'for', 'let', 'function', 'return', 'print'],
   playerStart: {
     x: 1,
     y: 1,
