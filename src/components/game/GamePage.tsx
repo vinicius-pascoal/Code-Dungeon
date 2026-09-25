@@ -195,7 +195,7 @@ function parseLocalizedErrorInfo(message: string, t: (key: string, params?: Reco
 }
 
 function calculateStars(commandCount: number, levelId: number) {
-  const level = levels.find((item) => item.id === levelId)
+  const level = getLevelById(levelId)
   if (!level) {
     return 1
   }
@@ -211,7 +211,7 @@ function calculateStars(commandCount: number, levelId: number) {
   return 1
 }
 
-const STAR_COUNTED_COMMANDS = new Set(['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'print'])
+const STAR_COUNTED_COMMANDS = new Set(['moveForward', 'turnLeft', 'turnRight', 'attack', 'grabKey', 'openDoor', 'openChest', 'look', 'print', 'await'])
 const LANGUAGE_FEATURE_LABELS: Record<string, string> = {
   if: 'if',
   else: 'else',
@@ -571,7 +571,6 @@ export default function GamePage() {
           return
         }
 
-        const sourceCommandCount = countAdvancedCommands(program)
         let commandsExecuted = 0
 
         await executeAdvancedCommands(
@@ -601,8 +600,8 @@ export default function GamePage() {
             setPlayerAnimationState('idle')
             setRunning(false)
             if (won) {
-              setCommandCount(sourceCommandCount)
-              const stars = calculateStars(sourceCommandCount, selectedBaseLevel.id)
+              setCommandCount(commandsExecuted)
+              const stars = calculateStars(commandsExecuted, selectedBaseLevel.id)
               setVictoryState({ open: true, stars })
               addLog(t('game.completedLog'))
               return
