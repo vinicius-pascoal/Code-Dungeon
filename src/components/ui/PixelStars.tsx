@@ -8,11 +8,12 @@ type Props = {
 }
 
 export default function PixelStars({ count, scale = 2, className = '' }: Props) {
-  const sprite = count >= 3
+  const normalizedCount = Math.max(1, Math.min(3, Math.floor(count)))
+  const sprite = normalizedCount >= 3
     ? UI_SPRITES.stars.three
-    : count === 2
+    : normalizedCount === 2
       ? UI_SPRITES.stars.two
       : UI_SPRITES.stars.one
 
-  return <PixelIcon sprite={sprite} scale={scale} className={className} label={`${count} estrela${count === 1 ? '' : 's'}`} />
+  return <PixelIcon sprite={sprite} scale={scale} className={className} label={`${normalizedCount} estrela${normalizedCount === 1 ? '' : 's'}`} />
 }
