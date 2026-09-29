@@ -775,6 +775,23 @@ export default function GamePage() {
         </div>
       )}
 
+      <header className="border-b-2 border-border bg-panel px-2 py-2 sm:px-3">
+        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="pixel-eyebrow">{t('game.dungeon')}</p>
+            <h1 className="pixel-type truncate text-sm font-black text-primaryText">{selectedLevel.name}</h1>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <PixelButton type="button" icon="help" size="sm" onClick={() => setDocOpen(true)}>
+              {t('common.help')}
+            </PixelButton>
+            <PixelButton href="/levels" icon="list" size="sm">
+              {t('common.levels')}
+            </PixelButton>
+          </div>
+        </div>
+      </header>
+
       {!levelIsPlayable ? (
         <div className="border-b-2 border-border bg-black px-4 py-3 text-xs leading-6 text-secondaryText">
           {t('game.previewBanner')}
@@ -845,9 +862,13 @@ export default function GamePage() {
               className="flex h-full min-h-0 max-h-full flex-col overflow-hidden"
               bodyClassName="flex min-h-0 max-h-full flex-1 overflow-hidden p-2 sm:p-3"
               headerAction={
-                <div className="pixel-type flex items-center gap-2 text-[10px] text-secondaryText">
-                  <PixelIcon sprite={UI_SPRITES.icons.save} scale={1} />
-                  {t('common.saved')}
+                <div className="flex flex-wrap justify-end gap-2">
+                  <PixelButton type="button" icon="play" size="sm" variant="primary" onClick={onRun} disabled={running}>
+                    {running ? t('common.running') : t('common.run')}
+                  </PixelButton>
+                  <PixelButton type="button" icon="reset" size="sm" variant="danger" onClick={onReset}>
+                    {t('common.reset')}
+                  </PixelButton>
                 </div>
               }
             >
@@ -855,22 +876,7 @@ export default function GamePage() {
             </PixelPanel>
           </div>
 
-          <div className="grid min-h-0 gap-2 sm:gap-3 xl:grid-cols-[auto_minmax(0,1fr)]">
-            <div className="flex min-h-0 flex-wrap content-start gap-2">
-              <PixelButton type="button" icon="play" variant="primary" onClick={onRun} disabled={running}>
-                {running ? t('common.running') : t('common.run')}
-              </PixelButton>
-              <PixelButton type="button" icon="reset" variant="danger" onClick={onReset}>
-                {t('common.reset')}
-              </PixelButton>
-              <PixelButton type="button" icon="help" onClick={() => setDocOpen(true)}>
-                {t('common.help')}
-              </PixelButton>
-              <PixelButton href="/levels" icon="list">
-                {t('common.levels')}
-              </PixelButton>
-            </div>
-
+          <div className="min-h-0">
             <PixelPanel variant="console" title={t('game.console')} className="min-h-0 overflow-hidden" bodyClassName="max-h-24 min-h-0 overflow-y-auto p-2 sm:p-3">
               <div className="font-mono text-[10px] leading-5 text-secondaryText">
                 {logs.length ? (
