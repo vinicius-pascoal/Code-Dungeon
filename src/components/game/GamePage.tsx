@@ -4,7 +4,7 @@ import DungeonGrid from './DungeonGrid'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
 import DocumentationModal from './DocumentationModal'
-import SettingsModal from './SettingsModal'
+import SettingsModal, { type AnimationSpeed } from './SettingsModal'
 import CodeEditor from './CodeEditor'
 import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
@@ -496,16 +496,25 @@ export default function GamePage() {
   const [introLines, setIntroLines] = useState<string[]>([])
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [editorPosition, setEditorPosition] = useState<'left' | 'right'>('right')
+  const [animationSpeed, setAnimationSpeed] = useState<AnimationSpeed>('normal')
 
   useEffect(() => {
     if (localStorage.getItem('code-dungeon-editor-position') === 'left') {
       setEditorPosition('left')
+    }
+    if (localStorage.getItem('code-dungeon-animation-speed') === 'fast') {
+      setAnimationSpeed('fast')
     }
   }, [])
 
   function changeEditorPosition(position: 'left' | 'right') {
     setEditorPosition(position)
     localStorage.setItem('code-dungeon-editor-position', position)
+  }
+
+  function changeAnimationSpeed(speed: AnimationSpeed) {
+    setAnimationSpeed(speed)
+    localStorage.setItem('code-dungeon-animation-speed', speed)
   }
 
   // Salvar código quando muda
@@ -621,7 +630,8 @@ export default function GamePage() {
               return
             }
             addLog(t('game.finishedLog'))
-          }
+          },
+          animationSpeed
         )
       } else {
         // Usar parser simples original
@@ -677,7 +687,8 @@ export default function GamePage() {
             }
 
             addLog(t('game.finishedLog'))
-          }
+          },
+          animationSpeed
         )
       }
     } catch (error) {
@@ -741,6 +752,8 @@ export default function GamePage() {
         onClose={() => setSettingsOpen(false)}
         editorPosition={editorPosition}
         onEditorPositionChange={changeEditorPosition}
+        animationSpeed={animationSpeed}
+        onAnimationSpeedChange={changeAnimationSpeed}
       />
 
       {introOpen && (
@@ -869,6 +882,7 @@ export default function GamePage() {
                   playerY={player.y}
                   playerDirection={player.direction}
                   playerAnimationState={playerAnimationState}
+                  animationSpeed={animationSpeed}
                   enemies={enemies}
                   isRunning={running}
                   hideWalls={selectedBaseLevel.hideWalls ?? false}

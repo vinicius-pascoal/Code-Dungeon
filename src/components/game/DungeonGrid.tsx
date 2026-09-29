@@ -17,6 +17,7 @@ type Props = {
   playerY: number
   playerDirection: Direction
   playerAnimationState?: PlayerAnimationState
+  animationSpeed?: 'normal' | 'fast'
   enemies: Enemy[]
   isRunning?: boolean
   hideWalls?: boolean
@@ -150,6 +151,7 @@ export default function DungeonGrid({
   playerY,
   playerDirection,
   playerAnimationState,
+  animationSpeed = 'normal',
   enemies,
   isRunning,
   hideWalls,
@@ -435,6 +437,7 @@ export default function DungeonGrid({
               <PlayerSprite
                 direction={playerDirection}
                 animationState={resolvedPlayerAnimationState}
+                animationSpeed={animationSpeed}
                 size={tileSize * PLAYER_SPRITE_SCALE}
               />
             </div>

@@ -10,6 +10,7 @@ import { useSpriteAnimation } from './useSpriteAnimation'
 type PlayerSpriteProps = {
   direction: Direction
   animationState: PlayerAnimationState
+  animationSpeed?: 'normal' | 'fast'
   size: number
   className?: string
   ariaLabel?: string
@@ -45,6 +46,7 @@ function usePrefersReducedMotion() {
 export default function PlayerSprite({
   direction,
   animationState,
+  animationSpeed = 'normal',
   size,
   className,
   ariaLabel = 'Personagem do jogador',
@@ -52,7 +54,8 @@ export default function PlayerSprite({
 }: PlayerSpriteProps) {
   const reducedMotion = usePrefersReducedMotion()
   const animationConfig = resolvePlayerAnimationConfig(animationState, direction)
-  const animationKey = `${animationState}:${direction}`
+  const animationKey = `${animationState}:${direction}:${animationSpeed}`
+  const frameDuration = animationSpeed === 'fast' ? animationConfig.frameDuration / 2 : animationConfig.frameDuration
   const renderSize = Math.max(16, Math.round(size))
   const flipX = shouldFlipPlayerSprite(direction)
 
@@ -73,7 +76,7 @@ export default function PlayerSprite({
 
   const currentFrame = useSpriteAnimation({
     frames: animationConfig.frames,
-    frameDuration: animationConfig.frameDuration,
+    frameDuration,
     loop: animationConfig.loop,
     animationKey,
     reducedMotion,

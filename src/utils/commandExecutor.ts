@@ -56,9 +56,11 @@ export async function executeCommands(
   level: Level,
   onStep: StepCallback,
   onError: (msg: string) => void,
-  onComplete: (result: { player: PlayerState; won: boolean }) => void
+  onComplete: (result: { player: PlayerState; won: boolean }) => void,
+  animationSpeed: 'normal' | 'fast' = 'normal'
 ) {
-  const commandStepDelayMs = level.id === 999 ? PROCEDURAL_COMMAND_STEP_DELAY_MS : COMMAND_STEP_DELAY_MS
+  const baseCommandStepDelayMs = level.id === 999 ? PROCEDURAL_COMMAND_STEP_DELAY_MS : COMMAND_STEP_DELAY_MS
+  const commandStepDelayMs = animationSpeed === 'fast' ? baseCommandStepDelayMs / 2 : baseCommandStepDelayMs
   const state: GameState = {
     grid: cloneGrid(level.grid),
     player: { ...level.playerStart },
