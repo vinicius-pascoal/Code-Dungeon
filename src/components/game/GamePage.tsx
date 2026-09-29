@@ -4,12 +4,12 @@ import DungeonGrid from './DungeonGrid'
 import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
 import DocumentationModal from './DocumentationModal'
+import SettingsModal from './SettingsModal'
 import CodeEditor from './CodeEditor'
 import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
 import PixelIcon from '../ui/PixelIcon'
 import PixelPanel from '../ui/PixelPanel'
-import LanguageSelect from '../ui/LanguageSelect'
 import { UI_SPRITES } from '../../game/ui/uiSprites'
 import { getLevelById, levels } from '../../data/levels'
 import { getIntroLines, localizeLevel, useI18n } from '../../i18n'
@@ -736,58 +736,12 @@ export default function GamePage() {
         availableCommands={selectedBaseLevel.availableCommands}
       />
 
-      {settingsOpen ? (
-        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
-          <PixelPanel
-            variant="modal"
-            className="w-full max-w-lg"
-            title={t('game.settings.title')}
-            icon="settings"
-            headerAction={
-              <PixelButton
-                type="button"
-                icon="reset"
-                size="sm"
-                variant="ghost"
-                onClick={() => setSettingsOpen(false)}
-                aria-label={t('game.settings.close')}
-              >
-                {t('common.close')}
-              </PixelButton>
-            }
-          >
-            <div className="grid gap-5">
-              <section>
-                <p className="pixel-eyebrow">{t('game.settings.language')}</p>
-                <LanguageSelect className="mt-2" />
-              </section>
-
-              <section>
-                <p className="pixel-eyebrow">{t('game.settings.layout')}</p>
-                <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                  {(['left', 'right'] as const).map((position) => (
-                    <label
-                      key={position}
-                      className={`flex cursor-pointer items-center gap-3 border-2 p-3 text-xs text-primaryText ${editorPosition === position ? 'border-primaryText bg-primaryText/10' : 'border-border bg-black'
-                        }`}
-                    >
-                      <input
-                        type="radio"
-                        name="editor-position"
-                        value={position}
-                        checked={editorPosition === position}
-                        onChange={() => changeEditorPosition(position)}
-                        className="accent-primaryText"
-                      />
-                      <span>{t(position === 'left' ? 'game.settings.editorLeft' : 'game.settings.editorRight')}</span>
-                    </label>
-                  ))}
-                </div>
-              </section>
-            </div>
-          </PixelPanel>
-        </div>
-      ) : null}
+      <SettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        editorPosition={editorPosition}
+        onEditorPositionChange={changeEditorPosition}
+      />
 
       {introOpen && (
         <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
