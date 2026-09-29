@@ -905,7 +905,7 @@ export default function GamePage() {
             </div>
           </PixelPanel>
 
-          <div className="grid min-h-0 grid-rows-[minmax(0,0.72fr)_minmax(0,1.28fr)] gap-2 sm:gap-3 lg:grid-cols-[minmax(280px,0.82fr)_minmax(360px,1.18fr)] lg:grid-rows-none">
+          <div className={`grid min-h-0 grid-rows-[minmax(0,0.72fr)_minmax(0,1.28fr)] gap-2 sm:gap-3 lg:grid-rows-none ${editorPosition === 'left' ? 'lg:grid-cols-[minmax(360px,1.18fr)_minmax(280px,0.82fr)]' : 'lg:grid-cols-[minmax(280px,0.82fr)_minmax(360px,1.18fr)]'}`}>
             <PixelPanel variant="default" title={t('game.dungeon')} eyebrow={t('game.mapEyebrow')} className={`min-h-0 overflow-hidden ${editorPosition === 'left' ? 'lg:order-2' : 'lg:order-1'}`} bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
               <PixelFrame className="min-h-0 compact">
                 <DungeonGrid
