@@ -7,6 +7,7 @@ export const UI_SPRITES = {
     reset: { x: 213, y: 57, width: 21, height: 22 },
     help: { x: 213, y: 81, width: 21, height: 22 },
     save: { x: 241, y: 10, width: 18, height: 20 },
+    settings: { x: 241, y: 33, width: 21, height: 22 },
     target: { x: 265, y: 33, width: 23, height: 22 },
     left: { x: 292, y: 33, width: 22, height: 22 },
     right: { x: 292, y: 9, width: 22, height: 22 },

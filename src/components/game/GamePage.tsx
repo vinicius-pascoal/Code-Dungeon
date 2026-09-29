@@ -9,6 +9,7 @@ import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
 import PixelIcon from '../ui/PixelIcon'
 import PixelPanel from '../ui/PixelPanel'
+import LanguageSelect from '../ui/LanguageSelect'
 import { UI_SPRITES } from '../../game/ui/uiSprites'
 import { getLevelById, levels } from '../../data/levels'
 import { getIntroLines, localizeLevel, useI18n } from '../../i18n'
@@ -493,6 +494,19 @@ export default function GamePage() {
   const [docOpen, setDocOpen] = useState(false)
   const [introOpen, setIntroOpen] = useState(false)
   const [introLines, setIntroLines] = useState<string[]>([])
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [editorPosition, setEditorPosition] = useState<'left' | 'right'>('right')
+
+  useEffect(() => {
+    if (localStorage.getItem('code-dungeon-editor-position') === 'left') {
+      setEditorPosition('left')
+    }
+  }, [])
+
+  function changeEditorPosition(position: 'left' | 'right') {
+    setEditorPosition(position)
+    localStorage.setItem('code-dungeon-editor-position', position)
+  }
 
   // Salvar código quando muda
   useEffect(() => {
@@ -722,6 +736,59 @@ export default function GamePage() {
         availableCommands={selectedBaseLevel.availableCommands}
       />
 
+      {settingsOpen ? (
+        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-4">
+          <PixelPanel
+            variant="modal"
+            className="w-full max-w-lg"
+            title={t('game.settings.title')}
+            icon="settings"
+            headerAction={
+              <PixelButton
+                type="button"
+                icon="reset"
+                size="sm"
+                variant="ghost"
+                onClick={() => setSettingsOpen(false)}
+                aria-label={t('game.settings.close')}
+              >
+                {t('common.close')}
+              </PixelButton>
+            }
+          >
+            <div className="grid gap-5">
+              <section>
+                <p className="pixel-eyebrow">{t('game.settings.language')}</p>
+                <LanguageSelect className="mt-2" />
+              </section>
+
+              <section>
+                <p className="pixel-eyebrow">{t('game.settings.layout')}</p>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {(['left', 'right'] as const).map((position) => (
+                    <label
+                      key={position}
+                      className={`flex cursor-pointer items-center gap-3 border-2 p-3 text-xs text-primaryText ${editorPosition === position ? 'border-primaryText bg-primaryText/10' : 'border-border bg-black'
+                        }`}
+                    >
+                      <input
+                        type="radio"
+                        name="editor-position"
+                        value={position}
+                        checked={editorPosition === position}
+                        onChange={() => changeEditorPosition(position)}
+                        className="accent-primaryText"
+                      />
+                      <span>{t(position === 'left' ? 'game.settings.editorLeft' : 'game.settings.editorRight')}</span>
+                    </label>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </PixelPanel>
+        </div>
+      ) : null}
+
       {introOpen && (
         <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
           <PixelPanel
@@ -788,6 +855,9 @@ export default function GamePage() {
             <PixelButton href="/levels" icon="list" size="sm">
               {t('common.levels')}
             </PixelButton>
+            <PixelButton type="button" icon="settings" size="sm" onClick={() => setSettingsOpen(true)}>
+              {t('common.settings')}
+            </PixelButton>
           </div>
         </div>
       </header>
@@ -836,7 +906,7 @@ export default function GamePage() {
           </PixelPanel>
 
           <div className="grid min-h-0 grid-rows-[minmax(0,0.72fr)_minmax(0,1.28fr)] gap-2 sm:gap-3 lg:grid-cols-[minmax(280px,0.82fr)_minmax(360px,1.18fr)] lg:grid-rows-none">
-            <PixelPanel variant="default" title={t('game.dungeon')} eyebrow={t('game.mapEyebrow')} className="min-h-0 overflow-hidden" bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
+            <PixelPanel variant="default" title={t('game.dungeon')} eyebrow={t('game.mapEyebrow')} className={`min-h-0 overflow-hidden ${editorPosition === 'left' ? 'lg:order-2' : 'lg:order-1'}`} bodyClassName="h-[calc(100%-4.5rem)] min-h-0 p-1.5 sm:p-2">
               <PixelFrame className="min-h-0 compact">
                 <DungeonGrid
                   level={selectedBaseLevel}
@@ -859,7 +929,7 @@ export default function GamePage() {
               variant="editor"
               title={t('game.editor')}
               eyebrow={t('game.codeArea')}
-              className="flex h-full min-h-0 max-h-full flex-col overflow-hidden"
+              className={`flex h-full min-h-0 max-h-full flex-col overflow-hidden ${editorPosition === 'left' ? 'lg:order-1' : 'lg:order-2'}`}
               bodyClassName="flex min-h-0 max-h-full flex-1 overflow-hidden p-2 sm:p-3"
               headerAction={
                 <div className="flex flex-wrap justify-end gap-2">
