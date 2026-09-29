@@ -67,12 +67,25 @@ function takePathPosition(path: Position[], progress: number, occupied: Set<stri
  * Os elementos sao colocados na rota entre o inicio e a saida para evitar soft locks.
  */
 export function generateProceduralFinalLevel(): Level {
-  const grid = generateMaze(30, 30)
   const start: Position = { x: 2, y: 2 }
-  const exit = findExitPosition(grid)
-  const path = findPath(grid, start, exit)
+  let grid: TileType[][] = []
+  let exit: Position = start
+  let path: Position[] = []
 
-  if (path.length < 20) {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const candidateGrid = generateMaze(30, 30)
+    const candidateExit = findExitPosition(candidateGrid)
+    const candidatePath = findPath(candidateGrid, start, candidateExit)
+
+    if (candidatePath.length >= 20) {
+      grid = candidateGrid
+      exit = candidateExit
+      path = candidatePath
+      break
+    }
+  }
+
+  if (!grid.length || !path.length) {
     throw new Error('O mapa procedural final precisa de uma rota maior para distribuir as mecanicas.')
   }
 
