@@ -80,10 +80,10 @@ function renderObjectOverlay(tile: TileType, tileSize: number, spikesActive: boo
       tile === 'EXIT'
         ? 'Saida'
         : tile === 'KEY'
-            ? 'Chave'
-            : tile === 'OPEN_CHEST'
-              ? 'Bau aberto'
-              : 'Bau fechado'
+          ? 'Chave'
+          : tile === 'OPEN_CHEST'
+            ? 'Bau aberto'
+            : 'Bau fechado'
 
     return (
       <SpriteTile
@@ -353,118 +353,92 @@ export default function DungeonGrid({
             +
           </PixelButton>
         </div>
-        <PixelButton
-          type="button"
-          onClick={handleResetZoom}
-          size="sm"
-          title={t('game.resetZoom')}
-        >
-          {t('common.reset')}
-        </PixelButton>
-        <PixelButton
-          type="button"
-          onClick={handleFitToScreen}
-          size="sm"
-          title={t('game.fitBoard')}
-        >
-          {t('game.fitAll')}
-        </PixelButton>
-        {cols > 30 && (
-          <PixelButton
-            type="button"
-            onClick={centerOnPlayer}
-            size="sm"
-            title={t('game.centerPlayer')}
-          >
-            {t('game.player')}
-          </PixelButton>
-        )}
         <div className="pixel-type ml-auto flex items-center gap-3 text-xs text-secondaryText">
           <span>{t('game.dragHint')}</span>
-          <span>{cols} x {rows}</span>
         </div>
       </div>
 
       <div
         ref={containerRef}
-        className={`flex-1 overflow-auto bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`h-0 min-h-0 min-w-0 flex-1 overflow-auto bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onScroll={handleScroll}
         onMouseDown={handleMouseDown}
       >
         <div
-          className="flex items-center justify-center p-2"
+          className="flex w-full items-center justify-center p-2"
           style={{
             boxSizing: 'border-box',
             minWidth: `${Math.max(gridPixelWidth + 16, viewportWidth)}px`,
-            minHeight: `${Math.max(gridPixelHeight + 16, viewportHeight)}px`,
+            height: '100%',
+            maxHeight: '100%',
           }}
         >
-        <div
-          ref={gridRef}
-          className="relative"
-          style={{
-            width: `${gridPixelWidth}px`,
-            height: `${gridPixelHeight}px`,
-            backgroundColor: '#050505',
-          }}
-        >
-          {/* Render apenas tiles visíveis */}
-          {visibleRows.map(({ x, y }) => {
-            const tile = map[y][x]
-            const key = `${x}-${y}`
-            const isHidden = Boolean(hiddenCellKeys?.has(key)) && !revealedCells?.has(key) && !(x === playerX && y === playerY)
-            const enemy = enemyAt(enemies, x, y)
-            const canShowObjects = !isHidden && tile !== 'VOID'
-            const tileSprite = isHidden ? null : resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
-            const enemySize = Math.max(18, Math.round(tileSize * 0.78))
-            const tileStyle: React.CSSProperties = {
-              position: 'absolute',
-              left: `${x * tileSize}px`,
-              top: `${y * tileSize}px`,
-              width: `${tileSize}px`,
-              height: `${tileSize}px`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              overflow: 'hidden',
-            }
-
-            return (
-              <div key={key} style={tileStyle} className={getCellClassName(tile, hideWalls)}>
-                {tileSprite ? (
-                  <SpriteTile
-                    sprite={tileSprite}
-                    size={tileSize}
-                    className="absolute inset-0"
-                    ariaLabel={getTileAriaLabel(tile)}
-                  />
-                ) : null}
-                {isHidden ? renderHiddenCell(tileSize) : renderObjectOverlay(tile, tileSize, spikesActive)}
-                {canShowObjects && enemy ? (
-                  <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
-                    <BatSprite size={enemySize} x={x} y={y} />
-                  </div>
-                ) : null}
-              </div>
-            )
-          })}
-
           <div
-            className="absolute z-30 pointer-events-none flex items-center justify-center"
+            ref={gridRef}
+            className="relative"
             style={{
-              left: `${playerX * tileSize}px`,
-              top: `${playerY * tileSize}px`,
-              width: `${tileSize}px`,
-              height: `${tileSize}px`,
+              width: `${gridPixelWidth}px`,
+              height: `${gridPixelHeight}px`,
+              backgroundColor: '#050505',
             }}
           >
-            <PlayerSprite
-              direction={playerDirection}
-              animationState={resolvedPlayerAnimationState}
-              size={tileSize * PLAYER_SPRITE_SCALE}
-            />
+            {/* Render apenas tiles visíveis */}
+            {visibleRows.map(({ x, y }) => {
+              const tile = map[y][x]
+              const key = `${x}-${y}`
+              const isHidden = Boolean(hiddenCellKeys?.has(key)) && !revealedCells?.has(key) && !(x === playerX && y === playerY)
+              const enemy = enemyAt(enemies, x, y)
+              const canShowObjects = !isHidden && tile !== 'VOID'
+              const tileSprite = isHidden ? null : resolveTileSprite({ tile, map, x, y, hideWalls, levelId: level.id })
+              const enemySize = Math.max(18, Math.round(tileSize * 0.78))
+              const tileStyle: React.CSSProperties = {
+                position: 'absolute',
+                left: `${x * tileSize}px`,
+                top: `${y * tileSize}px`,
+                width: `${tileSize}px`,
+                height: `${tileSize}px`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+              }
+
+              return (
+                <div key={key} style={tileStyle} className={getCellClassName(tile, hideWalls)}>
+                  {tileSprite ? (
+                    <SpriteTile
+                      sprite={tileSprite}
+                      size={tileSize}
+                      className="absolute inset-0"
+                      ariaLabel={getTileAriaLabel(tile)}
+                    />
+                  ) : null}
+                  {isHidden ? renderHiddenCell(tileSize) : renderObjectOverlay(tile, tileSize, spikesActive)}
+                  {canShowObjects && enemy ? (
+                    <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
+                      <BatSprite size={enemySize} x={x} y={y} />
+                    </div>
+                  ) : null}
+                </div>
+              )
+            })}
+
+            <div
+              className="absolute z-30 pointer-events-none flex items-center justify-center"
+              style={{
+                left: `${playerX * tileSize}px`,
+                top: `${playerY * tileSize}px`,
+                width: `${tileSize}px`,
+                height: `${tileSize}px`,
+              }}
+            >
+              <PlayerSprite
+                direction={playerDirection}
+                animationState={resolvedPlayerAnimationState}
+                size={tileSize * PLAYER_SPRITE_SCALE}
+              />
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>
