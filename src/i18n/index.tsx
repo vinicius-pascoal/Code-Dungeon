@@ -23,6 +23,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'language.es': 'Espanhol',
 
     'common.close': 'Fechar',
+    'mobile.title': 'Tela indisponivel',
+    'mobile.message': 'O Code Dungeon precisa de uma tela maior para exibir o mapa e o editor de codigo.',
+    'mobile.requirement': 'Acesse pelo computador ou aumente a largura da janela.',
     'common.play': 'Jogar',
     'common.back': 'Voltar',
     'common.levels': 'Fases',
@@ -186,6 +189,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'language.es': 'Spanish',
 
     'common.close': 'Close',
+    'mobile.title': 'Screen unavailable',
+    'mobile.message': 'Code Dungeon needs a larger screen to display the map and code editor.',
+    'mobile.requirement': 'Access it from a computer or widen the window.',
     'common.play': 'Play',
     'common.back': 'Back',
     'common.levels': 'Levels',
@@ -349,6 +355,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'language.es': 'Espanol',
 
     'common.close': 'Cerrar',
+    'mobile.title': 'Pantalla no disponible',
+    'mobile.message': 'Code Dungeon necesita una pantalla mas grande para mostrar el mapa y el editor de codigo.',
+    'mobile.requirement': 'Accede desde una computadora o amplia la ventana.',
     'common.play': 'Jugar',
     'common.back': 'Volver',
     'common.levels': 'Fases',

@@ -111,6 +111,49 @@ body {
   color: #ebede9;
 }
 
+.small-screen-blocker {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .small-screen-blocker {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #090a14;
+    color: #ebede9;
+  }
+
+  .small-screen-blocker__panel {
+    width: min(100%, 30rem);
+    border: 2px solid #ebede9;
+    padding: 1.5rem;
+    background: #090a14;
+    box-shadow: inset 0 0 0 4px #752438, 0 0 0 2px #000;
+    text-align: center;
+  }
+
+  .small-screen-blocker__title {
+    margin-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+
+  .small-screen-blocker__panel p {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    line-height: 2;
+  }
+
+  .small-screen-blocker__requirement {
+    color: #b9bdb8;
+  }
+}
+
 .pixel-type {
   font-family: "Press Start 2P", ui-monospace, SFMono-Regular, monospace;
   letter-spacing: 0;
