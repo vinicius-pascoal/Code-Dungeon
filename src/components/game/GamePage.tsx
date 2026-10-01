@@ -5,6 +5,7 @@ import VictoryModal from './VictoryModal'
 import ErrorModal from './ErrorModal'
 import DocumentationModal from './DocumentationModal'
 import SettingsModal, { type AnimationSpeed } from './SettingsModal'
+import LevelIntroModal from './LevelIntroModal'
 import CodeEditor from './CodeEditor'
 import PixelButton from '../ui/PixelButton'
 import PixelFrame from '../ui/PixelFrame'
@@ -756,58 +757,16 @@ export default function GamePage() {
         onAnimationSpeedChange={changeAnimationSpeed}
       />
 
-      {introOpen && (
-        <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4 py-6">
-          <PixelPanel
-            variant="modal"
-            className="relative w-full max-w-2xl"
-            eyebrow={t('game.introEyebrow')}
-            title={selectedLevel.name}
-            headerAction={
-              <PixelButton
-                type="button"
-                icon="reset"
-                variant="ghost"
-                size="sm"
-                onClick={() => setIntroOpen(false)}
-                aria-label={t('common.close')}
-              >
-                {t('common.close')}
-              </PixelButton>
-            }
-          >
-            <div className="space-y-2 text-xs leading-6 text-secondaryText max-h-80 overflow-y-auto">
-              {introLines.map((line, i) => {
-                const isCodeLine = line.includes(';') || line.endsWith('{') || line === '}' || line.startsWith('  ')
-                const isExampleLabel = line === t('game.example')
-
-                return (
-                  <p
-                    key={i}
-                    className={
-                      isCodeLine
-                        ? 'whitespace-pre-wrap border border-border/70 bg-bg px-2 py-1 font-mono text-[10px] leading-5 text-primaryText'
-                        : isExampleLabel
-                          ? 'pixel-type pt-2 text-[10px] text-primaryText'
-                          : line.startsWith('- ')
-                            ? 'ml-3 font-mono text-[10px] text-primaryText'
-                            : ''
-                    }
-                  >
-                    {line}
-                  </p>
-                )
-              })}
-            </div>
-
-            <div className="mt-5 flex justify-end">
-              <PixelButton type="button" icon="play" variant="primary" onClick={() => setIntroOpen(false)}>
-                {t('common.understood')}
-              </PixelButton>
-            </div>
-          </PixelPanel>
-        </div>
-      )}
+      <LevelIntroModal
+        isOpen={introOpen}
+        levelName={selectedLevel.name}
+        lines={introLines}
+        onClose={() => setIntroOpen(false)}
+        onOpenHelp={() => {
+          setIntroOpen(false)
+          setDocOpen(true)
+        }}
+      />
 
       <header className="border-b-2 border-border bg-panel px-2 py-2 sm:px-3">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-2">

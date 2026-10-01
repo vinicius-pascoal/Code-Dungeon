@@ -133,8 +133,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'game.devSuggestion': 'Escolha uma fase marcada como Jogavel na tela de mundos.',
     'game.previewBanner': 'Esta fase e um preview do proximo mundo. Ela ja aparece na lista para organizar a progressao, mas ainda esta bloqueada enquanto os recursos de loops, if e funcoes sao ampliados.',
     'game.introEyebrow': 'Novidades da fase',
+    'game.introTopic': 'Novidade',
+    'game.introExampleTitle': 'Exemplo',
     'game.example': 'Exemplo:',
-    'game.helpLine': 'Para ver todos os comandos disponiveis nesta fase, abra Ajuda.',
     'game.newLevelFallback': 'Nova fase disponivel.',
     'game.observeFallback': 'Observe o mapa e resolva um passo por vez.',
     'game.requirementTitle': 'Recurso obrigatorio',
@@ -309,8 +310,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'game.devSuggestion': 'Choose a level marked as Playable on the worlds screen.',
     'game.previewBanner': 'This level is a preview of the next world. It already appears in the list to organize progression, but it is still locked while loops, if, and functions are expanded.',
     'game.introEyebrow': 'Level news',
+    'game.introTopic': 'New concept',
+    'game.introExampleTitle': 'Example',
     'game.example': 'Example:',
-    'game.helpLine': 'To see every command available in this level, open Help.',
     'game.newLevelFallback': 'New level available.',
     'game.observeFallback': 'Observe the map and solve one step at a time.',
     'game.requirementTitle': 'Required feature',
@@ -485,8 +487,9 @@ const dictionaries: Record<Locale, Dictionary> = {
     'game.devSuggestion': 'Elige una fase marcada como Jugable en la pantalla de mundos.',
     'game.previewBanner': 'Esta fase es una vista previa del proximo mundo. Ya aparece en la lista para organizar la progresion, pero sigue bloqueada mientras se amplian loops, if y funciones.',
     'game.introEyebrow': 'Novedades de la fase',
+    'game.introTopic': 'Novedad',
+    'game.introExampleTitle': 'Ejemplo',
     'game.example': 'Ejemplo:',
-    'game.helpLine': 'Para ver todos los comandos disponibles en esta fase, abre Ayuda.',
     'game.newLevelFallback': 'Nueva fase disponible.',
     'game.observeFallback': 'Observa el mapa y resuelve un paso por vez.',
     'game.requirementTitle': 'Recurso obligatorio',
@@ -721,7 +724,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
       2: ['Novidade: virar muda a direcao do personagem.', 'Combine turnRight() com moveForward() para fazer curvas.'],
       3: ['Novidade: existem rotas que exigem virar para o outro lado.', 'Planeje a ordem dos movimentos antes de executar.'],
       4: ['Novidade: a rota mistura varias curvas.', 'Pense em cada linha como uma instrucao pequena da solucao.'],
-      5: ['Novidade: espinhos bloqueiam o caminho seguro.', 'Nao pise em SPIKE: contorne o perigo usando curvas.', 'Dica: execute devagar e observe onde o caminho seguro passa.'],
+      5: ['Novidade: os espinhos bloqueiam o caminho e mudam de estado a cada 2 rodadas.', 'Use await(); para esperar o momento certo antes de atravessar a casa SPIKE.', 'Cada await(); conta como uma rodada. Sincronize a travessia quando os espinhos estiverem baixos.'],
       6: ['Novidade: inimigos bloqueiam o caminho.', 'Use attack() antes de tentar andar para a casa do inimigo.'],
       7: ['Novidade: portas precisam de chave.', 'Pegue a chave com grabKey() e abra a porta com openDoor().'],
       8: ['Novidade: baus podem fazer parte do objetivo.', 'Fique de frente para o bau e use openChest().'],
@@ -743,7 +746,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
       2: ['New: turning changes the character direction.', 'Combine turnRight() with moveForward() to make turns.'],
       3: ['New: some routes require turning the other way.', 'Plan the movement order before running.'],
       4: ['New: this route mixes several turns.', 'Think of each line as a small instruction in the solution.'],
-      5: ['New: spikes block the safe path.', 'Do not step on SPIKE: go around danger with turns.', 'Tip: run slowly and observe where the safe path goes.'],
+      5: ['New: spikes block the safe path and change state every 2 rounds.', 'Use await(); to wait for the right moment before crossing the SPIKE tile.', 'Each await(); counts as a round, so time the crossing while the spikes are down.'],
       6: ['New: enemies block the path.', 'Use attack() before trying to walk into the enemy tile.'],
       7: ['New: doors need keys.', 'Pick up the key with grabKey() and open the door with openDoor().'],
       8: ['New: chests can be part of the objective.', 'Stand in front of the chest and use openChest().'],
@@ -765,7 +768,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
       2: ['Nuevo: girar cambia la direccion del personaje.', 'Combina turnRight() con moveForward() para doblar.'],
       3: ['Nuevo: algunas rutas exigen girar hacia el otro lado.', 'Planea el orden de movimientos antes de ejecutar.'],
       4: ['Nuevo: la ruta mezcla varias curvas.', 'Piensa en cada linea como una instruccion pequena de la solucion.'],
-      5: ['Nuevo: los pinchos bloquean el camino seguro.', 'No pises SPIKE: rodea el peligro usando giros.', 'Consejo: ejecuta despacio y observa por donde pasa el camino seguro.'],
+      5: ['Nuevo: los pinchos bloquean el camino seguro y cambian de estado cada 2 rondas.', 'Usa await(); para esperar el momento correcto antes de cruzar la casilla SPIKE.', 'Cada await(); cuenta como una ronda, asi que sincroniza el cruce cuando los pinchos esten abajo.'],
       6: ['Nuevo: los enemigos bloquean el camino.', 'Usa attack() antes de intentar caminar hacia la casilla del enemigo.'],
       7: ['Nuevo: las puertas necesitan llave.', 'Toma la llave con grabKey() y abre la puerta con openDoor().'],
       8: ['Nuevo: los cofres pueden formar parte del objetivo.', 'Ponte frente al cofre y usa openChest().'],
@@ -784,10 +787,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
     },
   }
 
-  return [
-    ...(introByLevel[locale][level.id] ?? [level.description ?? t('game.newLevelFallback'), t('game.observeFallback')]),
-    t('game.helpLine'),
-  ]
+  return introByLevel[locale][level.id] ?? [level.description ?? t('game.newLevelFallback'), t('game.observeFallback')]
 }
 
 export type CommandDoc = {
