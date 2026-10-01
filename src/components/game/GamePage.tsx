@@ -402,7 +402,7 @@ function starterCode(levelId: number) {
     case 2:
       return 'moveForward();\nturnRight();'
     case 3:
-      return 'moveForward();\nturnLeft();'
+      return '// Comentarios explicam a rota e nao sao executados.\nmoveForward();\n// Esta curva leva ate a saida.\nturnLeft();'
     case 4:
       return '// Planeje cada trecho da rota antes de avancar.\nmoveForward();\n// Adicione a proxima decisao aqui.'
     case 5:

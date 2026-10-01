@@ -722,7 +722,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
     pt: {
       1: ['Novidade: seu codigo roda de cima para baixo.', 'Use moveForward() para avancar ate a saida.'],
       2: ['Novidade: virar muda a direcao do personagem.', 'Combine turnRight() com moveForward() para fazer curvas.'],
-      3: ['Novidade: existem rotas que exigem virar para o outro lado.', 'Planeje a ordem dos movimentos antes de executar.'],
+      3: ['Novidade: comentarios ajudam a explicar o codigo e nao sao executados.', 'Escreva // antes do texto para adicionar uma anotacao e deixar a rota mais facil de ler.', 'Os comandos continuam sendo executados normalmente ao lado dos comentarios.'],
       4: ['Novidade: a rota mistura varias curvas.', 'Pense em cada linha como uma instrucao pequena da solucao.'],
       5: ['Novidade: os espinhos bloqueiam o caminho e mudam de estado a cada 2 rodadas.', 'Use await(); para esperar o momento certo antes de atravessar a casa SPIKE.', 'Cada await(); conta como uma rodada. Sincronize a travessia quando os espinhos estiverem baixos.'],
       6: ['Novidade: inimigos bloqueiam o caminho.', 'Use attack() antes de tentar andar para a casa do inimigo.'],
@@ -744,7 +744,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
     en: {
       1: ['New: your code runs from top to bottom.', 'Use moveForward() to advance to the exit.'],
       2: ['New: turning changes the character direction.', 'Combine turnRight() with moveForward() to make turns.'],
-      3: ['New: some routes require turning the other way.', 'Plan the movement order before running.'],
+      3: ['New: comments help explain code and are not executed.', 'Write // before text to add a note and make the route easier to read.', 'Commands still run normally alongside comments.'],
       4: ['New: this route mixes several turns.', 'Think of each line as a small instruction in the solution.'],
       5: ['New: spikes block the safe path and change state every 2 rounds.', 'Use await(); to wait for the right moment before crossing the SPIKE tile.', 'Each await(); counts as a round, so time the crossing while the spikes are down.'],
       6: ['New: enemies block the path.', 'Use attack() before trying to walk into the enemy tile.'],
@@ -766,7 +766,7 @@ export function getIntroLines(level: Level, locale: Locale, t: I18nContextValue[
     es: {
       1: ['Nuevo: tu codigo corre de arriba hacia abajo.', 'Usa moveForward() para avanzar hasta la salida.'],
       2: ['Nuevo: girar cambia la direccion del personaje.', 'Combina turnRight() con moveForward() para doblar.'],
-      3: ['Nuevo: algunas rutas exigen girar hacia el otro lado.', 'Planea el orden de movimientos antes de ejecutar.'],
+      3: ['Nuevo: los comentarios ayudan a explicar el codigo y no se ejecutan.', 'Escribe // antes del texto para agregar una nota y hacer la ruta mas facil de leer.', 'Los comandos siguen ejecutandose normalmente junto a los comentarios.'],
       4: ['Nuevo: la ruta mezcla varias curvas.', 'Piensa en cada linea como una instruccion pequena de la solucion.'],
       5: ['Nuevo: los pinchos bloquean el camino seguro y cambian de estado cada 2 rondas.', 'Usa await(); para esperar el momento correcto antes de cruzar la casilla SPIKE.', 'Cada await(); cuenta como una ronda, asi que sincroniza el cruce cuando los pinchos esten abajo.'],
       6: ['Nuevo: los enemigos bloquean el camino.', 'Usa attack() antes de intentar caminar hacia la casilla del enemigo.'],
