@@ -15,7 +15,6 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   const [lineCount, setLineCount] = useState(1)
   const [suggestion, setSuggestion] = useState<string | null>(null)
   const [cursorState, setCursorState] = useState({ lineIndex: 0, column: 0, prefix: '' })
-  const [caretPosition, setCaretPosition] = useState({ lineIndex: 0, x: 0, visible: false })
   const [selection, setSelection] = useState<{ start: number; end: number } | null>(null)
   const [scrollTop, setScrollTop] = useState(0)
 
@@ -29,7 +28,6 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     if (!textarea || disabled) {
       setSuggestion(null)
       setCursorState({ lineIndex: 0, column: 0, prefix: '' })
-      setCaretPosition({ lineIndex: 0, x: 0, visible: false })
       setSelection(null)
       setScrollTop(0)
       return
@@ -46,18 +44,10 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
 
     setCursorState({ lineIndex, column, prefix })
 
-    const computedStyle = window.getComputedStyle(textarea)
-    const fontSize = parseFloat(computedStyle.fontSize) || 14
-    const charWidth = fontSize * 0.62
     const selectionStart = textarea.selectionStart ?? cursor
     const selectionEnd = textarea.selectionEnd ?? cursor
 
     setSelection(selectionStart === selectionEnd ? null : { start: selectionStart, end: selectionEnd })
-    setCaretPosition({
-      lineIndex,
-      x: column * charWidth,
-      visible: true,
-    })
 
     if (!prefix) {
       setSuggestion(null)
@@ -150,14 +140,6 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
       prefix,
     })
 
-    const computedStyle = window.getComputedStyle(textarea)
-    const fontSize = parseFloat(computedStyle.fontSize) || 14
-    const charWidth = fontSize * 0.62
-    setCaretPosition({
-      lineIndex: Math.max(0, linesBeforeCursor.length - 1),
-      x: currentLine.length * charWidth,
-      visible: true,
-    })
     setSelection(selectionStart === selectionEnd ? null : { start: selectionStart, end: selectionEnd })
   }
 
@@ -265,20 +247,14 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
                 <div key={index} className={lineClassName}>
                   {isCurrentLine && suggestionSuffix ? (
                     <>
-                      {line}
+                      {line.slice(0, cursorState.column)}
                       <span className={selectionState.selected ? 'text-bg/80' : 'text-primaryText/35'}>{suggestionSuffix}</span>
+                      {line.slice(cursorState.column)}
                     </>
                   ) : (
                     line
                   )}
 
-                  {isCurrentLine && caretPosition.visible && !hasSelection ? (
-                    <span
-                      aria-hidden="true"
-                      className="absolute top-0 bottom-0 w-[2px] bg-primaryText"
-                      style={{ left: `${caretPosition.x}px` }}
-                    />
-                  ) : null}
                 </div>
               )
             })}
