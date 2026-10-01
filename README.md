@@ -5,6 +5,7 @@ Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolv
 ## Sumario
 
 - [Resumo do projeto](#resumo-do-projeto)
+- [Demonstracao](#demonstracao)
 - [Objetivos](#objetivos)
 - [Funcionalidades](#funcionalidades)
 - [Tecnologias utilizadas](#tecnologias-utilizadas)
@@ -15,6 +16,7 @@ Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolv
 - [Comandos do jogo](#comandos-do-jogo)
 - [Conceitos trabalhados](#conceitos-trabalhados)
 - [Estrutura do projeto](#estrutura-do-projeto)
+- [Melhorias futuras](#melhorias-futuras)
 - [Validacao e testes](#validacao-e-testes)
 
 ## Resumo do projeto
@@ -22,6 +24,24 @@ Code Dungeon e um jogo educativo de logica e programacao em que o jogador resolv
 O projeto combina uma interface de jogo com um editor de codigo. O jogador le o objetivo da fase, escreve comandos e executa o programa para mover o personagem ate a saida. Ao longo da progressao, novos recursos sao liberados gradualmente: movimento, curvas, espinhos, chaves, portas, inimigos, baus, leitura do ambiente, variaveis, condicionais, loops e funcoes.
 
 A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem de dois desafios procedurais: o labirinto amplo da fase `999` e o desafio final menor da fase `1000`, com inimigos, chaves, portas, baus e espinhos. O progresso do codigo de cada fase e salvo no `localStorage`, facilitando tentativa, erro e refinamento.
+
+## Demonstracao
+
+### Pagina inicial
+
+A pagina inicial apresenta o jogo, direciona para as fases e mostra a fase 15 como exemplo de demonstracao.
+
+<p align="center">
+  <img src="public/demo/home.png" alt="Pagina inicial do Code Dungeon" width="900">
+</p>
+
+### Tela do jogo
+
+Na tela do jogo, o jogador acompanha o mapa, escreve o codigo no editor e executa a solucao passo a passo.
+
+<p align="center">
+  <img src="public/demo/game.png" alt="Tela do jogo com mapa e editor de codigo" width="900">
+</p>
 
 ## Objetivos
 
@@ -51,6 +71,7 @@ A aplicacao possui 19 fases guiadas organizadas em mundos tematicos, alem de doi
 - Indicacao da linha com erro no aviso de execucao e nos erros de sintaxe.
 - Salvamento automatico do codigo no navegador.
 - Modais de vitoria, erro, ajuda e introducao de fase.
+- Configuracoes de idioma e posicionamento do editor em relacao ao mapa.
 - Assets visuais para personagem, pisos, paredes, espinhos, detalhes, inimigos, UI e previews.
 
 ## Tecnologias utilizadas
@@ -218,7 +239,8 @@ walk(4);
 ```text
 .
 |-- public/
-|   `-- assets/                 # Sprites, tilesets, UI, personagem e imagens do jogo
+|   |-- assets/                 # Sprites, tilesets, UI, personagem e imagens do jogo
+|   `-- demo/                   # Imagens de demonstracao usadas no README
 |-- src/
 |   |-- components/game/         # Componentes da interface do jogo
 |   |-- components/ui/           # Componentes visuais reutilizaveis
@@ -251,6 +273,15 @@ Arquivos importantes:
 - `src/data/levels/level-procedural.ts`: geracao do labirinto procedural 999.
 - `src/data/levels/level-procedural-final.ts`: geracao do desafio procedural final 1000.
 - `src/data/levels/grid.ts`: helper para declarar mapas de fase por caracteres.
+
+## Melhorias futuras
+
+- Adicionar um script `npm test` com cobertura para parser, executor e regras das fases.
+- Persistir o progresso completo do jogador, incluindo fases concluidas e estrelas obtidas.
+- Criar novas fases e mundos com desafios de funcoes, estruturas de dados e algoritmos.
+- Evoluir o editor com realce de sintaxe, diagnosticos em tempo real e autocomplete mais completo.
+- Ampliar a acessibilidade com navegacao por teclado, foco visivel e suporte aprimorado a leitores de tela.
+- Adicionar novos idiomas e revisar as traducoes conforme novos conteudos forem lancados.
 
 ## Validacao e testes
 
