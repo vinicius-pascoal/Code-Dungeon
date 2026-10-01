@@ -174,8 +174,6 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
   const selectionStart = selection ? Math.min(selection.start, selection.end) : null
   const selectionEnd = selection ? Math.max(selection.start, selection.end) : null
 
-  const hasSelection = Boolean(selectionStart !== null && selectionEnd !== null && selectionStart !== selectionEnd)
-
   const getLineBounds = (index: number) => {
     let lineOffset = 0
     for (let i = 0; i < index; i += 1) {
@@ -188,21 +186,22 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
     return { lineStart, lineEnd }
   }
 
-  const getSelectionState = (index: number) => {
+  const getSelectionRange = (index: number) => {
     if (selectionStart === null || selectionEnd === null) {
-      return { selected: false, first: false, last: false }
+      return null
     }
 
     const { lineStart, lineEnd } = getLineBounds(index)
-    const selected = lineEnd > selectionStart && lineStart < selectionEnd
-    if (!selected) {
-      return { selected: false, first: false, last: false }
+    const selectedStart = Math.max(selectionStart, lineStart)
+    const selectedEnd = Math.min(selectionEnd, lineEnd)
+    if (selectedStart >= selectedEnd) {
+      return null
     }
 
-    const first = lineStart <= selectionStart && selectionStart < lineEnd
-    const last = lineStart < selectionEnd && selectionEnd <= lineEnd
-
-    return { selected, first, last }
+    return {
+      start: selectedStart - lineStart,
+      end: selectedEnd - lineStart,
+    }
   }
 
   return (
@@ -230,25 +229,26 @@ export default function CodeEditor({ value, onChange, disabled }: Props) {
           <div className="p-3 will-change-transform" style={{ transform: `translateY(${-scrollTop}px)` }}>
             {lines.map((line, index) => {
               const isCurrentLine = index === cursorState.lineIndex
-              const selectionState = getSelectionState(index)
+              const selectionRange = getSelectionRange(index)
               const lineClassName = [
                 'relative h-5 flex items-center whitespace-pre',
-                selectionState.selected
-                  ? [
-                    'bg-primaryText text-bg ring-1 ring-inset ring-primaryText',
-                    selectionState.first ? 'rounded-t-sm' : '',
-                    selectionState.last ? 'rounded-b-sm' : '',
-                  ].join(' ')
-                  : '',
-                !selectionState.selected && isCurrentLine ? 'bg-border/25 ring-1 ring-inset ring-border' : '',
+                !selectionRange && isCurrentLine ? 'bg-border/25 ring-1 ring-inset ring-border' : '',
               ].join(' ')
 
               return (
                 <div key={index} className={lineClassName}>
-                  {isCurrentLine && suggestionSuffix ? (
+                  {selectionRange ? (
+                    <>
+                      {line.slice(0, selectionRange.start)}
+                      <span className="bg-primaryText text-bg ring-1 ring-inset ring-primaryText">
+                        {line.slice(selectionRange.start, selectionRange.end)}
+                      </span>
+                      {line.slice(selectionRange.end)}
+                    </>
+                  ) : isCurrentLine && suggestionSuffix ? (
                     <>
                       {line.slice(0, cursorState.column)}
-                      <span className={selectionState.selected ? 'text-bg/80' : 'text-primaryText/35'}>{suggestionSuffix}</span>
+                      <span className="text-primaryText/35">{suggestionSuffix}</span>
                       {line.slice(cursorState.column)}
                     </>
                   ) : (
