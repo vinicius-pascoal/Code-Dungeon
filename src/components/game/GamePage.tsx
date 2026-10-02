@@ -759,6 +759,7 @@ export default function GamePage() {
 
       <LevelIntroModal
         isOpen={introOpen}
+        levelId={selectedBaseLevel.id}
         levelName={selectedLevel.name}
         lines={introLines}
         onClose={() => setIntroOpen(false)}

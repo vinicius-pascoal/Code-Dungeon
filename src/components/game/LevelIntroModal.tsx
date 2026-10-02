@@ -8,28 +8,106 @@ import { resolveTileSprite } from '../../game/tiles/tileResolver'
 import type { Direction, TileType } from '../../types/game'
 import SpriteTile from './SpriteTile'
 import PlayerSprite from './entities/PlayerSprite'
+import BatSprite from './entities/BatSprite'
 
-const DEMO_GRID: TileType[][] = [
+type DemoStep = {
+  command: string
+  x: number
+  y: number
+  direction: Direction
+}
+
+type DemoConfig = {
+  grid: TileType[][]
+  code: string[]
+  steps: DemoStep[]
+  enemy?: { x: number; y: number }
+}
+
+const BASE_DEMO_GRID: TileType[][] = [
   ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
   ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
   ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL', 'WALL', 'WALL'],
-  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL', 'WALL', 'WALL'],
+  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
   ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
 ]
 
-const DEMO_STEPS = [
-  { command: 'moveForward();', x: 1, y: 3, direction: 'RIGHT' as Direction },
-  { command: 'moveForward();', x: 2, y: 3, direction: 'RIGHT' as Direction },
-  { command: 'turnLeft();', x: 3, y: 3, direction: 'UP' as Direction },
-  { command: 'moveForward();', x: 3, y: 2, direction: 'UP' as Direction },
-  { command: 'moveForward();', x: 3, y: 1, direction: 'UP' as Direction },
-  { command: 'turnRight();', x: 3, y: 1, direction: 'RIGHT' as Direction },
-  { command: 'moveForward();', x: 4, y: 1, direction: 'RIGHT' as Direction },
-  { command: 'moveForward();', x: 5, y: 1, direction: 'RIGHT' as Direction },
+const DEMO_POSITIONS = [
+  { x: 1, y: 3, direction: 'RIGHT' as Direction },
+  { x: 2, y: 3, direction: 'RIGHT' as Direction },
+  { x: 3, y: 3, direction: 'UP' as Direction },
+  { x: 3, y: 2, direction: 'UP' as Direction },
+  { x: 3, y: 1, direction: 'UP' as Direction },
+  { x: 3, y: 1, direction: 'RIGHT' as Direction },
+  { x: 4, y: 1, direction: 'RIGHT' as Direction },
+  { x: 5, y: 1, direction: 'RIGHT' as Direction },
 ]
+
+function demoSteps(commands: string[]): DemoStep[] {
+  return commands.map((command, index) => {
+    const position = DEMO_POSITIONS[Math.min(index, DEMO_POSITIONS.length - 1)]
+    return { command, ...position }
+  })
+}
+
+function demoGrid(overrides: Array<[number, number, TileType]> = []) {
+  const grid = BASE_DEMO_GRID.map((row) => [...row])
+  overrides.forEach(([x, y, tile]) => {
+    grid[y][x] = tile
+  })
+  return grid
+}
+
+function getDemoConfig(levelId: number): DemoConfig {
+  switch (levelId) {
+    case 1:
+      return { grid: demoGrid(), code: ['moveForward();', 'moveForward();'], steps: demoSteps(['moveForward();', 'moveForward();']) }
+    case 2:
+      return { grid: demoGrid(), code: ['moveForward();', 'turnLeft();', 'moveForward();'], steps: demoSteps(['moveForward();', 'turnLeft();', 'moveForward();']) }
+    case 3:
+      return { grid: demoGrid(), code: ['// comentario', 'moveForward();', 'turnLeft();'], steps: demoSteps(['moveForward();', 'turnLeft();']) }
+    case 4:
+      return { grid: demoGrid(), code: ['moveForward();', 'turnLeft();', 'moveForward();', 'turnRight();'], steps: demoSteps(['moveForward();', 'turnLeft();', 'moveForward();', 'turnRight();']) }
+    case 5:
+      return { grid: demoGrid([[2, 3, 'SPIKE']]), code: ['await();', 'moveForward();', 'await();'], steps: demoSteps(['await();', 'moveForward();', 'await();']) }
+    case 6:
+      return { grid: demoGrid(), code: ['attack();', 'moveForward();'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+    case 7:
+      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['grabKey();', 'moveForward();', 'openDoor();'], steps: demoSteps(['grabKey();', 'moveForward();', 'openDoor();']) }
+    case 8:
+      return { grid: demoGrid([[3, 3, 'CHEST']]), code: ['moveForward();', 'openChest();'], steps: demoSteps(['moveForward();', 'openChest();']) }
+    case 9:
+      return { grid: demoGrid(), code: ['moveForward();', 'moveForward();', 'turnLeft();', 'moveForward();'], steps: demoSteps(['moveForward();', 'moveForward();', 'turnLeft();', 'moveForward();']) }
+    case 10:
+      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['grabKey();', 'attack();', 'openDoor();'], steps: demoSteps(['grabKey();', 'attack();', 'openDoor();']), enemy: { x: 3, y: 3 } }
+    case 11:
+      return { grid: demoGrid(), code: ['if (look() == "ENEMY") {', '  attack();', '}'], steps: demoSteps(['look();', 'attack();']), enemy: { x: 2, y: 3 } }
+    case 12:
+      return { grid: demoGrid(), code: ['if (look() == "KEY") {', '  grabKey();', '} else {', '  turnRight();', '}'], steps: demoSteps(['look();', 'turnRight();']) }
+    case 13:
+      return { grid: demoGrid([[2, 3, 'KEY']]), code: ['look();', 'grabKey();', 'moveForward();'], steps: demoSteps(['look();', 'grabKey();', 'moveForward();']), enemy: { x: 3, y: 3 } }
+    case 14:
+      return { grid: demoGrid(), code: ['let steps = 0;', 'while (steps < 2) {', '  moveForward();', '  steps++;', '}'], steps: demoSteps(['moveForward();', 'moveForward();']) }
+    case 15:
+      return { grid: demoGrid(), code: ['for (let i = 0; i < 3; i++) {', '  moveForward();', '}'], steps: demoSteps(['moveForward();', 'moveForward();', 'moveForward();']) }
+    case 16:
+      return { grid: demoGrid(), code: ['function step() {', '  moveForward();', '}', 'step();'], steps: demoSteps(['moveForward();']) }
+    case 17:
+      return { grid: demoGrid([[2, 3, 'KEY']]), code: ['function collectKey() {', '  grabKey();', '}', 'collectKey();'], steps: demoSteps(['grabKey();']) }
+    case 18:
+      return { grid: demoGrid(), code: ['function clearAndStep() {', '  attack();', '  moveForward();', '}'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+    case 19:
+      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['for (...) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+    case 999:
+      return { grid: demoGrid(), code: ['while (true) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+    default:
+      return { grid: demoGrid(), code: ['look();', 'moveForward();'], steps: demoSteps(['look();', 'moveForward();']) }
+  }
+}
 
 type Props = {
   isOpen: boolean
+  levelId: number
   levelName: string
   lines: string[]
   onClose: () => void
@@ -40,26 +118,29 @@ function isCodeLine(line: string) {
   return line.includes(';') || line.endsWith('{') || line === '}' || line.startsWith('  ')
 }
 
-export default function LevelIntroModal({ isOpen, levelName, lines, onClose, onOpenHelp }: Props) {
+export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onClose, onOpenHelp }: Props) {
   const { t } = useI18n()
   const [demoStep, setDemoStep] = useState(0)
+  const demo = getDemoConfig(levelId)
 
   useEffect(() => {
     if (!isOpen) return
 
     setDemoStep(0)
     const timer = window.setInterval(() => {
-      setDemoStep((currentStep) => (currentStep + 1) % DEMO_STEPS.length)
+      setDemoStep((currentStep) => (currentStep + 1) % demo.steps.length)
     }, 1500)
 
     return () => window.clearInterval(timer)
-  }, [isOpen])
+  }, [demo.steps.length, isOpen])
 
   if (!isOpen) return null
 
   const exampleIndex = lines.findIndex((line) => line === t('game.example'))
   const explanationLines = lines.slice(0, exampleIndex >= 0 ? exampleIndex : lines.length)
   const codeLines = exampleIndex >= 0 ? lines.slice(exampleIndex + 1).filter(isCodeLine) : []
+  const activeDemoCommand = demo.steps[demoStep]?.command.replace('();', '')
+  const activeDemoLine = demo.code.findIndex((line) => line.includes(activeDemoCommand))
 
   return (
     <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
@@ -92,9 +173,10 @@ export default function LevelIntroModal({ isOpen, levelName, lines, onClose, onO
           <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.8fr)]">
             <div className="flex items-center justify-center border border-border/70 bg-bg p-3" aria-label={t('game.introDemoMap')}>
               <div className="grid w-full max-w-[280px] grid-cols-7 gap-0 leading-none" role="img" aria-label={t('game.introDemoMap')}>
-                {DEMO_GRID.flatMap((row, y) => row.map((tile, x) => {
-                  const isPlayer = DEMO_STEPS[demoStep].x === x && DEMO_STEPS[demoStep].y === y
-                  const tileSprite = resolveTileSprite({ tile, map: DEMO_GRID, x, y, levelId: 'intro-demo' })
+                {demo.grid.flatMap((row, y) => row.map((tile, x) => {
+                  const isPlayer = demo.steps[demoStep].x === x && demo.steps[demoStep].y === y
+                  const isEnemy = demo.enemy?.x === x && demo.enemy.y === y
+                  const tileSprite = resolveTileSprite({ tile, map: demo.grid, x, y, levelId: `intro-demo-${levelId}` })
                   const detailSprite = resolveDetailSprite(tile)
                   return (
                     <div
@@ -112,10 +194,11 @@ export default function LevelIntroModal({ isOpen, levelName, lines, onClose, onO
                           ariaLabel={t('game.introDemoExit')}
                         />
                       ) : null}
+                      {isEnemy ? <BatSprite size={42} x={x} y={y} /> : null}
                       {isPlayer ? (
                         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
                           <PlayerSprite
-                            direction={DEMO_STEPS[demoStep].direction}
+                            direction={demo.steps[demoStep].direction}
                             animationState="walk"
                             animationSpeed="normal"
                             size={96}
@@ -130,9 +213,9 @@ export default function LevelIntroModal({ isOpen, levelName, lines, onClose, onO
             <div className="border border-border/70 bg-bg p-3">
               <p className="text-[10px] uppercase tracking-[0.12em] text-secondaryText">{t('game.introDemoCode')}</p>
               <pre className="mt-2 overflow-auto font-mono text-xs leading-6 text-primaryText" aria-live="polite">
-                {DEMO_STEPS.map((step, index) => (
-                  <code key={`${step.command}-${index}`} className={`block px-2 ${index === demoStep ? 'bg-primaryText text-bg' : 'text-secondaryText'}`}>
-                    {step.command}
+                {demo.code.map((line, index) => (
+                  <code key={`${line}-${index}`} className={`block px-2 ${index === activeDemoLine ? 'bg-primaryText text-bg' : 'text-secondaryText'}`}>
+                    {line}
                   </code>
                 ))}
               </pre>
