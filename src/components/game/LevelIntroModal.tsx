@@ -123,17 +123,14 @@ function getDemoConfig(levelId: number): DemoConfig {
 type Props = {
   isOpen: boolean
   levelId: number
+  editorPosition: 'left' | 'right'
   levelName: string
   lines: string[]
   onClose: () => void
   onOpenHelp: () => void
 }
 
-function isCodeLine(line: string) {
-  return line.includes(';') || line.endsWith('{') || line === '}' || line.startsWith('  ')
-}
-
-export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onClose, onOpenHelp }: Props) {
+export default function LevelIntroModal({ isOpen, levelId, editorPosition, levelName, lines, onClose, onOpenHelp }: Props) {
   const { t } = useI18n()
   const [demoStep, setDemoStep] = useState(0)
   const demo = demoConfigs[levelId] ?? demoConfigs[1]
@@ -152,8 +149,7 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
   if (!isOpen) return null
 
   const exampleIndex = lines.findIndex((line) => line === t('game.example'))
-  const explanationLines = lines.slice(0, exampleIndex >= 0 ? exampleIndex : lines.length)
-  const codeLines = exampleIndex >= 0 ? lines.slice(exampleIndex + 1).filter(isCodeLine) : []
+  const introLines = lines.slice(0, exampleIndex >= 0 ? exampleIndex : lines.length)
   const activeDemoCommand = demo.steps[demoStep]?.command.replace('();', '')
   const activeDemoLine = demo.code.findIndex((line) => line.includes(activeDemoCommand))
   const hasExecuted = (command: string) => demo.steps
@@ -178,13 +174,11 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
         }
         bodyClassName="max-h-[calc(92vh-5rem)] overflow-y-auto p-3 sm:p-4"
       >
-        <div className="grid gap-3">
-          {explanationLines.map((line, index) => (
-            <section key={`${line}-${index}`} className="border-2 border-border bg-black p-3 text-sm leading-6 text-secondaryText">
-              {index === 0 ? <p className="pixel-eyebrow">{t('game.introTopic')}</p> : null}
-              <p className={index === 0 ? 'mt-2' : ''}>{line}</p>
-            </section>
-          ))}
+        <div className="border-2 border-border bg-black p-3 text-sm leading-6 text-secondaryText">
+          <p className="pixel-eyebrow">{t('game.introTopic')}</p>
+          <div className="mt-2 grid gap-1">
+            {introLines.map((line, index) => <p key={`${line}-${index}`}>{line}</p>)}
+          </div>
         </div>
 
         <section className="mt-4 border-2 border-primaryText bg-black p-3">
@@ -193,7 +187,7 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
             <span className="font-mono text-[10px] uppercase text-secondaryText">{t('game.introDemoLoop')}</span>
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.8fr)]">
-            <div className="flex items-center justify-center border border-border/70 bg-bg p-3" aria-label={t('game.introDemoMap')}>
+            <div className={`flex items-center justify-center border border-border/70 bg-bg p-3 ${editorPosition === 'left' ? 'lg:order-2' : 'lg:order-1'}`} aria-label={t('game.introDemoMap')}>
               <div
                 className="grid w-full max-w-[280px] gap-0 leading-none"
                 style={{ gridTemplateColumns: `repeat(${demo.grid[0]?.length ?? 1}, minmax(0, 1fr))` }}
@@ -265,7 +259,7 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
                 }))}
               </div>
             </div>
-            <div className="border border-border/70 bg-bg p-3">
+            <div className={`border border-border/70 bg-bg p-3 ${editorPosition === 'left' ? 'lg:order-1' : 'lg:order-2'}`}>
               <p className="text-[10px] uppercase tracking-[0.12em] text-secondaryText">{t('game.introDemoCode')}</p>
               <pre className="mt-2 overflow-auto font-mono text-xs leading-6 text-primaryText" aria-live="polite">
                 {demo.code.map((line, index) => (
@@ -277,15 +271,6 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
             </div>
           </div>
         </section>
-
-        {codeLines.length ? (
-          <section className="mt-4 border-2 border-border bg-black p-3">
-            <p className="pixel-eyebrow">{t('game.introExampleTitle')}</p>
-            <pre className="mt-3 overflow-auto border border-border/70 bg-bg p-3 font-mono text-xs leading-5 text-primaryText">
-              <code>{codeLines.join('\n')}</code>
-            </pre>
-          </section>
-        ) : null}
 
         <div className="mt-5 flex flex-wrap justify-end gap-3">
           <PixelButton type="button" icon="help" variant="ghost" onClick={onOpenHelp}>
