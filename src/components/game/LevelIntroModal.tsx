@@ -2,24 +2,30 @@ import { useEffect, useState } from 'react'
 import PixelButton from '../ui/PixelButton'
 import PixelPanel from '../ui/PixelPanel'
 import { useI18n } from '../../i18n'
+import { resolveDetailSprite } from '../../game/tiles/detailResolver'
+import { DETAILS_TILESET_CONFIG } from '../../game/tiles/detailConfig'
+import { resolveTileSprite } from '../../game/tiles/tileResolver'
+import type { Direction, TileType } from '../../types/game'
+import SpriteTile from './SpriteTile'
+import PlayerSprite from './entities/PlayerSprite'
 
-const DEMO_GRID = [
-  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
-  ['wall', 'floor', 'floor', 'floor', 'floor', 'exit', 'wall'],
-  ['wall', 'wall', 'wall', 'floor', 'wall', 'wall', 'wall'],
-  ['wall', 'start', 'floor', 'floor', 'wall', 'wall', 'wall'],
-  ['wall', 'wall', 'wall', 'wall', 'wall', 'wall', 'wall'],
+const DEMO_GRID: TileType[][] = [
+  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
+  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
+  ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL', 'WALL', 'WALL'],
+  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL', 'WALL', 'WALL'],
+  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
 ]
 
 const DEMO_STEPS = [
-  { command: 'moveForward();', x: 1, y: 3 },
-  { command: 'moveForward();', x: 2, y: 3 },
-  { command: 'turnLeft();', x: 3, y: 3 },
-  { command: 'moveForward();', x: 3, y: 2 },
-  { command: 'moveForward();', x: 3, y: 1 },
-  { command: 'turnRight();', x: 3, y: 1 },
-  { command: 'moveForward();', x: 4, y: 1 },
-  { command: 'moveForward();', x: 5, y: 1 },
+  { command: 'moveForward();', x: 1, y: 3, direction: 'RIGHT' as Direction },
+  { command: 'moveForward();', x: 2, y: 3, direction: 'RIGHT' as Direction },
+  { command: 'turnLeft();', x: 3, y: 3, direction: 'UP' as Direction },
+  { command: 'moveForward();', x: 3, y: 2, direction: 'UP' as Direction },
+  { command: 'moveForward();', x: 3, y: 1, direction: 'UP' as Direction },
+  { command: 'turnRight();', x: 3, y: 1, direction: 'RIGHT' as Direction },
+  { command: 'moveForward();', x: 4, y: 1, direction: 'RIGHT' as Direction },
+  { command: 'moveForward();', x: 5, y: 1, direction: 'RIGHT' as Direction },
 ]
 
 type Props = {
@@ -85,15 +91,37 @@ export default function LevelIntroModal({ isOpen, levelName, lines, onClose, onO
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.8fr)]">
             <div className="flex items-center justify-center border border-border/70 bg-bg p-3" aria-label={t('game.introDemoMap')}>
-              <div className="grid w-full max-w-[280px] grid-cols-7 gap-1" role="img" aria-label={t('game.introDemoMap')}>
+              <div className="grid w-full max-w-[280px] grid-cols-7 gap-0 leading-none" role="img" aria-label={t('game.introDemoMap')}>
                 {DEMO_GRID.flatMap((row, y) => row.map((tile, x) => {
                   const isPlayer = DEMO_STEPS[demoStep].x === x && DEMO_STEPS[demoStep].y === y
+                  const tileSprite = resolveTileSprite({ tile, map: DEMO_GRID, x, y, levelId: 'intro-demo' })
+                  const detailSprite = resolveDetailSprite(tile)
                   return (
                     <div
                       key={`${x}-${y}`}
-                      className={`aspect-square border ${tile === 'wall' ? 'border-border bg-panel' : 'border-border/50 bg-[#171717]'} ${tile === 'exit' ? 'bg-accent/70' : ''}`}
+                      className="relative aspect-square overflow-visible bg-black"
                     >
-                      {isPlayer ? <div className="m-1 h-[calc(100%-0.5rem)] bg-primaryText shadow-[2px_2px_0_#000]" /> : null}
+                      {tileSprite ? <SpriteTile sprite={tileSprite} size={48} fill className="absolute inset-0" /> : null}
+                      {detailSprite ? (
+                        <SpriteTile
+                          sprite={detailSprite}
+                          atlas={DETAILS_TILESET_CONFIG}
+                          size={48}
+                          fill
+                          className="absolute inset-0 z-10"
+                          ariaLabel={t('game.introDemoExit')}
+                        />
+                      ) : null}
+                      {isPlayer ? (
+                        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                          <PlayerSprite
+                            direction={DEMO_STEPS[demoStep].direction}
+                            animationState="walk"
+                            animationSpeed="normal"
+                            size={96}
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   )
                 }))}
