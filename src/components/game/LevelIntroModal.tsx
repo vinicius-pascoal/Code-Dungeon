@@ -9,12 +9,14 @@ import type { Direction, TileType } from '../../types/game'
 import SpriteTile from './SpriteTile'
 import PlayerSprite from './entities/PlayerSprite'
 import BatSprite from './entities/BatSprite'
+import SpikeSprite from './SpikeSprite'
 
 type DemoStep = {
   command: string
   x: number
   y: number
   direction: Direction
+  spikesActive: boolean
 }
 
 type DemoConfig = {
@@ -25,30 +27,40 @@ type DemoConfig = {
 }
 
 const BASE_DEMO_GRID: TileType[][] = [
-  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'EXIT', 'WALL'],
-  ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL', 'WALL', 'WALL'],
-  ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
-  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
+  ['WALL', 'WALL', 'FLOOR', 'FLOOR', 'EXIT'],
+  ['FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
+  ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
 ]
 
 const DEMO_POSITIONS = [
-  { x: 1, y: 3, direction: 'RIGHT' as Direction },
-  { x: 2, y: 3, direction: 'RIGHT' as Direction },
-  { x: 3, y: 3, direction: 'UP' as Direction },
-  { x: 3, y: 2, direction: 'UP' as Direction },
-  { x: 3, y: 1, direction: 'UP' as Direction },
-  { x: 3, y: 1, direction: 'RIGHT' as Direction },
-  { x: 4, y: 1, direction: 'RIGHT' as Direction },
-  { x: 5, y: 1, direction: 'RIGHT' as Direction },
+  { x: 0, y: 1, direction: 'RIGHT' as Direction },
+  { x: 1, y: 1, direction: 'RIGHT' as Direction },
+  { x: 2, y: 1, direction: 'UP' as Direction },
+  { x: 2, y: 0, direction: 'UP' as Direction },
+  { x: 2, y: 0, direction: 'RIGHT' as Direction },
+  { x: 3, y: 0, direction: 'RIGHT' as Direction },
+  { x: 4, y: 0, direction: 'RIGHT' as Direction },
 ]
 
 function demoSteps(commands: string[]): DemoStep[] {
   return commands.map((command, index) => {
     const position = DEMO_POSITIONS[Math.min(index, DEMO_POSITIONS.length - 1)]
-    return { command, ...position }
+    return { command, ...position, spikesActive: true }
   })
 }
+
+const LEVEL_ONE_STEPS: DemoStep[] = [
+  { command: 'moveForward();', x: 0, y: 1, direction: 'RIGHT', spikesActive: true },
+  { command: 'moveForward();', x: 1, y: 1, direction: 'RIGHT', spikesActive: true },
+  { command: 'moveForward();', x: 2, y: 1, direction: 'RIGHT', spikesActive: true },
+]
+
+const SPIKE_DEMO_STEPS: DemoStep[] = [
+  { command: 'await();', x: 0, y: 1, direction: 'RIGHT', spikesActive: true },
+  { command: 'await();', x: 0, y: 1, direction: 'RIGHT', spikesActive: false },
+  { command: 'moveForward();', x: 1, y: 1, direction: 'RIGHT', spikesActive: false },
+  { command: 'moveForward();', x: 2, y: 1, direction: 'RIGHT', spikesActive: false },
+]
 
 function demoGrid(overrides: Array<[number, number, TileType]> = []) {
   const grid = BASE_DEMO_GRID.map((row) => [...row])
@@ -61,7 +73,7 @@ function demoGrid(overrides: Array<[number, number, TileType]> = []) {
 function getDemoConfig(levelId: number): DemoConfig {
   switch (levelId) {
     case 1:
-      return { grid: demoGrid(), code: ['moveForward();', 'moveForward();'], steps: demoSteps(['moveForward();', 'moveForward();']) }
+      return { grid: demoGrid([[2, 1, 'EXIT']]), code: LEVEL_ONE_STEPS.map((step) => step.command), steps: LEVEL_ONE_STEPS }
     case 2:
       return { grid: demoGrid(), code: ['moveForward();', 'turnLeft();', 'moveForward();'], steps: demoSteps(['moveForward();', 'turnLeft();', 'moveForward();']) }
     case 3:
@@ -69,23 +81,23 @@ function getDemoConfig(levelId: number): DemoConfig {
     case 4:
       return { grid: demoGrid(), code: ['moveForward();', 'turnLeft();', 'moveForward();', 'turnRight();'], steps: demoSteps(['moveForward();', 'turnLeft();', 'moveForward();', 'turnRight();']) }
     case 5:
-      return { grid: demoGrid([[2, 3, 'SPIKE']]), code: ['await();', 'moveForward();', 'await();'], steps: demoSteps(['await();', 'moveForward();', 'await();']) }
+      return { grid: demoGrid([[1, 1, 'SPIKE']]), code: SPIKE_DEMO_STEPS.map((step) => step.command), steps: SPIKE_DEMO_STEPS }
     case 6:
       return { grid: demoGrid(), code: ['attack();', 'moveForward();'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
     case 7:
-      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['grabKey();', 'moveForward();', 'openDoor();'], steps: demoSteps(['grabKey();', 'moveForward();', 'openDoor();']) }
+      return { grid: demoGrid([[1, 1, 'KEY'], [3, 1, 'DOOR']]), code: ['grabKey();', 'moveForward();', 'openDoor();'], steps: demoSteps(['grabKey();', 'moveForward();', 'openDoor();']) }
     case 8:
-      return { grid: demoGrid([[3, 3, 'CHEST']]), code: ['moveForward();', 'openChest();'], steps: demoSteps(['moveForward();', 'openChest();']) }
+      return { grid: demoGrid([[2, 1, 'CHEST']]), code: ['moveForward();', 'openChest();'], steps: demoSteps(['moveForward();', 'openChest();']) }
     case 9:
       return { grid: demoGrid(), code: ['moveForward();', 'moveForward();', 'turnLeft();', 'moveForward();'], steps: demoSteps(['moveForward();', 'moveForward();', 'turnLeft();', 'moveForward();']) }
     case 10:
-      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['grabKey();', 'attack();', 'openDoor();'], steps: demoSteps(['grabKey();', 'attack();', 'openDoor();']), enemy: { x: 3, y: 3 } }
+      return { grid: demoGrid([[1, 1, 'KEY'], [3, 1, 'DOOR']]), code: ['grabKey();', 'attack();', 'openDoor();'], steps: demoSteps(['grabKey();', 'attack();', 'openDoor();']), enemy: { x: 2, y: 1 } }
     case 11:
-      return { grid: demoGrid(), code: ['if (look() == "ENEMY") {', '  attack();', '}'], steps: demoSteps(['look();', 'attack();']), enemy: { x: 2, y: 3 } }
+      return { grid: demoGrid(), code: ['if (look() == "ENEMY") {', '  attack();', '}'], steps: demoSteps(['look();', 'attack();']), enemy: { x: 1, y: 1 } }
     case 12:
       return { grid: demoGrid(), code: ['if (look() == "KEY") {', '  grabKey();', '} else {', '  turnRight();', '}'], steps: demoSteps(['look();', 'turnRight();']) }
     case 13:
-      return { grid: demoGrid([[2, 3, 'KEY']]), code: ['look();', 'grabKey();', 'moveForward();'], steps: demoSteps(['look();', 'grabKey();', 'moveForward();']), enemy: { x: 3, y: 3 } }
+      return { grid: demoGrid([[1, 1, 'KEY']]), code: ['look();', 'grabKey();', 'moveForward();'], steps: demoSteps(['look();', 'grabKey();', 'moveForward();']), enemy: { x: 2, y: 1 } }
     case 14:
       return { grid: demoGrid(), code: ['let steps = 0;', 'while (steps < 2) {', '  moveForward();', '  steps++;', '}'], steps: demoSteps(['moveForward();', 'moveForward();']) }
     case 15:
@@ -93,13 +105,13 @@ function getDemoConfig(levelId: number): DemoConfig {
     case 16:
       return { grid: demoGrid(), code: ['function step() {', '  moveForward();', '}', 'step();'], steps: demoSteps(['moveForward();']) }
     case 17:
-      return { grid: demoGrid([[2, 3, 'KEY']]), code: ['function collectKey() {', '  grabKey();', '}', 'collectKey();'], steps: demoSteps(['grabKey();']) }
+      return { grid: demoGrid([[1, 1, 'KEY']]), code: ['function collectKey() {', '  grabKey();', '}', 'collectKey();'], steps: demoSteps(['grabKey();']) }
     case 18:
-      return { grid: demoGrid(), code: ['function clearAndStep() {', '  attack();', '  moveForward();', '}'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+      return { grid: demoGrid(), code: ['function clearAndStep() {', '  attack();', '  moveForward();', '}'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 1, y: 1 } }
     case 19:
-      return { grid: demoGrid([[2, 3, 'KEY'], [4, 3, 'DOOR']]), code: ['for (...) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+      return { grid: demoGrid([[1, 1, 'KEY'], [3, 1, 'DOOR']]), code: ['for (...) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 2, y: 1 } }
     case 999:
-      return { grid: demoGrid(), code: ['while (true) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+      return { grid: demoGrid(), code: ['while (true) {', '  if (look() == "ENEMY") {', '    attack();', '  } else {', '    moveForward();', '  }', '}'], steps: demoSteps(['look();', 'attack();', 'moveForward();']), enemy: { x: 1, y: 1 } }
     default:
       return { grid: demoGrid(), code: ['look();', 'moveForward();'], steps: demoSteps(['look();', 'moveForward();']) }
   }
@@ -172,7 +184,12 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(180px,0.8fr)]">
             <div className="flex items-center justify-center border border-border/70 bg-bg p-3" aria-label={t('game.introDemoMap')}>
-              <div className="grid w-full max-w-[280px] grid-cols-7 gap-0 leading-none" role="img" aria-label={t('game.introDemoMap')}>
+              <div
+                className="grid w-full max-w-[280px] gap-0 leading-none"
+                style={{ gridTemplateColumns: `repeat(${demo.grid[0]?.length ?? 1}, minmax(0, 1fr))` }}
+                role="img"
+                aria-label={t('game.introDemoMap')}
+              >
                 {demo.grid.flatMap((row, y) => row.map((tile, x) => {
                   const isPlayer = demo.steps[demoStep].x === x && demo.steps[demoStep].y === y
                   const isEnemy = demo.enemy?.x === x && demo.enemy.y === y
@@ -192,6 +209,15 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
                           fill
                           className="absolute inset-0 z-10"
                           ariaLabel={t('game.introDemoExit')}
+                        />
+                      ) : null}
+                      {tile === 'SPIKE' ? (
+                        <SpikeSprite
+                          active={demo.steps[demoStep].spikesActive}
+                          size={48}
+                          fill
+                          className="absolute inset-0 z-10 pointer-events-none"
+                          ariaLabel={t('game.introDemoSpikes')}
                         />
                       ) : null}
                       {isEnemy ? <BatSprite size={42} x={x} y={y} /> : null}
