@@ -10,6 +10,7 @@ import SpriteTile from './SpriteTile'
 import PlayerSprite from './entities/PlayerSprite'
 import BatSprite from './entities/BatSprite'
 import SpikeSprite from './SpikeSprite'
+import { demoConfigs } from '../../data/demos'
 
 type DemoStep = {
   command: string
@@ -24,6 +25,8 @@ type DemoConfig = {
   code: string[]
   steps: DemoStep[]
   enemy?: { x: number; y: number }
+  hiddenCells?: Array<{ x: number; y: number }>
+  hiddenRevealStep?: number
 }
 
 const BASE_DEMO_GRID: TileType[][] = [
@@ -83,7 +86,7 @@ function getDemoConfig(levelId: number): DemoConfig {
     case 5:
       return { grid: demoGrid([[1, 1, 'SPIKE']]), code: SPIKE_DEMO_STEPS.map((step) => step.command), steps: SPIKE_DEMO_STEPS }
     case 6:
-      return { grid: demoGrid(), code: ['attack();', 'moveForward();'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 2, y: 3 } }
+      return { grid: demoGrid(), code: ['attack();', 'moveForward();'], steps: demoSteps(['attack();', 'moveForward();']), enemy: { x: 1, y: 1 } }
     case 7:
       return { grid: demoGrid([[1, 1, 'KEY'], [3, 1, 'DOOR']]), code: ['grabKey();', 'moveForward();', 'openDoor();'], steps: demoSteps(['grabKey();', 'moveForward();', 'openDoor();']) }
     case 8:
@@ -93,9 +96,9 @@ function getDemoConfig(levelId: number): DemoConfig {
     case 10:
       return { grid: demoGrid([[1, 1, 'KEY'], [3, 1, 'DOOR']]), code: ['grabKey();', 'attack();', 'openDoor();'], steps: demoSteps(['grabKey();', 'attack();', 'openDoor();']), enemy: { x: 2, y: 1 } }
     case 11:
-      return { grid: demoGrid(), code: ['if (look() == "ENEMY") {', '  attack();', '}'], steps: demoSteps(['look();', 'attack();']), enemy: { x: 1, y: 1 } }
+      return { grid: demoGrid(), code: ['if (look() == "ENEMY") {', '  attack();', '}'], steps: demoSteps(['look();', 'attack();']), enemy: { x: 1, y: 1 }, hiddenCells: [{ x: 1, y: 1 }], hiddenRevealStep: 1 }
     case 12:
-      return { grid: demoGrid(), code: ['if (look() == "KEY") {', '  grabKey();', '} else {', '  turnRight();', '}'], steps: demoSteps(['look();', 'turnRight();']) }
+      return { grid: demoGrid([[2, 1, 'KEY'], [3, 1, 'SPIKE']]), code: ['if (look() == "KEY") {', '  grabKey();', '} else {', '  turnRight();', '}'], steps: demoSteps(['look();', 'turnRight();']), hiddenCells: [{ x: 2, y: 1 }, { x: 3, y: 1 }], hiddenRevealStep: 1 }
     case 13:
       return { grid: demoGrid([[1, 1, 'KEY']]), code: ['look();', 'grabKey();', 'moveForward();'], steps: demoSteps(['look();', 'grabKey();', 'moveForward();']), enemy: { x: 2, y: 1 } }
     case 14:
@@ -133,7 +136,7 @@ function isCodeLine(line: string) {
 export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onClose, onOpenHelp }: Props) {
   const { t } = useI18n()
   const [demoStep, setDemoStep] = useState(0)
-  const demo = getDemoConfig(levelId)
+  const demo = demoConfigs[levelId] ?? demoConfigs[1]
 
   useEffect(() => {
     if (!isOpen) return
@@ -153,6 +156,11 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
   const codeLines = exampleIndex >= 0 ? lines.slice(exampleIndex + 1).filter(isCodeLine) : []
   const activeDemoCommand = demo.steps[demoStep]?.command.replace('();', '')
   const activeDemoLine = demo.code.findIndex((line) => line.includes(activeDemoCommand))
+  const hasExecuted = (command: string) => demo.steps.slice(0, demoStep + 1).some((step) => step.command === command)
+  const enemyDefeated = hasExecuted('attack();')
+  const keyCollected = hasExecuted('grabKey();')
+  const chestOpened = hasExecuted('openChest();')
+  const doorOpened = hasExecuted('openDoor();')
 
   return (
     <div className="pixel-modal-backdrop fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
@@ -192,9 +200,18 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
               >
                 {demo.grid.flatMap((row, y) => row.map((tile, x) => {
                   const isPlayer = demo.steps[demoStep].x === x && demo.steps[demoStep].y === y
-                  const isEnemy = demo.enemy?.x === x && demo.enemy.y === y
-                  const tileSprite = resolveTileSprite({ tile, map: demo.grid, x, y, levelId: `intro-demo-${levelId}` })
-                  const detailSprite = resolveDetailSprite(tile)
+                  const isEnemy = Boolean(demo.enemy && !enemyDefeated && demo.enemy.x === x && demo.enemy.y === y)
+                  const isHidden = Boolean(demo.hiddenCells?.some((cell) => cell.x === x && cell.y === y))
+                    && demoStep < (demo.hiddenRevealStep ?? Number.POSITIVE_INFINITY)
+                  const displayedTile = tile === 'KEY' && keyCollected
+                    ? 'FLOOR'
+                    : tile === 'CHEST' && chestOpened
+                      ? 'OPEN_CHEST'
+                      : tile === 'DOOR' && doorOpened
+                        ? 'OPEN_DOOR'
+                        : tile
+                  const tileSprite = resolveTileSprite({ tile: displayedTile, map: demo.grid, x, y, levelId: `intro-demo-${levelId}` })
+                  const detailSprite = resolveDetailSprite(displayedTile)
                   return (
                     <div
                       key={`${x}-${y}`}
@@ -220,7 +237,17 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
                           ariaLabel={t('game.introDemoSpikes')}
                         />
                       ) : null}
-                      {isEnemy ? <BatSprite size={42} x={x} y={y} /> : null}
+                      {isEnemy ? (
+                        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                          <BatSprite size={42} x={x} y={y} />
+                        </div>
+                      ) : null}
+                      {isHidden ? (
+                        <div
+                          className="dungeon-hidden-cell absolute inset-0 z-30"
+                          aria-label={t('game.introDemoHidden')}
+                        />
+                      ) : null}
                       {isPlayer ? (
                         <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
                           <PlayerSprite
