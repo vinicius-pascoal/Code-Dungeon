@@ -156,7 +156,9 @@ export default function LevelIntroModal({ isOpen, levelId, levelName, lines, onC
   const codeLines = exampleIndex >= 0 ? lines.slice(exampleIndex + 1).filter(isCodeLine) : []
   const activeDemoCommand = demo.steps[demoStep]?.command.replace('();', '')
   const activeDemoLine = demo.code.findIndex((line) => line.includes(activeDemoCommand))
-  const hasExecuted = (command: string) => demo.steps.slice(0, demoStep + 1).some((step) => step.command === command)
+  const hasExecuted = (command: string) => demo.steps
+    .slice(0, demoStep + 1)
+    .some((step) => step.command === command || step.effects?.includes(command))
   const enemyDefeated = hasExecuted('attack();')
   const keyCollected = hasExecuted('grabKey();')
   const chestOpened = hasExecuted('openChest();')

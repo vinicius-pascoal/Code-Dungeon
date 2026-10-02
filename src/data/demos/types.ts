@@ -6,6 +6,7 @@ export type DemoStep = {
   y: number
   direction: Direction
   spikesActive: boolean
+  effects?: string[]
 }
 
 export type DemoConfig = {
@@ -17,6 +18,6 @@ export type DemoConfig = {
   hiddenRevealStep?: number
 }
 
-export function step(command: string, x: number, y: number, direction: Direction, spikesActive = true): DemoStep {
-  return { command, x, y, direction, spikesActive }
+export function step(command: string, x: number, y: number, direction: Direction, spikesActive = true, effects?: string[]): DemoStep {
+  return { command, x, y, direction, spikesActive, effects }
 }
