@@ -13,6 +13,10 @@ export type WallVariant =
   | 'bottomLeft'
   | 'bottom'
   | 'bottomRight'
+  | 'innerTopLeft'
+  | 'innerTopRight'
+  | 'innerBottomLeft'
+  | 'innerBottomRight'
   | 'fallback'
 
 export type TileVariant = FloorVariant | WallVariant | DoorOrientation
@@ -44,6 +48,10 @@ export const DUNGEON_SPRITES = {
     bottomLeft: { col: 1, row: 3 },
     bottom: { col: 2, row: 3 },
     bottomRight: { col: 3, row: 3 },
+    innerTopLeft: { col: 4, row: 1 },
+    innerTopRight: { col: 5, row: 1 },
+    innerBottomLeft: { col: 4, row: 2 },
+    innerBottomRight: { col: 5, row: 2 },
     fallback: { col: 2, row: 1 },
   },
   door: {

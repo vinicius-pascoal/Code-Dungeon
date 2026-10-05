@@ -68,10 +68,30 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
   const openLeft = isOpenTile(tileAt(map, x - 1, y))
   const openRight = isOpenTile(tileAt(map, x + 1, y))
 
-  if (openBottom && openRight && !openTop && !openLeft) return DUNGEON_SPRITES.walls.topLeft
-  if (openBottom && openLeft && !openTop && !openRight) return DUNGEON_SPRITES.walls.topRight
-  if (openTop && openRight && !openBottom && !openLeft) return DUNGEON_SPRITES.walls.bottomLeft
-  if (openTop && openLeft && !openBottom && !openRight) return DUNGEON_SPRITES.walls.bottomRight
+  const openBottomRight = isOpenTile(tileAt(map, x + 1, y + 1))
+  const openBottomLeft = isOpenTile(tileAt(map, x - 1, y + 1))
+  const openTopRight = isOpenTile(tileAt(map, x + 1, y - 1))
+  const openTopLeft = isOpenTile(tileAt(map, x - 1, y - 1))
+
+  // A closed diagonal between two open sides marks a concave corridor turn.
+  // With the diagonal open, the wall is an outside corner instead.
+  if (openBottom && openRight && !openTop && !openLeft && !openBottomRight) {
+    return DUNGEON_SPRITES.walls.innerTopLeft
+  }
+  if (openBottom && openLeft && !openTop && !openRight && !openBottomLeft) {
+    return DUNGEON_SPRITES.walls.innerTopRight
+  }
+  if (openTop && openRight && !openBottom && !openLeft && !openTopRight) {
+    return DUNGEON_SPRITES.walls.innerBottomLeft
+  }
+  if (openTop && openLeft && !openBottom && !openRight && !openTopLeft) {
+    return DUNGEON_SPRITES.walls.innerBottomRight
+  }
+
+  if (openBottom && openRight && !openTop && !openLeft && openBottomRight) return DUNGEON_SPRITES.walls.topLeft
+  if (openBottom && openLeft && !openTop && !openRight && openBottomLeft) return DUNGEON_SPRITES.walls.topRight
+  if (openTop && openRight && !openBottom && !openLeft && openTopRight) return DUNGEON_SPRITES.walls.bottomLeft
+  if (openTop && openLeft && !openBottom && !openRight && openTopLeft) return DUNGEON_SPRITES.walls.bottomRight
 
   const openNeighborCount = [openTop, openBottom, openLeft, openRight].filter(Boolean).length
 
@@ -83,11 +103,6 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
   }
 
   if (openNeighborCount === 0) {
-    const openBottomRight = isOpenTile(tileAt(map, x + 1, y + 1))
-    const openBottomLeft = isOpenTile(tileAt(map, x - 1, y + 1))
-    const openTopRight = isOpenTile(tileAt(map, x + 1, y - 1))
-    const openTopLeft = isOpenTile(tileAt(map, x - 1, y - 1))
-
     if (openBottomRight) return DUNGEON_SPRITES.walls.topLeft
     if (openBottomLeft) return DUNGEON_SPRITES.walls.topRight
     if (openTopRight) return DUNGEON_SPRITES.walls.bottomLeft
