@@ -73,25 +73,26 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
   const openTopRight = isOpenTile(tileAt(map, x + 1, y - 1))
   const openTopLeft = isOpenTile(tileAt(map, x - 1, y - 1))
 
-  // A closed diagonal between two open sides marks a concave corridor turn.
-  // With the diagonal open, the wall is an outside corner instead.
-  if (openBottom && openRight && !openTop && !openLeft && !openBottomRight) {
+  // An open diagonal completes a three-cell L-shaped floor area, so the wall
+  // cell is the concave corner of the walkable space. The atlas variant names
+  // describe the solid quadrant, opposite to the opening in the map.
+  if (openBottom && openRight && !openTop && !openLeft && openBottomRight) {
     return DUNGEON_SPRITES.walls.innerTopLeft
   }
-  if (openBottom && openLeft && !openTop && !openRight && !openBottomLeft) {
+  if (openBottom && openLeft && !openTop && !openRight && openBottomLeft) {
     return DUNGEON_SPRITES.walls.innerTopRight
   }
-  if (openTop && openRight && !openBottom && !openLeft && !openTopRight) {
+  if (openTop && openRight && !openBottom && !openLeft && openTopRight) {
     return DUNGEON_SPRITES.walls.innerBottomLeft
   }
-  if (openTop && openLeft && !openBottom && !openRight && !openTopLeft) {
+  if (openTop && openLeft && !openBottom && !openRight && openTopLeft) {
     return DUNGEON_SPRITES.walls.innerBottomRight
   }
 
-  if (openBottom && openRight && !openTop && !openLeft && openBottomRight) return DUNGEON_SPRITES.walls.topLeft
-  if (openBottom && openLeft && !openTop && !openRight && openBottomLeft) return DUNGEON_SPRITES.walls.topRight
-  if (openTop && openRight && !openBottom && !openLeft && openTopRight) return DUNGEON_SPRITES.walls.bottomLeft
-  if (openTop && openLeft && !openBottom && !openRight && openTopLeft) return DUNGEON_SPRITES.walls.bottomRight
+  if (openBottom && openRight && !openTop && !openLeft && !openBottomRight) return DUNGEON_SPRITES.walls.topLeft
+  if (openBottom && openLeft && !openTop && !openRight && !openBottomLeft) return DUNGEON_SPRITES.walls.topRight
+  if (openTop && openRight && !openBottom && !openLeft && !openTopRight) return DUNGEON_SPRITES.walls.bottomLeft
+  if (openTop && openLeft && !openBottom && !openRight && !openTopLeft) return DUNGEON_SPRITES.walls.bottomRight
 
   const openNeighborCount = [openTop, openBottom, openLeft, openRight].filter(Boolean).length
 
