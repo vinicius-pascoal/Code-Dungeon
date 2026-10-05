@@ -19,7 +19,7 @@ export const levelNine: Level = {
     ['WALL', 'WALL', 'FLOOR', 'WALL', 'FLOOR', 'WALL', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'FLOOR', 'WALL', 'WALL', 'WALL', 'FLOOR', 'WALL'],
-    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
+    ['WALL', 'WALL', 'WALL', 'VOID', 'WALL', 'WALL', 'WALL'],
   ],
   enemies: [],
   starRules: { threeStars: 7, twoStars: 9 },

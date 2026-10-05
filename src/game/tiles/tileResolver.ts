@@ -96,6 +96,15 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
 
   const openNeighborCount = [openTop, openBottom, openLeft, openRight].filter(Boolean).length
 
+  // Opposite openings are a straight divider, not a corner. Keep these
+  // patterns out of the generic fallback used for isolated wall cells.
+  if (openLeft && openRight && !openTop && !openBottom) {
+    return DUNGEON_SPRITES.walls.left
+  }
+  if (openTop && openBottom && !openLeft && !openRight) {
+    return DUNGEON_SPRITES.walls.top
+  }
+
   if (openNeighborCount === 1) {
     if (openBottom) return DUNGEON_SPRITES.walls.top
     if (openTop) return DUNGEON_SPRITES.walls.bottom
