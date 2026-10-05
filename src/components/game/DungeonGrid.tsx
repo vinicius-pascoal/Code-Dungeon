@@ -186,10 +186,16 @@ export default function DungeonGrid({
     if (!container) return
 
     const measure = () => {
-      setViewportSize({
+      const nextSize = {
         width: container.clientWidth,
         height: container.clientHeight,
-      })
+      }
+
+      setViewportSize((previous) => (
+        previous.width === nextSize.width && previous.height === nextSize.height
+          ? previous
+          : nextSize
+      ))
     }
 
     measure()
@@ -363,6 +369,7 @@ export default function DungeonGrid({
       <div
         ref={containerRef}
         className={`h-0 min-h-0 min-w-0 flex-1 overflow-auto bg-[#030303] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ scrollbarGutter: 'stable' }}
         onScroll={handleScroll}
         onMouseDown={handleMouseDown}
       >
