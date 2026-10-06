@@ -85,14 +85,20 @@ export function resolveWallSprite({ map, x, y }: TilePosition): TileSprite {
   if (openTop && openRight && !openBottom && !openLeft && openTopRight) {
     return DUNGEON_SPRITES.walls.innerBottomLeft
   }
-  if (openTop && openLeft && !openBottom && !openRight && openTopLeft) {
+  if (
+    openTop
+    && openLeft
+    && !openBottom
+    && !openRight
+    && openTopLeft
+    && tileAt(map, x, y - 1) !== 'SPIKE'
+  ) {
     return DUNGEON_SPRITES.walls.innerBottomRight
   }
-
-  if (openBottom && openRight && !openTop && !openLeft && !openBottomRight) return DUNGEON_SPRITES.walls.topLeft
-  if (openBottom && openLeft && !openTop && !openRight && !openBottomLeft) return DUNGEON_SPRITES.walls.topRight
-  if (openTop && openRight && !openBottom && !openLeft && !openTopRight) return DUNGEON_SPRITES.walls.bottomLeft
-  if (openTop && openLeft && !openBottom && !openRight && !openTopLeft) return DUNGEON_SPRITES.walls.bottomRight
+  if (openBottom && openRight && !openTop && !openLeft && !openBottomRight) return DUNGEON_SPRITES.walls.bottomRight
+  if (openBottom && openLeft && !openTop && !openRight && !openBottomLeft) return DUNGEON_SPRITES.walls.bottomLeft
+  if (openTop && openRight && !openBottom && !openLeft && !openTopRight) return DUNGEON_SPRITES.walls.topRight
+  if (openTop && openLeft && !openBottom && !openRight) return DUNGEON_SPRITES.walls.topLeft
 
   const openNeighborCount = [openTop, openBottom, openLeft, openRight].filter(Boolean).length
 
