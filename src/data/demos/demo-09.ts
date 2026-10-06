@@ -3,8 +3,8 @@ import { step } from './types'
 
 export const demo09: DemoConfig = {
   grid: [
-    ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
-    ['WALL', 'WALL', 'WALL', 'EXIT', 'WALL'],
+    ['VOID', 'VOID', 'WALL', 'WALL', 'WALL'],
+    ['VOID', 'VOID', 'WALL', 'EXIT', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'FLOOR', 'WALL'],
     ['WALL', 'FLOOR', 'FLOOR', 'FLOOR', 'WALL'],
     ['WALL', 'WALL', 'WALL', 'WALL', 'WALL'],
