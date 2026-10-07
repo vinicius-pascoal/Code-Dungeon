@@ -4,6 +4,11 @@ export default function Document() {
   return (
     <Html lang="pt-BR">
       <Head>
+        <link
+          rel="icon"
+          type="image/png"
+          href="/assets/personagem/Idle/Ghost_favicon.png"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

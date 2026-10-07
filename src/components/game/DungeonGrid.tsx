@@ -178,17 +178,24 @@ export default function DungeonGrid({
   const [scrollPosition, setScrollPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const rootRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
   const gridRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const root = rootRef.current
     const container = containerRef.current
-    if (!container) return
+    if (!root || !container) return
 
     const measure = () => {
+      const rootBounds = root.getBoundingClientRect()
+      const containerBounds = container.getBoundingClientRect()
       const nextSize = {
-        width: container.clientWidth,
-        height: container.clientHeight,
+        // The root panel is independent of the zoomed grid. Derive the
+        // scroll viewport height from its bottom edge so scrollbars and grid
+        // content cannot feed back into the auto-zoom measurement.
+        width: Math.floor(rootBounds.width),
+        height: Math.floor(rootBounds.bottom - containerBounds.top),
       }
 
       setViewportSize((previous) => (
@@ -206,7 +213,7 @@ export default function DungeonGrid({
     }
 
     const observer = new ResizeObserver(measure)
-    observer.observe(container)
+    observer.observe(root)
     return () => observer.disconnect()
   }, [])
 
@@ -339,7 +346,7 @@ export default function DungeonGrid({
   }, [visibleTiles])
 
   return (
-    <div className="h-full flex flex-col bg-[#050505]">
+    <div ref={rootRef} className="h-full flex flex-col bg-[#050505]">
       {/* Zoom Controls */}
       <div className="flex items-center justify-between border-b-2 border-border bg-bg px-3 py-2 flex-wrap gap-2">
         <div className="flex items-center gap-2">
